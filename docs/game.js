@@ -732,8 +732,13 @@
     if (eyebrow) eyebrow.textContent = 'Cuando no hay prisa';
     if (title) title.textContent = 'El sofá y la tele';
     if (text) {
-      text.textContent =
-        'Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida. Y aunque no me gustaba al principio, me llegó a caer bien este personaje…';
+      text.innerHTML = `
+        <p>Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida.</p>
+        <p class="cozy-bridge">
+          Hablando de cosas que me gustan… hay alguien que no me gustaba mucho antes,
+          pero después me cayó un poco mejor. Sí, hablo de…
+        </p>
+      `;
     }
     if (photo) {
       photo.src = 'assets/sala.jpg';
@@ -760,8 +765,10 @@
       if (eyebrow) eyebrow.textContent = 'Te presento a…';
       if (title) title.textContent = 'El oso mañoso';
       if (text) {
-        text.textContent =
-          'Él cuida el cuarto cuando yo no puedo. Al principio no me caía… y mira. Ahora sí.';
+        text.innerHTML = `
+          <p>…este personaje: el oso mañoso.</p>
+          <p class="cozy-bridge">Él cuida el cuarto cuando yo no puedo. Al principio no me caía… y mira. Ahora sí.</p>
+        `;
       }
       if (photo) {
         photo.src = 'assets/oso-manoso.jpg';
