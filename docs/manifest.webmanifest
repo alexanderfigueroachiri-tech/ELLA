@@ -1,0 +1,18 @@
+{
+  "name": "Para Noelia",
+  "short_name": "Noelia",
+  "description": "Un caminito hecho para Noelia",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#1a1214",
+  "theme_color": "#1a1214",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/nosotros.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
+    }
+  ]
+}
