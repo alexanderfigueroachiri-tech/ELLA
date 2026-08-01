@@ -1041,9 +1041,20 @@
       return;
     }
     sfx.unlock();
+    if (typeof sfx.startBgm === 'function') sfx.startBgm();
     showScreen('map');
     renderMap();
   });
+
+  // Baja la BGM cuando ella escucha tu audio (y vuelve al terminar).
+  const letterAudio = document.getElementById('letter-audio');
+  if (letterAudio) {
+    const duckOn = () => { if (typeof sfx.duckBgm === 'function') sfx.duckBgm(true); };
+    const duckOff = () => { if (typeof sfx.duckBgm === 'function') sfx.duckBgm(false); };
+    letterAudio.addEventListener('play', duckOn);
+    letterAudio.addEventListener('pause', duckOff);
+    letterAudio.addEventListener('ended', duckOff);
+  }
 
   document.getElementById('map-back').addEventListener('click', () => showScreen('splash'));
 
