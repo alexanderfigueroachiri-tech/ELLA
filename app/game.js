@@ -19,6 +19,26 @@
     brown: 'Paco Yonque',
   };
 
+  const THEME_ICON = {
+    rose: '💗',
+    sky: '🤗',
+    gold: '😆',
+    mint: '🎤',
+    lilac: '🎸',
+    coral: '🥩',
+    brown: '🐶',
+  };
+
+  const BUS_SCENE = {
+    rose: '💕',
+    sky: '🫂',
+    gold: '😂',
+    mint: '🎶',
+    lilac: '🎸',
+    coral: '🔥',
+    brown: '🐾',
+  };
+
   const STORAGE_KEY = 'ella-camino-v4';
   const sfx = window.EllaSFX || {
     unlock() {},
@@ -186,63 +206,77 @@
    * front (r,c) = trompa del bus (hacia donde apunta la flecha).
    * El cuerpo crece en dirección contraria. len = asientos (1–4).
    */
-  // 10x10: buses en el borde mirando afuera (todos con salida libre) → jugable.
-  // Incluye largos 3 y 4. Si tocas el color de la fila, casi no te trabas.
+  // 9x9 denso: capas desde el borde (estilo mockup), buses 1–3 con “ventanita”.
   const JAM_LEVELS = {
     2: {
       title: 'Atasco de cariño',
-      hint: 'Mapa grande: buses chiquitos y algunos largos (3–4). Mira el color de la fila.',
-      cols: 10,
-      rows: 10,
+      hint: 'Hay un montón de buses. Empieza por los que miran afuera; luego el centro.',
+      cols: 9,
+      rows: 9,
       bayLimit: 5,
-      blows: 3,
+      blows: 4,
       queue: [
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'lilac', 'coral', 'brown',
-        'rose', 'sky', 'lilac', 'brown', 'rose', 'sky', 'lilac', 'brown',
-        'sky', 'lilac', 'lilac',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'sky', 'lilac', 'brown',
       ],
       vehicles: [
         { id: 'b0', r: 0, c: 0, dir: 'up', len: 1, color: 'rose' },
-        { id: 'b1', r: 0, c: 1, dir: 'up', len: 1, color: 'gold' },
-        { id: 'b2', r: 0, c: 2, dir: 'up', len: 3, color: 'sky' },
-        { id: 'b3', r: 0, c: 3, dir: 'up', len: 1, color: 'mint' },
+        { id: 'b1', r: 0, c: 1, dir: 'up', len: 2, color: 'gold' },
+        { id: 'b2', r: 0, c: 2, dir: 'up', len: 1, color: 'sky' },
+        { id: 'b3', r: 0, c: 3, dir: 'up', len: 3, color: 'mint' },
         { id: 'b4', r: 0, c: 4, dir: 'up', len: 1, color: 'lilac' },
-        { id: 'b5', r: 0, c: 5, dir: 'up', len: 1, color: 'coral' },
+        { id: 'b5', r: 0, c: 5, dir: 'up', len: 2, color: 'coral' },
         { id: 'b6', r: 0, c: 6, dir: 'up', len: 1, color: 'brown' },
         { id: 'b7', r: 0, c: 7, dir: 'up', len: 3, color: 'rose' },
         { id: 'b8', r: 0, c: 8, dir: 'up', len: 1, color: 'gold' },
-        { id: 'b9', r: 0, c: 9, dir: 'up', len: 1, color: 'sky' },
-        { id: 'b10', r: 9, c: 0, dir: 'down', len: 1, color: 'mint' },
-        { id: 'b11', r: 9, c: 1, dir: 'down', len: 1, color: 'lilac' },
-        { id: 'b12', r: 9, c: 2, dir: 'down', len: 1, color: 'coral' },
-        { id: 'b13', r: 9, c: 3, dir: 'down', len: 4, color: 'brown' },
-        { id: 'b14', r: 9, c: 4, dir: 'down', len: 1, color: 'rose' },
-        { id: 'b15', r: 9, c: 5, dir: 'down', len: 1, color: 'gold' },
-        { id: 'b16', r: 9, c: 6, dir: 'down', len: 1, color: 'sky' },
-        { id: 'b17', r: 9, c: 7, dir: 'down', len: 1, color: 'mint' },
-        { id: 'b18', r: 9, c: 8, dir: 'down', len: 3, color: 'lilac' },
-        { id: 'b19', r: 9, c: 9, dir: 'down', len: 1, color: 'coral' },
-        { id: 'b20', r: 1, c: 0, dir: 'left', len: 1, color: 'brown' },
-        { id: 'b21', r: 2, c: 0, dir: 'left', len: 1, color: 'rose' },
-        { id: 'b22', r: 3, c: 0, dir: 'left', len: 1, color: 'gold' },
-        { id: 'b23', r: 4, c: 0, dir: 'left', len: 3, color: 'sky' },
-        { id: 'b24', r: 5, c: 0, dir: 'left', len: 1, color: 'mint' },
-        { id: 'b25', r: 6, c: 0, dir: 'left', len: 1, color: 'lilac' },
-        { id: 'b26', r: 7, c: 0, dir: 'left', len: 2, color: 'coral' },
-        { id: 'b27', r: 8, c: 0, dir: 'left', len: 1, color: 'brown' },
-        { id: 'b28', r: 1, c: 9, dir: 'right', len: 1, color: 'rose' },
-        { id: 'b29', r: 2, c: 9, dir: 'right', len: 2, color: 'gold' },
-        { id: 'b30', r: 3, c: 9, dir: 'right', len: 1, color: 'sky' },
-        { id: 'b31', r: 4, c: 9, dir: 'right', len: 1, color: 'mint' },
-        { id: 'b32', r: 5, c: 9, dir: 'right', len: 4, color: 'lilac' },
-        { id: 'b33', r: 6, c: 9, dir: 'right', len: 1, color: 'coral' },
-        { id: 'b34', r: 7, c: 9, dir: 'right', len: 1, color: 'brown' },
-        { id: 'b35', r: 8, c: 9, dir: 'right', len: 1, color: 'rose' },
+        { id: 'b9', r: 8, c: 0, dir: 'down', len: 2, color: 'sky' },
+        { id: 'b10', r: 8, c: 1, dir: 'down', len: 1, color: 'mint' },
+        { id: 'b11', r: 8, c: 2, dir: 'down', len: 3, color: 'lilac' },
+        { id: 'b12', r: 8, c: 3, dir: 'down', len: 1, color: 'coral' },
+        { id: 'b13', r: 8, c: 4, dir: 'down', len: 2, color: 'brown' },
+        { id: 'b14', r: 8, c: 5, dir: 'down', len: 1, color: 'rose' },
+        { id: 'b15', r: 8, c: 6, dir: 'down', len: 3, color: 'gold' },
+        { id: 'b16', r: 8, c: 7, dir: 'down', len: 1, color: 'sky' },
+        { id: 'b17', r: 8, c: 8, dir: 'down', len: 2, color: 'mint' },
+        { id: 'b18', r: 1, c: 0, dir: 'left', len: 1, color: 'sky' },
+        { id: 'b19', r: 1, c: 8, dir: 'right', len: 1, color: 'lilac' },
+        { id: 'b20', r: 2, c: 0, dir: 'left', len: 2, color: 'mint' },
+        { id: 'b21', r: 2, c: 8, dir: 'right', len: 1, color: 'coral' },
+        { id: 'b22', r: 3, c: 0, dir: 'left', len: 1, color: 'lilac' },
+        { id: 'b23', r: 3, c: 8, dir: 'right', len: 3, color: 'brown' },
+        { id: 'b24', r: 4, c: 0, dir: 'left', len: 3, color: 'coral' },
+        { id: 'b25', r: 4, c: 8, dir: 'right', len: 1, color: 'rose' },
+        { id: 'b26', r: 5, c: 0, dir: 'left', len: 1, color: 'brown' },
+        { id: 'b27', r: 5, c: 8, dir: 'right', len: 2, color: 'gold' },
+        { id: 'b28', r: 6, c: 0, dir: 'left', len: 2, color: 'rose' },
+        { id: 'b29', r: 6, c: 8, dir: 'right', len: 1, color: 'sky' },
+        { id: 'b30', r: 1, c: 2, dir: 'up', len: 2, color: 'mint' },
+        { id: 'b31', r: 1, c: 4, dir: 'up', len: 2, color: 'coral' },
+        { id: 'b32', r: 1, c: 6, dir: 'up', len: 2, color: 'rose' },
+        { id: 'b33', r: 2, c: 5, dir: 'up', len: 2, color: 'rose' },
+        { id: 'b34', r: 3, c: 1, dir: 'left', len: 2, color: 'mint' },
+        { id: 'b35', r: 3, c: 3, dir: 'up', len: 2, color: 'brown' },
+        { id: 'b36', r: 3, c: 4, dir: 'up', len: 2, color: 'rose' },
+        { id: 'b37', r: 4, c: 5, dir: 'up', len: 2, color: 'sky' },
+        { id: 'b38', r: 4, c: 6, dir: 'up', len: 2, color: 'mint' },
+        { id: 'b39', r: 4, c: 7, dir: 'up', len: 1, color: 'rose' },
+        { id: 'b40', r: 5, c: 1, dir: 'left', len: 2, color: 'coral' },
+        { id: 'b41', r: 5, c: 3, dir: 'up', len: 2, color: 'gold' },
+        { id: 'b42', r: 5, c: 4, dir: 'up', len: 2, color: 'sky' },
+        { id: 'b43', r: 6, c: 5, dir: 'up', len: 2, color: 'lilac' },
+        { id: 'b44', r: 6, c: 7, dir: 'up', len: 2, color: 'brown' },
+        { id: 'b45', r: 7, c: 1, dir: 'up', len: 1, color: 'rose' },
+        { id: 'b46', r: 7, c: 3, dir: 'up', len: 1, color: 'rose' },
       ],
       winMemory: {
         photo: 'assets/cita-mesa.jpg',
@@ -526,19 +560,14 @@
       visible
         .map(
           (color, i) => `
-        <div class="passenger ${i === 0 ? 'next' : ''}" style="border-color:${i === 0 ? COLORS[color] : 'transparent'}; --pcolor:${COLORS[color]}">
-          <div class="person" aria-hidden="true">
-            <span class="head"></span>
-            <span class="body"></span>
-            <span class="leg l"></span>
-            <span class="leg r"></span>
-          </div>
+        <div class="passenger ${i === 0 ? 'next' : ''}" style="--pcolor:${COLORS[color]}; --pring:${COLORS[color]}">
+          <div class="picon" aria-hidden="true">${THEME_ICON[color] || '✦'}</div>
           <span class="pname">${PASSENGER_LABELS[color] || color}</span>
         </div>`
         )
         .join('') +
       (hidden
-        ? `<div class="passenger more">+${hidden}<span>más allá →</span></div>`
+        ? `<div class="passenger more">+${hidden}<span>más →</span></div>`
         : '');
 
     const baysEl = document.getElementById('bays');
@@ -550,15 +579,14 @@
       if (jam.bays[i]) {
         const b = jam.bays[i];
         bay.classList.add('filled');
-        bay.style.background = COLORS[b.color];
-        bay.style.borderColor = COLORS[b.color];
+        bay.style.setProperty('--bayc', COLORS[b.color]);
         bay.innerHTML = `
-          <div class="bay-bus">${ARROWS[b.dir]}</div>
+          <div class="bay-bus">${BUS_SCENE[b.color] || '🚌'}</div>
           <div class="bay-meta">${PASSENGER_LABELS[b.color]}</div>
           <div class="bay-seats">${'●'.repeat(b.boarded)}${'○'.repeat(b.cap - b.boarded)}</div>
         `;
       } else {
-        bay.innerHTML = '<span class="bay-empty">plaza</span>';
+        bay.innerHTML = '<span class="bay-empty">plaza</span><span class="bay-mini" aria-hidden="true">🏘️</span>';
       }
       baysEl.appendChild(bay);
     }
@@ -570,19 +598,23 @@
     jam.vehicles.forEach((v) => {
       const box = busBox(v);
       const btn = document.createElement('button');
-      btn.className = `bus bus-${v.dir} bus-len-${v.len}`;
+      btn.className = `bus bus-${v.dir} bus-len-${v.len} bus-theme-${v.color}`;
       btn.type = 'button';
       btn.dataset.id = v.id;
       btn.style.left = `${box.left}px`;
       btn.style.top = `${box.top}px`;
       btn.style.width = `${box.width}px`;
       btn.style.height = `${box.height}px`;
-      btn.style.background = `linear-gradient(145deg, ${COLORS[v.color]}, ${COLORS[v.color]}b8)`;
+      btn.style.setProperty('--busc', COLORS[v.color]);
       btn.title = `${PASSENGER_LABELS[v.color]} · ${v.len} asiento${v.len > 1 ? 's' : ''}`;
-      const windows = Array.from({ length: Math.min(v.len, 3) }, () => '<span class="bus-window"></span>').join('');
+      const panes = Array.from({ length: Math.min(v.len, 4) }, (_, i) => {
+        const icon = i === 0 ? (BUS_SCENE[v.color] || '🚌') : '·';
+        return `<span class="bus-window"><span class="bus-scene">${icon}</span></span>`;
+      }).join('');
       btn.innerHTML = `
+        <span class="bus-bevel"></span>
         <span class="bus-shine"></span>
-        <span class="bus-windows">${windows}</span>
+        <span class="bus-windows">${panes}</span>
         <span class="bus-nose"></span>
         <span class="bus-arrow">${ARROWS[v.dir]}</span>
         <span class="bus-cap">${v.len}</span>
@@ -745,9 +777,9 @@
 
   document.getElementById('cartoon-next').addEventListener('click', () => {
     completeLevel(4, {
-      photo: 'assets/caricaturas/abrazo.png',
-      title: 'Un abrazo Tequy',
-      text: 'Aunque sea en dibujito, aquí estoy abrazándote. Gracias por ser mi favorita en cualquier estilo.',
+      photo: 'assets/historia/emociones.png',
+      title: 'Como te cuido',
+      text: 'No puedo arreglarte la vida… pero sí buscar que estés bien, de la manera que sea. Porque me importas demasiado.',
     });
   });
 
@@ -1043,7 +1075,7 @@
       return;
     }
     if (screens.cartoon?.classList.contains('active')) {
-      tequySay('Míralos… ¡somos nosotros pero más Tequy!', 'happy');
+      tequySay('Esa historieta… eso es él cuidándote en todas las versiones. Yo solo aplaudo 🧀', 'happy');
       return;
     }
     if (screens.cozy.classList.contains('active')) {

@@ -20,6 +20,14 @@ ella-para-noelia.zip
 
 # Level generator scratch
 app/_gen_level.py
+app/_gen_jam.py
+app/_check_jam.py
 app/level_out.txt
 docs/_gen_level.py
+docs/_gen_jam.py
+docs/_check_jam.py
 docs/level_out.txt
+app/assets/ref/
+docs/assets/ref/
+app/assets/buses/
+docs/assets/buses/

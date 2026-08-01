@@ -141,8 +141,8 @@
       <button class="level-card" data-level="4" type="button">
         <div class="level-num">4</div>
         <div>
-          <h3>Un abrazo Tequy</h3>
-          <p>Nosotros en caricatura. Un dibujito solo para ti.</p>
+          <h3>Como te cuido</h3>
+          <p>Triste, con hambre, molesta o agobiada… ahí estoy.</p>
         </div>
         <div class="level-status">🔒</div>
       </button>
@@ -188,8 +188,8 @@
       <div class="hud-title" id="jam-title">Atasco de cariño</div>
       <button id="jam-mute" class="icon-btn" type="button" aria-label="Sonido">🔊</button>
     </div>
-    <p class="hint" id="jam-hint">Empieza por los buses de los bordes. Luego el centro. Mira el color de la fila.</p>
-    <div class="jam-wrap">
+    <p class="hint" id="jam-hint">Saca los buses con ventanita. Empieza por los bordes. Mira el color de la fila.</p>
+    <div class="jam-wrap jam-premium">
       <div class="queue-board">
         <div class="queue-head">
           <div class="queue-label">Fila de lo nuestro</div>
@@ -230,23 +230,54 @@
     </div>
   </section>
 
-  <!-- LEVEL 4: caricaturas -->
+  <!-- LEVEL 4: historia emocional + abrazo -->
   <section id="cartoon-screen" class="screen" aria-label="Nivel 4">
     <div class="topbar">
       <button id="cartoon-back" class="icon-btn" type="button" aria-label="Volver">←</button>
-      <div class="hud-title">Nivel 4 · Un abrazo Tequy</div>
+      <div class="hud-title">Nivel 4 · Como te cuido</div>
       <span style="width:42px"></span>
     </div>
-    <div class="center-scene">
-      <p class="eyebrow">Nosotros, en dibujito</p>
-      <h2 class="brand" style="font-size:clamp(1.6rem,6vw,2.2rem);">¡Un abrazo Tequy!</h2>
-      <p class="sub">No hace falta explicación. Solo míranos un ratito así.</p>
+    <div class="story-scene">
+      <p class="eyebrow">Cuatro versiones de nosotros</p>
+      <h2 class="brand story-title">Siempre busco que estés bien</h2>
+      <p class="story-letter">
+        Amor, sé que no puedo arreglarte la vida, por eso intento dar lo mejor de mí con lo que tengo.
+        Intento siempre sacarte una sonrisa, alegrarte el día con alguna tontería.
+        Cuando tienes hambre busco qué alimentarte aunque sea poco.
+        Si estás molesta, probablemente sea porque hice o no hice algo: lo siento.
+        Podría hacer tu trabajo si pudiera y me dejaras.
+        Siempre busco que estés bien, de la manera que sea, porque me importas demasiado.
+      </p>
+
+      <div class="story-grid">
+        <button type="button" class="story-card photo-thumb" data-photo="assets/historia/triste.png" data-caption="Cuando estás triste">
+          <img src="assets/historia/triste.png" alt="Cuando estás triste" />
+          <span>Triste · tonterías hasta que sonrías</span>
+        </button>
+        <button type="button" class="story-card photo-thumb" data-photo="assets/historia/hambre.png" data-caption="Cuando tienes hambre">
+          <img src="assets/historia/hambre.png" alt="Cuando tienes hambre" />
+          <span>Hambre · tequeños al rescate</span>
+        </button>
+        <button type="button" class="story-card photo-thumb" data-photo="assets/historia/molesta.png" data-caption="Cuando estás molesta">
+          <img src="assets/historia/molesta.png" alt="Cuando estás molesta" />
+          <span>Molesta · lo siento de verdad</span>
+        </button>
+        <button type="button" class="story-card photo-thumb" data-photo="assets/historia/agobiada.png" data-caption="Cuando estás agobiada">
+          <img src="assets/historia/agobiada.png" alt="Cuando estás agobiada" />
+          <span>Agobiada · café y espalda cubierta</span>
+        </button>
+      </div>
+
+      <button type="button" class="photo-thumb cartoon-sheet" data-photo="assets/historia/emociones.png" data-caption="Toda la historieta">
+        <img src="assets/historia/emociones.png" alt="Historieta completa" />
+      </button>
+
+      <p class="eyebrow" style="margin-top:18px;">Y al final…</p>
+      <h3 class="story-hug-title">¡Un abrazo Tequy!</h3>
       <button type="button" class="photo-thumb cartoon-hero" data-photo="assets/caricaturas/abrazo.png" data-caption="Un abrazo Tequy">
         <img src="assets/caricaturas/abrazo.png" alt="Caricatura abrazo" />
       </button>
-      <button type="button" class="photo-thumb cartoon-sheet" data-photo="assets/caricaturas/poses.png" data-caption="Nuestras caras Tequy">
-        <img src="assets/caricaturas/poses.png" alt="Caricaturas en poses" />
-      </button>
+
       <button id="cartoon-next" class="btn" type="button">Seguir a la carta</button>
     </div>
   </section>
