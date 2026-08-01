@@ -1,7 +1,13 @@
-/** Sonidos sintéticos (Web Audio). Luego se pueden reemplazar por mp3 en assets/sounds/. */
+/** SFX sintéticos + BGM (piano suave). Arranca tras gesto del usuario (iPhone). */
 window.EllaSFX = (() => {
   let ctx = null;
   let muted = false;
+  let bgm = null;
+  let bgmStarted = false;
+  let ducked = false;
+  const BGM_SRC = 'assets/bgm.mp3?v=1';
+  const BGM_VOL = 0.22;
+  const BGM_DUCK = 0.06;
 
   function ac() {
     if (!ctx) {
@@ -11,6 +17,49 @@ window.EllaSFX = (() => {
     }
     if (ctx.state === 'suspended') ctx.resume();
     return ctx;
+  }
+
+  function ensureBgm() {
+    if (bgm) return bgm;
+    bgm = new Audio(BGM_SRC);
+    bgm.loop = true;
+    bgm.preload = 'auto';
+    bgm.volume = BGM_VOL;
+    bgm.setAttribute('playsinline', '');
+    return bgm;
+  }
+
+  function applyBgmVolume() {
+    if (!bgm) return;
+    bgm.volume = ducked ? BGM_DUCK : BGM_VOL;
+  }
+
+  function startBgm() {
+    ac();
+    const a = ensureBgm();
+    if (muted) return;
+    applyBgmVolume();
+    const play = a.play();
+    if (play && typeof play.catch === 'function') {
+      play.catch(() => {});
+    }
+    bgmStarted = true;
+  }
+
+  function pauseBgm() {
+    if (bgm && !bgm.paused) bgm.pause();
+  }
+
+  function resumeBgm() {
+    if (!bgmStarted || muted || !bgm) return;
+    applyBgmVolume();
+    const play = bgm.play();
+    if (play && typeof play.catch === 'function') play.catch(() => {});
+  }
+
+  function duckBgm(on) {
+    ducked = !!on;
+    applyBgmVolume();
   }
 
   function tone({ freq = 440, dur = 0.12, type = 'sine', gain = 0.06, slide = 0 }) {
@@ -49,9 +98,18 @@ window.EllaSFX = (() => {
   }
 
   return {
-    unlock() { ac(); },
+    unlock() {
+      ac();
+      startBgm();
+    },
+    startBgm,
+    pauseBgm,
+    resumeBgm,
+    duckBgm,
     toggle() {
       muted = !muted;
+      if (muted) pauseBgm();
+      else if (bgmStarted) resumeBgm();
       return muted;
     },
     isMuted() { return muted; },

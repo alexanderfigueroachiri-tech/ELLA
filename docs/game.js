@@ -756,9 +756,19 @@
     renderJam();
   });
 
-  document.getElementById('jam-mute')?.addEventListener('click', () => {
-    const muted = sfx.toggle();
-    document.getElementById('jam-mute').textContent = muted ? '🔇' : '🔊';
+  function syncMuteButtons() {
+    const muted = sfx.isMuted();
+    document.querySelectorAll('[data-mute-btn]').forEach((btn) => {
+      btn.textContent = muted ? '🔇' : '🔊';
+      btn.setAttribute('aria-label', muted ? 'Activar sonido' : 'Silenciar');
+    });
+  }
+
+  document.querySelectorAll('[data-mute-btn]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      sfx.toggle();
+      syncMuteButtons();
+    });
   });
 
   document.getElementById('jam-back').addEventListener('click', () => showScreen('map'));
