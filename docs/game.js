@@ -97,6 +97,10 @@
     if (typeof sfx.setTheme === 'function') {
       sfx.setTheme(name === 'finale' ? 'finale' : 'path');
     }
+    // En el atasco la BGM baja para no tapar whoosh/bump/board
+    if (typeof sfx.setJamQuiet === 'function') {
+      sfx.setJamQuiet(name === 'jam');
+    }
     if (typeof tequyOnScreen === 'function') tequyOnScreen(name);
   }
 
@@ -180,6 +184,8 @@
     const y = 8 + Math.random() * Math.max(20, parent.height - 60);
     btn.style.left = `${x}px`;
     btn.style.top = `${y}px`;
+    if (typeof sfx.jump === 'function') sfx.jump();
+    else sfx.whoosh();
   }
 
   /* ---------- Atasco: buses 1–4 ---------- */

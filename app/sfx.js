@@ -3,15 +3,19 @@ window.EllaSFX = (() => {
   let ctx = null;
   let muted = false;
   let bgmStarted = false;
-  let ducked = false;
+  let ducked = false; // voz / carta
+  let jamQuiet = false; // atasco: BGM más baja para oír SFX
   let theme = 'path'; // 'path' | 'finale'
+  let sfxDuckTimer = null;
 
   const TRACKS = {
-    path: 'assets/bgm.mp3?v=1',
-    finale: 'assets/bgm-finale.mp3?v=1',
+    path: 'assets/bgm.mp3?v=2',
+    finale: 'assets/bgm-finale.mp3?v=2',
   };
-  const BGM_VOL = 0.22;
-  const BGM_DUCK = 0.06;
+  const BGM_VOL = 0.13;
+  const BGM_JAM = 0.045;
+  const BGM_DUCK = 0.03;
+  const BGM_SFX_DIP = 0.02; // bajón breve al sonar un efecto
   const players = { path: null, finale: null };
 
   function ac() {
@@ -39,9 +43,15 @@ window.EllaSFX = (() => {
     return players[theme];
   }
 
+  function targetVolume() {
+    if (ducked) return BGM_DUCK;
+    if (jamQuiet) return BGM_JAM;
+    return BGM_VOL;
+  }
+
   function applyVolume(a) {
     if (!a) return;
-    a.volume = ducked ? BGM_DUCK : BGM_VOL;
+    a.volume = targetVolume();
   }
 
   function stopTrack(name) {
@@ -81,6 +91,11 @@ window.EllaSFX = (() => {
     playTrack(theme);
   }
 
+  function setJamQuiet(on) {
+    jamQuiet = !!on;
+    applyVolume(current());
+  }
+
   function pauseBgm() {
     Object.keys(players).forEach((k) => {
       const a = players[k];
@@ -98,8 +113,18 @@ window.EllaSFX = (() => {
     applyVolume(current());
   }
 
+  /** Baja la BGM un instante para que el SFX se oiga limpio. */
+  function dipForSfx(ms = 220) {
+    const a = current();
+    if (!a || muted || !bgmStarted) return;
+    a.volume = Math.min(a.volume, BGM_SFX_DIP);
+    clearTimeout(sfxDuckTimer);
+    sfxDuckTimer = setTimeout(() => applyVolume(a), ms);
+  }
+
   function tone({ freq = 440, dur = 0.12, type = 'sine', gain = 0.06, slide = 0 }) {
     if (muted) return;
+    dipForSfx(Math.max(180, dur * 1000 + 80));
     const c = ac();
     if (!c) return;
     const t0 = c.currentTime;
@@ -118,6 +143,7 @@ window.EllaSFX = (() => {
 
   function noiseBurst(dur = 0.08, gain = 0.04) {
     if (muted) return;
+    dipForSfx(200);
     const c = ac();
     if (!c) return;
     const n = Math.floor(c.sampleRate * dur);
@@ -140,6 +166,7 @@ window.EllaSFX = (() => {
     },
     startBgm,
     setTheme,
+    setJamQuiet,
     pauseBgm,
     resumeBgm,
     duckBgm,
@@ -150,22 +177,28 @@ window.EllaSFX = (() => {
       return muted;
     },
     isMuted() { return muted; },
-    tap() { tone({ freq: 520, dur: 0.05, type: 'triangle', gain: 0.04 }); },
-    bump() {
-      noiseBurst(0.07, 0.05);
-      tone({ freq: 160, dur: 0.1, type: 'square', gain: 0.03, slide: -80 });
+    /** Salto del botón “No” que huye. */
+    jump() {
+      tone({ freq: 520, dur: 0.07, type: 'triangle', gain: 0.07, slide: 280 });
+      setTimeout(() => tone({ freq: 780, dur: 0.09, type: 'sine', gain: 0.055, slide: 160 }), 45);
+      setTimeout(() => tone({ freq: 240, dur: 0.06, type: 'square', gain: 0.025, slide: -80 }), 100);
     },
-    whoosh() { tone({ freq: 380, dur: 0.18, type: 'sawtooth', gain: 0.035, slide: 220 }); },
-    board() { tone({ freq: 660, dur: 0.08, type: 'sine', gain: 0.05 }); },
+    tap() { tone({ freq: 520, dur: 0.05, type: 'triangle', gain: 0.07 }); },
+    bump() {
+      noiseBurst(0.07, 0.07);
+      tone({ freq: 160, dur: 0.1, type: 'square', gain: 0.055, slide: -80 });
+    },
+    whoosh() { tone({ freq: 380, dur: 0.18, type: 'sawtooth', gain: 0.06, slide: 220 }); },
+    board() { tone({ freq: 660, dur: 0.08, type: 'sine', gain: 0.08 }); },
     depart() {
-      tone({ freq: 520, dur: 0.1, type: 'triangle', gain: 0.05 });
-      setTimeout(() => tone({ freq: 780, dur: 0.14, type: 'triangle', gain: 0.045 }), 70);
+      tone({ freq: 520, dur: 0.1, type: 'triangle', gain: 0.075 });
+      setTimeout(() => tone({ freq: 780, dur: 0.14, type: 'triangle', gain: 0.07 }), 70);
     },
     win() {
       [523, 659, 784, 1046].forEach((f, i) => {
-        setTimeout(() => tone({ freq: f, dur: 0.16, type: 'sine', gain: 0.05 }), i * 90);
+        setTimeout(() => tone({ freq: f, dur: 0.16, type: 'sine', gain: 0.08 }), i * 90);
       });
     },
-    softlock() { tone({ freq: 140, dur: 0.25, type: 'sawtooth', gain: 0.04, slide: -60 }); },
+    softlock() { tone({ freq: 140, dur: 0.25, type: 'sawtooth', gain: 0.06, slide: -60 }); },
   };
 })();
