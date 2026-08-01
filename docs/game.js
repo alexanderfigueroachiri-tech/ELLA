@@ -772,8 +772,101 @@
     toast('Progreso reiniciado');
   });
 
+  /* ---------- Splash: términos y condiciones ---------- */
+  const termsSheet = document.getElementById('terms-sheet');
+  const termsScroll = document.getElementById('terms-scroll');
+  const termsEnd = document.getElementById('terms-end');
+  const termsAccept = document.getElementById('terms-accept');
+  const termsOpen = document.getElementById('terms-open');
+  const termsHint = document.getElementById('terms-hint');
+  const termsScrollHint = document.getElementById('terms-scroll-hint');
+  const enterBtn = document.getElementById('enter-btn');
+  let termsRead = false;
+  let termsAccepted = false;
+
+  function openTerms() {
+    if (!termsSheet) return;
+    termsSheet.hidden = false;
+    termsOpen?.setAttribute('aria-expanded', 'true');
+    if (!termsRead) {
+      termsAccept.disabled = true;
+      if (termsScrollHint) termsScrollHint.hidden = false;
+    } else {
+      termsAccept.disabled = false;
+      if (termsScrollHint) {
+        termsScrollHint.textContent = 'Ya llegaste al final. Puedes aceptar.';
+        termsScrollHint.hidden = false;
+      }
+    }
+    // Pequeño delay para que el layout mida el scroll
+    requestAnimationFrame(() => {
+      termsScroll?.focus({ preventScroll: true });
+      watchTermsEnd();
+    });
+  }
+
+  function closeTerms() {
+    if (!termsSheet) return;
+    termsSheet.hidden = true;
+    termsOpen?.setAttribute('aria-expanded', 'false');
+  }
+
+  function markTermsRead() {
+    if (termsRead) return;
+    termsRead = true;
+    termsAccept.disabled = false;
+    if (termsScrollHint) {
+      termsScrollHint.textContent = 'Ya llegaste al “Te amo”. Puedes aceptar.';
+    }
+    sfx.tap();
+  }
+
+  let termsObserver = null;
+  function watchTermsEnd() {
+    if (!termsEnd || !termsScroll) return;
+    termsObserver?.disconnect();
+    // Si el contenido cabe sin scroll, cuenta como leído
+    if (termsScroll.scrollHeight <= termsScroll.clientHeight + 8) {
+      markTermsRead();
+      return;
+    }
+    termsObserver = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) markTermsRead();
+      },
+      { root: termsScroll, threshold: 0.7 }
+    );
+    termsObserver.observe(termsEnd);
+
+    termsScroll.onscroll = () => {
+      const nearBottom =
+        termsScroll.scrollTop + termsScroll.clientHeight >= termsScroll.scrollHeight - 24;
+      if (nearBottom) markTermsRead();
+    };
+  }
+
+  termsOpen?.addEventListener('click', openTerms);
+  document.getElementById('terms-close')?.addEventListener('click', closeTerms);
+  document.getElementById('terms-backdrop')?.addEventListener('click', closeTerms);
+
+  termsAccept?.addEventListener('click', () => {
+    if (!termsRead) return;
+    termsAccepted = true;
+    enterBtn.disabled = false;
+    termsOpen?.classList.add('is-done');
+    const chipCopy = termsOpen?.querySelector('small');
+    if (chipCopy) chipCopy.textContent = 'Aceptados · gracias por leer';
+    if (termsHint) termsHint.textContent = 'Términos aceptados. Ya puedes empezar.';
+    sfx.unlock();
+    closeTerms();
+  });
+
   /* ---------- Nav ---------- */
-  document.getElementById('enter-btn').addEventListener('click', () => {
+  enterBtn?.addEventListener('click', () => {
+    if (enterBtn.disabled || !termsAccepted) {
+      openTerms();
+      return;
+    }
     sfx.unlock();
     showScreen('map');
     renderMap();

@@ -17,22 +17,81 @@
 
   <!-- SPLASH -->
   <section id="splash" class="screen active" aria-label="Inicio">
-    <div class="panel">
+    <div class="splash-hero">
       <p class="eyebrow">1 de agosto · Día de la Novia</p>
       <h1 class="brand">Noelia</h1>
-      <p class="sub">
-        Amor, hice esto para ti, no es una caja pero igual se abre y creo que te puede gustar
-        o al menos sacarte una sonrisa. Me demoré algo más de tiempo de lo que pensaba,
-        pero puedo decir que lo acabé antes de que terminara el día.
-        <br /><br />
-        <span class="sub-aside">(NO ME ODIES POR DEMORARME POR FAVOR)</span>
-        <br /><br />
-        Metí un ayudín por si te trabas, pero creo que sí la haces.
-        <br /><br />
-        Te amo.
-      </p>
-      <div class="actions">
-        <button id="enter-btn" class="btn" type="button">Empezar</button>
+    </div>
+
+    <div class="splash-dock">
+      <button id="terms-open" class="terms-chip" type="button" aria-expanded="false" aria-controls="terms-sheet">
+        <span class="terms-chip-icon" aria-hidden="true">§</span>
+        <span class="terms-chip-copy">
+          <strong>Términos y condiciones</strong>
+          <small>Obligatorio · toca para leer</small>
+        </span>
+        <span class="terms-chip-chevron" aria-hidden="true">›</span>
+      </button>
+      <button id="enter-btn" class="btn" type="button" disabled>Empezar</button>
+      <p id="terms-hint" class="terms-hint">Lee y acepta los términos para continuar</p>
+    </div>
+
+    <div id="terms-sheet" class="terms-sheet" hidden>
+      <button type="button" class="terms-backdrop" id="terms-backdrop" aria-label="Cerrar"></button>
+      <div class="terms-panel" role="dialog" aria-modal="true" aria-labelledby="terms-title">
+        <header class="terms-head">
+          <div>
+            <p class="eyebrow">Documento legal (más o menos)</p>
+            <h2 id="terms-title">Términos y condiciones</h2>
+          </div>
+          <button type="button" class="icon-btn" id="terms-close" aria-label="Cerrar">✕</button>
+        </header>
+
+        <div id="terms-scroll" class="terms-scroll" tabindex="0">
+          <p class="terms-meta">Versión 01.08.2026 · Partes: Ale (“el proveedor”) y Noelia (“la usuaria / el amor de mi vida”).</p>
+
+          <h3>1. Objeto</h3>
+          <p>
+            El presente documento regula el acceso a un caminito digital hecho a mano.
+            No es una caja. Igual se abre. Al continuar, la usuaria acepta que puede gustarle
+            o, en su defecto, sacarle al menos una sonrisa.
+          </p>
+
+          <h3>2. Plazos de entrega</h3>
+          <p>
+            El proveedor admite haberse demorado algo más de lo estimado.
+            Declara, bajo juramento romántico, haberlo acabado antes de que terminara el día.
+            <strong class="sub-aside">(NO ME ODIES POR DEMORARME POR FAVOR)</strong>
+          </p>
+
+          <h3>3. Asistencia técnica</h3>
+          <p>
+            Se incluye un “ayudín” (en adelante, Tequy) para casos de atasco.
+            El proveedor confía en que la usuaria igual la hace.
+          </p>
+
+          <h3>4. Limitación de responsabilidad</h3>
+          <p>
+            El proveedor no se hace responsable si la usuaria se pone tierna,
+            si se ríe sola en el celular, o si quiere un abrazo real al terminar.
+            Eso sería… ideal.
+          </p>
+
+          <h3>5. Cláusula final (obligatoria)</h3>
+          <p>
+            Amor, hice esto para ti. Léelo con calma. Y cuando llegues aquí abajo…
+          </p>
+
+          <div id="terms-end" class="terms-end">
+            <p class="terms-end-label">Cláusula 5.1 — Aceptación emocional</p>
+            <p class="terms-end-love">Te amo.</p>
+            <p class="terms-end-note">Fin del documento. Ya puedes aceptar.</p>
+          </div>
+        </div>
+
+        <div class="terms-foot">
+          <button id="terms-accept" class="btn" type="button" disabled>Acepto los términos</button>
+          <p id="terms-scroll-hint" class="terms-hint">Desliza hasta “Te amo” para desbloquear</p>
+        </div>
       </div>
     </div>
   </section>
