@@ -214,6 +214,116 @@ button {
   font-size: 0.9rem;
 }
 
+/* Tequy guide */
+.tequy {
+  position: fixed;
+  left: 12px;
+  bottom: calc(12px + var(--safe-bottom));
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  max-width: min(78vw, 280px);
+  pointer-events: none;
+}
+
+.tequy-btn {
+  pointer-events: auto;
+  width: 76px;
+  height: 76px;
+  border-radius: 22px;
+  border: 2px solid rgba(255, 200, 87, 0.45);
+  background:
+    radial-gradient(circle at 30% 25%, rgba(255,255,255,0.55), transparent 45%),
+    #fff3e4;
+  padding: 4px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+  position: relative;
+  animation: tequy-float 2.4s ease-in-out infinite;
+}
+
+.tequy-btn img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.tequy-tag {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  background: #1a1214;
+  color: var(--gold);
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.tequy-bubble {
+  pointer-events: auto;
+  background: rgba(255, 248, 242, 0.96);
+  color: #2a1a1f;
+  border-radius: 18px;
+  padding: 12px 12px 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+  border: 1px solid rgba(42, 26, 31, 0.08);
+  animation: tequy-pop 0.28s ease;
+}
+
+.tequy-bubble p {
+  margin: 0 0 8px;
+  font-size: 0.88rem;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.tequy-dismiss {
+  background: linear-gradient(135deg, var(--rose), var(--coral));
+  color: white;
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.tequy.pose-talk .tequy-btn { animation: tequy-bounce 0.45s ease; }
+.tequy.pose-jump .tequy-btn { animation: tequy-jump 0.55s ease; }
+.tequy.pose-kick .tequy-btn { animation: tequy-kick 0.5s ease; }
+
+@keyframes tequy-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+@keyframes tequy-pop {
+  from { opacity: 0; transform: translateY(8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes tequy-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-8px) scale(1.05); }
+}
+
+@keyframes tequy-jump {
+  0% { transform: translateY(0) rotate(0); }
+  40% { transform: translateY(-18px) rotate(-6deg) scale(1.08); }
+  100% { transform: translateY(0) rotate(0); }
+}
+
+@keyframes tequy-kick {
+  0%, 100% { transform: rotate(0); }
+  30% { transform: rotate(-12deg) translateX(-4px); }
+  60% { transform: rotate(10deg) translateX(4px); }
+}
+
 .trampa-btn {
   position: fixed;
   right: 12px;

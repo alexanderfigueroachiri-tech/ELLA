@@ -71,6 +71,8 @@
   function showScreen(name) {
     Object.values(screens).forEach((el) => el.classList.remove('active'));
     screens[name].classList.add('active');
+    // Tequy comenta el tramo (si ya cargó el helper)
+    if (typeof tequyForScreen === 'function') tequyForScreen(name);
   }
 
   function toast(msg) {
@@ -597,18 +599,15 @@
     if (locked && !jam.softWarned) {
       jam.softWarned = true;
       sfx.softlock();
+      if (typeof tequySay === 'function') tequySay('jamSoft', 'kick');
     }
     if (!locked) jam.softWarned = false;
 
-    if (!jam.queue.length && !jam.vehicles.length && !jam.bays.length && !jam.won) {
+    if (!jam.queue.length && !jam.won) {
       jam.won = true;
       sfx.win();
-      setTimeout(() => completeLevel(2, jam.level.winMemory), 500);
-    } else if (!jam.queue.length && !jam.won) {
-      // fila vacía pero quedan buses: gana igual (ya subió toda la gente)
-      jam.won = true;
-      sfx.win();
-      setTimeout(() => completeLevel(2, jam.level.winMemory), 500);
+      if (typeof tequySay === 'function') tequySay('jamWin', 'jump');
+      setTimeout(() => completeLevel(2, jam.level.winMemory), 700);
     }
 
     updateBlowBtn();
@@ -825,6 +824,7 @@
     liteImg.alt = caption || '';
     liteCap.textContent = caption || '';
     sfx.unlock();
+    if (typeof tequySay === 'function') tequySay('photo', 'jump');
     await playComic();
     lite.classList.add('open');
   }
@@ -854,6 +854,97 @@
     const src = memoryEl.querySelector('img').src;
     if (src) openPhotoLite(src, memoryEl.querySelector('h3')?.textContent || '');
   });
+
+  /* ---------- Tequy assistant ---------- */
+  const tequyRoot = document.getElementById('tequy');
+  const tequyImg = document.getElementById('tequy-img');
+  const tequyBubble = document.getElementById('tequy-bubble');
+  const tequyText = document.getElementById('tequy-text');
+  const TEQUY_POSES = {
+    idle: 'assets/tequy/idle.png',
+    talk: 'assets/tequy/talk.png',
+    jump: 'assets/tequy/jump.png',
+    kick: 'assets/tequy/kick.png',
+    side: 'assets/tequy/side.png',
+  };
+
+  const TEQUY_LINES = {
+    splash: '¡Hola! Soy Tequy. Toca Empezar y te guío en el caminito 🧀',
+    map: 'Elige una parada. Si te trabas, dame un toque y te tiro una pista.',
+    intro: 'Ese “No” es un cobarde… ¡persíguelo! O mejor: di que sí.',
+    jam: 'Mira el color de la fila. Los buses largos (3–4) se llevan más gente. ¡Yo confío en ti!',
+    jamSoft: 'Uy, plazas llenas. Saca el color que pide la fila… o usa un Soplo de Ale.',
+    jamWin: '¡Siiii! Lo lograste. Te mereces un abrazo… y un tequeño extra.',
+    cozy: 'Modo soft activado. El oso mañoso y yo cuidamos el ambiente.',
+    finale: 'Lee con calma. Y si tocas una foto… pasa algo gracioso. Yo aviso.',
+    photo: '¡Click! Me encantan esas fotos. Zoom con estilo, ¿viste?',
+  };
+
+  function setTequyPose(pose) {
+    if (!tequyImg || !TEQUY_POSES[pose]) return;
+    tequyImg.src = TEQUY_POSES[pose];
+    tequyRoot?.classList.remove('pose-talk', 'pose-jump', 'pose-kick');
+    if (pose === 'talk' || pose === 'jump' || pose === 'kick') {
+      tequyRoot?.classList.add(`pose-${pose}`);
+    }
+  }
+
+  function tequySay(keyOrText, pose = 'talk') {
+    if (!tequyBubble || !tequyText) return;
+    const text = TEQUY_LINES[keyOrText] || keyOrText;
+    tequyText.textContent = text;
+    tequyBubble.hidden = false;
+    setTequyPose(pose);
+    sfx.tap();
+  }
+
+  function tequyHideBubble() {
+    if (tequyBubble) tequyBubble.hidden = true;
+    setTequyPose('idle');
+  }
+
+  function tequyForScreen(name) {
+    const map = {
+      splash: ['splash', 'idle'],
+      map: ['map', 'idle'],
+      intro: ['intro', 'talk'],
+      jam: ['jam', 'talk'],
+      cozy: ['cozy', 'talk'],
+      finale: ['finale', 'talk'],
+    };
+    const line = map[name];
+    if (line) tequySay(line[0], line[1]);
+  }
+
+  document.getElementById('tequy-btn')?.addEventListener('click', () => {
+    if (screens.jam.classList.contains('active')) {
+      if (isSoftlocked()) tequySay('jamSoft', 'kick');
+      else tequySay('jam', 'talk');
+      return;
+    }
+    if (screens.finale.classList.contains('active')) {
+      tequySay('finale', 'talk');
+      return;
+    }
+    if (screens.cozy.classList.contains('active')) {
+      tequySay('cozy', 'talk');
+      return;
+    }
+    if (screens.intro.classList.contains('active')) {
+      tequySay('intro', 'talk');
+      return;
+    }
+    if (screens.map.classList.contains('active')) {
+      tequySay('map', 'idle');
+      return;
+    }
+    tequySay('splash', 'idle');
+  });
+
+  document.getElementById('tequy-dismiss')?.addEventListener('click', tequyHideBubble);
+
+  // greet on load
+  setTimeout(() => tequySay('splash', 'idle'), 500);
 
   loadProgress();
   renderMap();
