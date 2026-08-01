@@ -606,7 +606,7 @@
     if (!jam.queue.length && !jam.won) {
       jam.won = true;
       sfx.win();
-      if (typeof tequySay === 'function') tequySay('jamWin', 'jump');
+      if (typeof tequySay === 'function') tequySay('jamWin', 'happy');
       setTimeout(() => completeLevel(2, jam.level.winMemory), 700);
     }
 
@@ -861,10 +861,11 @@
   const tequyBubble = document.getElementById('tequy-bubble');
   const tequyText = document.getElementById('tequy-text');
   const TEQUY_POSES = {
-    idle: 'assets/tequy/idle.png',
-    talk: 'assets/tequy/talk.png',
-    jump: 'assets/tequy/jump.png',
-    kick: 'assets/tequy/kick.png',
+    idle: 'assets/tequy/idle.png',   // wink / manos en la cintura
+    talk: 'assets/tequy/talk.png',   // speaking / gesticulando
+    jump: 'assets/tequy/happy.png',  // ¡Bien! brazos arriba
+    happy: 'assets/tequy/happy.png',
+    kick: 'assets/tequy/kick.png',   // del sheet anterior
     side: 'assets/tequy/side.png',
   };
 
@@ -884,8 +885,9 @@
     if (!tequyImg || !TEQUY_POSES[pose]) return;
     tequyImg.src = TEQUY_POSES[pose];
     tequyRoot?.classList.remove('pose-talk', 'pose-jump', 'pose-kick');
-    if (pose === 'talk' || pose === 'jump' || pose === 'kick') {
-      tequyRoot?.classList.add(`pose-${pose}`);
+    if (pose === 'talk' || pose === 'jump' || pose === 'happy' || pose === 'kick') {
+      const anim = pose === 'happy' ? 'jump' : pose;
+      tequyRoot?.classList.add(`pose-${anim}`);
     }
   }
 
