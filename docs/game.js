@@ -797,7 +797,7 @@
 
   document.getElementById('cartoon-next').addEventListener('click', () => {
     completeLevel(4, {
-      photo: 'assets/caricaturas/abrazo.png',
+      photo: 'assets/historia/abrazo-tequeno.png',
       title: '¿Cómo llegó esto aquí?',
       text: 'No puedo arreglarte la vida… pero sí buscar que estés bien, de la manera que sea. Porque me importas demasiado.',
     });

@@ -507,35 +507,19 @@ button {
   background: #f7f0e2;
   box-shadow: 0 14px 34px rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(255, 200, 120, 0.28);
-  min-height: 150px;
 }
 
 .comic-panel img {
   display: block;
   width: 100%;
-  height: auto;
+  aspect-ratio: 1 / 1;
   object-fit: contain;
+  object-position: center;
   background: #f7f0e2;
 }
 
-/* Recorte vivo del sheet completo (evita PNGs mal cortados) */
-.comic-panel.vignette {
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  background-color: #f7f0e2;
-  background-image: url('assets/historia/emociones.png');
-  background-repeat: no-repeat;
-  /* sheet 2x2 debajo del título */
-  background-size: 200% 230%;
-}
-
-.v-triste { background-position: 0% 16%; }
-.v-hambre { background-position: 100% 16%; }
-.v-molesta { background-position: 0% 100%; }
-.v-agobiada { background-position: 100% 100%; }
-
 .comic-wide img {
-  aspect-ratio: 4 / 5;
+  aspect-ratio: 3 / 4;
   object-fit: contain;
   background: #f7f0e2;
 }
@@ -1295,10 +1279,6 @@ button {
   .comic-beat.side-right .comic-panel,
   .comic-beat.side-right .comic-copy { order: initial; }
   .comic-beat.side-right .comic-copy { text-align: left; }
-  .comic-panel.vignette {
-    aspect-ratio: 16 / 10;
-    background-size: 200% 240%;
-  }
 }
 
 @media (max-height: 700px) {
