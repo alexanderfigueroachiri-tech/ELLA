@@ -1,16 +1,16 @@
-/** SFX sintéticos + BGM con fades suaves (sin “rayones” al cambiar de escena). */
+/** SFX + BGM: la música sigue el camino; no se reinicia al saltar escenas. */
 window.EllaSFX = (() => {
   let ctx = null;
   let muted = false;
   let bgmStarted = false;
-  let ducked = false; // voz / carta
-  let jamQuiet = false; // atasco: BGM más baja
+  let ducked = false;
+  let jamQuiet = false;
   let theme = 'path'; // 'path' | 'finale'
-  let fadeTimer = null;
+  const fadeTimers = { path: null, finale: null };
 
   const TRACKS = {
-    path: 'assets/bgm.mp3?v=3',
-    finale: 'assets/bgm-finale.mp3?v=3',
+    path: 'assets/bgm.mp3?v=4',
+    finale: 'assets/bgm-finale.mp3?v=4',
   };
   const BGM_VOL = 0.12;
   const BGM_JAM = 0.05;
@@ -49,111 +49,126 @@ window.EllaSFX = (() => {
     return BGM_VOL;
   }
 
-  /** Rampa suave de volumen (evita el “rayón” de saltos bruscos). */
-  function fadeAudio(a, to, ms = 420) {
+  function fadeAudio(name, a, to, ms = 420) {
     if (!a) return;
-    clearInterval(fadeTimer);
+    if (fadeTimers[name]) {
+      clearInterval(fadeTimers[name]);
+      fadeTimers[name] = null;
+    }
     const from = a.volume;
     const start = performance.now();
     if (ms <= 0) {
       a.volume = Math.max(0, Math.min(1, to));
       return;
     }
-    fadeTimer = setInterval(() => {
+    fadeTimers[name] = setInterval(() => {
       const t = Math.min(1, (performance.now() - start) / ms);
-      // ease-out
       const e = 1 - (1 - t) * (1 - t);
       a.volume = Math.max(0, Math.min(1, from + (to - from) * e));
       if (t >= 1) {
-        clearInterval(fadeTimer);
-        fadeTimer = null;
+        clearInterval(fadeTimers[name]);
+        fadeTimers[name] = null;
         a.volume = Math.max(0, Math.min(1, to));
       }
     }, 32);
   }
 
-  function fadeToTarget(ms = 420) {
+  function fadeToTarget(ms = 500) {
     const a = current();
     if (!a) return;
-    fadeAudio(a, targetVolume(), ms);
+    fadeAudio(theme, a, targetVolume(), ms);
   }
 
-  function playTrack(name, { fadeMs = 480, fromZero = false } = {}) {
+  /** Reproduce sin reiniciar posición (salvo firstStart). */
+  function playTrack(name, { fadeMs = 500, firstStart = false } = {}) {
     const a = ensureTrack(name);
     if (muted) {
       a.pause();
       return;
     }
-    if (fromZero) a.volume = 0;
-    const play = a.play();
-    if (play && typeof play.catch === 'function') play.catch(() => {});
-    fadeAudio(a, targetVolume(), fadeMs);
+    if (firstStart) {
+      try { a.currentTime = 0; } catch (_) {}
+      a.volume = 0;
+    }
+    if (a.paused) {
+      const play = a.play();
+      if (play && typeof play.catch === 'function') play.catch(() => {});
+    }
+    fadeAudio(name, a, targetVolume(), fadeMs);
   }
 
-  function softStop(name, ms = 380) {
+  function softStop(name, ms = 450) {
     const a = players[name];
     if (!a) return;
-    fadeAudio(a, 0, ms);
+    fadeAudio(name, a, 0, ms);
     setTimeout(() => {
-      if (theme !== name) {
-        a.pause();
-        // No reiniciamos currentTime: al volver sigue fluido, sin corte seco.
-      }
+      if (theme !== name && a) a.pause();
+      // currentTime intacto → al volver no “empieza de nuevo”
     }, ms + 40);
   }
 
   function startBgm() {
+    if (bgmStarted) {
+      // Ya suena: solo despierta el AudioContext / asegura play
+      ac();
+      if (!muted) playTrack(theme, { fadeMs: 280, firstStart: false });
+      return;
+    }
     ac();
     ensureTrack('path');
     ensureTrack('finale');
     bgmStarted = true;
     if (muted) return;
-    playTrack(theme, { fadeMs: 600, fromZero: true });
+    playTrack(theme, { fadeMs: 700, firstStart: true });
   }
 
   function setTheme(next) {
     const want = next === 'finale' ? 'finale' : 'path';
     if (want === theme) {
-      if (bgmStarted) fadeToTarget(360);
+      // Misma pista (mapa ↔ jam ↔ casa…): solo volumen, sin reinicio
+      if (bgmStarted) {
+        if (current()?.paused && !muted) playTrack(theme, { fadeMs: 400, firstStart: false });
+        else fadeToTarget(480);
+      }
       return;
     }
     const prev = theme;
     theme = want;
-    if (bgmStarted) {
-      softStop(prev, 400);
-      playTrack(theme, { fadeMs: 520, fromZero: true });
-    }
+    if (!bgmStarted) return;
+    softStop(prev, 500);
+    playTrack(theme, { fadeMs: 650, firstStart: false });
   }
 
   function setJamQuiet(on) {
-    jamQuiet = !!on;
-    if (bgmStarted) fadeToTarget(380);
+    const next = !!on;
+    if (next === jamQuiet) return;
+    jamQuiet = next;
+    if (bgmStarted) fadeToTarget(520);
   }
 
   function pauseBgm() {
-    clearInterval(fadeTimer);
-    fadeTimer = null;
     Object.keys(players).forEach((k) => {
       const a = players[k];
       if (!a) return;
-      fadeAudio(a, 0, 220);
-      setTimeout(() => a.pause(), 240);
+      fadeAudio(k, a, 0, 220);
+      setTimeout(() => { if (muted) a.pause(); }, 240);
     });
   }
 
   function resumeBgm() {
     if (!bgmStarted || muted) return;
-    playTrack(theme, { fadeMs: 400 });
+    playTrack(theme, { fadeMs: 400, firstStart: false });
   }
 
   function duckBgm(on) {
-    ducked = !!on;
-    if (bgmStarted) fadeToTarget(320);
+    const next = !!on;
+    if (next === ducked) return;
+    ducked = next;
+    if (bgmStarted) fadeToTarget(360);
   }
 
   function tone({ freq = 440, dur = 0.12, type = 'sine', gain = 0.06, slide = 0 }) {
     if (muted) return;
-    // Sin dip de BGM: eso era lo que “rayaba” la música en cada tap.
     const c = ac();
     if (!c) return;
     const t0 = c.currentTime;
@@ -190,6 +205,7 @@ window.EllaSFX = (() => {
   return {
     unlock() {
       ac();
+      // Solo arranca una vez; luego no reinicia al cambiar de escena
       startBgm();
     },
     startBgm,
