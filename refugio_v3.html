@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Noelia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;700&display=swap');
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: #020205;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: white;
+        }
+
+        /* FONDO DINÁMICO */
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+
+        .scene {
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            height: 100vh; width: 100%;
+            position: absolute; transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+        }
+
+        .hidden { opacity: 0; pointer-events: none; transform: translateY(50px); }
+
+        /* BOTONES */
+        .btn-main {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 18px 45px;
+            color: white;
+            border-radius: 15px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: 0.4s;
+            font-size: 1rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .btn-main:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #00d4ff;
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* PALABRAS ESCURRIDIZAS */
+        .word {
+            position: absolute;
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.4);
+            transition: color 0.3s;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        #target-word {
+            font-weight: 700;
+            color: #00d4ff;
+            font-size: 1.5rem;
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        /* SISTEMA DE NIEBLA */
+        .fog-wrapper {
+            position: relative;
+            width: 500px;
+            height: 350px;
+            background: #0a0a0a;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .msg-container {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+            font-size: 1.3rem;
+            line-height: 1.6;
+            text-align: center;
+            color: #eee;
+        }
+
+        #fog-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            z-index: 5;
+            cursor: crosshair;
+        }
+
+        #btn-done { margin-top: 30px; }
+
+    </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div id="scene1" class="scene">
+    <h1 style="font-weight: 200; font-size: 3rem; letter-spacing: 10px;">REFUGIO</h1>
+    <p style="color: #888; margin-bottom: 30px;">Iniciando protocolo de apoyo emocional para Noelia...</p>
+    <button class="btn-main" onclick="start()">Entrar</button>
+</div>
+
+<div id="scene2" class="scene hidden">
+    <h2 style="position: absolute; top: 10%;">Busca lo que de verdad importa entre tanto ruido.</h2>
+    <div id="word-field" style="width: 100vw; height: 100vh;"></div>
+</div>
+
+<div id="scene3" class="scene hidden">
+    <h2>Limpia el dolor, Noelia. No te pertenece.</h2>
+    <div class="fog-wrapper">
+        <div class="msg-container">
+            "Noelia, lo que sientes no es tu culpa. Él sabe que lo amas, y ese amor es la única verdad que necesitas hoy. Déjalo ir en paz, tú te quedas con su luz."
+        </div>
+        <canvas id="fog-canvas" width="500" height="350"></canvas>
+    </div>
+    <button id="btn-done" class="btn-main hidden" onclick="goFinal()">Está limpio</button>
+</div>
+
+<div id="scene4" class="scene hidden">
+    <h1 style="color: #00d4ff;">No estás sola.</h1>
+    <p style="max-width: 500px; color: #bbb;">
+        Te haces la fuerte porque siempre te tocó serlo, pero aquí puedes soltar las armas.<br><br>
+        Estoy contigo, no por lo que has pasado, sino por la mujer increíble en la que te has convertido.
+    </p>
+    <button class="btn-main" onclick="location.reload()">¿Empezamos de nuevo?</button>
+</div>
+
+<audio id="music" loop>
+    <source src="musica.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    // --- FONDO DE PARTÍCULAS ---
+    const bg = document.getElementById('bg-canvas');
+    const bctx = bg.getContext('2d');
+    let orbs = [];
+
+    function initBg() {
+        bg.width = window.innerWidth;
+        bg.height = window.innerHeight;
+        for(let i=0; i<50; i++) {
+            orbs.push({
+                x: Math.random() * bg.width,
+                y: Math.random() * bg.height,
+                r: Math.random() * 3 + 1,
+                dx: (Math.random() - 0.5) * 0.5,
+                dy: (Math.random() - 0.5) * 0.5
+            });
+        }
+    }
+
+    function drawBg() {
+        bctx.clearRect(0,0, bg.width, bg.height);
+        bctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+        orbs.forEach(o => {
+            bctx.beginPath();
+            bctx.arc(o.x, o.y, o.r, 0, Math.PI*2);
+            bctx.fill();
+            o.x += o.dx; o.y += o.dy;
+            if(o.x < 0 || o.x > bg.width) o.dx *= -1;
+            if(o.y < 0 || o.y > bg.height) o.dy *= -1;
+        });
+        requestAnimationFrame(drawBg);
+    }
+
+    // --- LÓGICA DE ESCAPE ---
+    const field = document.getElementById('word-field');
+    const words = ["miedo", "culpa", "ayer", "soledad", "silencio", "duda", "vacío", "tristeza", "angustia", "funeral"];
+    let wordObjects = [];
+
+    function spawnWords() {
+        // Crear palabra objetivo
+        createWord("NOSOTROS", true);
+        // Crear distractores
+        words.forEach(w => createWord(w, false));
+    }
+
+    function createWord(text, isTarget) {
+        const el = document.createElement('div');
+        el.className = 'word';
+        if(isTarget) el.id = 'target-word';
+        el.innerText = text;
+        el.style.left = Math.random() * 80 + 10 + '%';
+        el.style.top = Math.random() * 80 + 10 + '%';
+        field.appendChild(el);
+        wordObjects.push({ 
+            el: el, 
+            isTarget: isTarget, 
+            x: el.offsetLeft, 
+            y: el.offsetTop,
+            vx: 0, vy: 0
+        });
+        if(isTarget) el.onclick = () => transition('scene2', 'scene3', setupFog);
+    }
+
+    document.onmousemove = (e) => {
+        wordObjects.forEach(obj => {
+            const dx = e.clientX - (obj.el.offsetLeft + obj.el.offsetWidth/2);
+            const dy = e.clientY - (obj.el.offsetTop + obj.el.offsetHeight/2);
+            const dist = Math.hypot(dx, dy);
+
+            if(!obj.isTarget && dist < 150) {
+                const angle = Math.atan2(dy, dx);
+                const force = (150 - dist) * 0.15;
+                obj.el.style.transform = `translate(${-Math.cos(angle)*force*5}px, ${-Math.sin(angle)*force*5}px)`;
+                obj.el.style.color = "rgba(255, 100, 100, 0.8)";
+            } else if(obj.isTarget && dist < 200) {
+                const heat = 1 - (dist / 200);
+                obj.el.style.color = `rgb(${100 + 155*heat}, ${212 - 100*heat}, ${255 - 150*heat})`;
+                obj.el.style.transform = `scale(${1 + heat*0.3})`;
+            } else {
+                obj.el.style.transform = `translate(0,0) scale(1)`;
+                if(!obj.isTarget) obj.el.style.color = "rgba(255,255,255,0.4)";
+            }
+        });
+    }
+
+    // --- NIEBLA REPARADA ---
+    function setupFog() {
+        const canvas = document.getElementById('fog-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Crear textura de niebla/escarcha
+        const grad = ctx.createRadialGradient(250, 175, 50, 250, 175, 300);
+        grad.addColorStop(0, '#2c3e50');
+        grad.addColorStop(1, '#000000');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 500, 350);
+
+        // Añadir "partículas" a la niebla para que no sea plana
+        for(let i=0; i<1000; i++) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.05})`;
+            ctx.beginPath();
+            ctx.arc(Math.random()*500, Math.random()*350, 1, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        ctx.globalCompositeOperation = 'destination-out';
+        let drawing = false;
+        let points = 0;
+
+        function scratch(e) {
+            if(!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, Math.PI*2);
+            ctx.fill();
+            points++;
+            if(points > 500) document.getElementById('btn-done').classList.remove('hidden');
+        }
+
+        canvas.onmousedown = canvas.ontouchstart = () => drawing = true;
+        window.onmouseup = window.ontouchend = () => drawing = false;
+        canvas.onmousemove = canvas.ontouchmove = scratch;
+    }
+
+    // --- NAVEGACIÓN ---
+    function start() {
+        document.getElementById('music').play();
+        transition('scene1', 'scene2', spawnWords);
+    }
+
+    function transition(outId, inId, callback) {
+        document.getElementById(outId).classList.add('hidden');
+        setTimeout(() => {
+            document.getElementById(inId).classList.remove('hidden');
+            if(callback) callback();
+        }, 1200);
+    }
+
+    function goFinal() { transition('scene3', 'scene4'); }
+
+    initBg();
+    drawBg();
+</script>
+</body>
+</html>

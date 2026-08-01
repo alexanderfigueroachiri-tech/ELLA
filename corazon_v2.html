@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Ella - Protocolo de Apoyo</title>
+    <style>
+        :root {
+            --bg-dark: #0f0c29;
+            --accent: #ff0080;
+            --soft-blue: #24243e;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(-45deg, #0f0c29, #302b63, #24243e, #1a1a1a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #main-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 80%;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 0, 128, 0.4);
+            margin: 10px;
+        }
+
+        .btn:hover { transform: scale(1.1); filter: brightness(1.2); }
+
+        .btn-wrong { background: #555; position: relative; }
+
+        /* Scratch Effect */
+        #scratch-container {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            margin: 20px auto;
+            cursor: crosshair;
+        }
+
+        #canvas-fog {
+            position: absolute;
+            top: 0; left: 0;
+            border-radius: 10px;
+        }
+
+        .secret-text {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #222;
+            color: #fff;
+            font-style: italic;
+            border-radius: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 1.2rem;
+        }
+
+        .hidden { display: none; }
+
+        .falling {
+            animation: fallAndFade 0.8s forwards;
+        }
+
+        @keyframes fallAndFade {
+            to { transform: translateY(500px) rotate(20deg); opacity: 0; }
+        }
+
+        #music-player { position: absolute; bottom: 10px; right: 10px; opacity: 0.3; }
+    </style>
+</head>
+<body>
+
+<audio id="bg-music" loop>
+    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+</audio>
+
+<div id="main-container">
+    <div id="step0">
+        <h1>Hola, tú.</h1>
+        <p>Hice esto para recordarte algo importante. <br> ¿Me dejas mostrártelo?</p>
+        <button class="btn" onclick="startExperience()">Empezar</button>
+    </div>
+
+    <div id="step1" class="hidden">
+        <h2>Primero, ¿podemos estar de acuerdo en que eres la persona más fuerte que conozco?</h2>
+        <button class="btn" onclick="nextStep(1, 2)">Obviamente</button>
+        <button id="no-btn" class="btn btn-wrong" onmouseover="dodge()">No</button>
+    </div>
+
+    <div id="step2" class="hidden">
+        <h2>Cuando el mundo se siente pesado...</h2>
+        <p>¿Qué prefieres hacer conmigo?</p>
+        <button class="btn btn-wrong" onclick="fall(this)">Huir</button>
+        <button class="btn" onclick="nextStep(2, 3)">Confiar</button>
+        <button class="btn btn-wrong" onclick="fall(this)">Fingir</button>
+    </div>
+
+    <div id="step3" class="hidden">
+        <h2>Limpia el cristal... hay algo que quiero que veas.</h2>
+        <div id="scratch-container">
+            <div class="secret-text">NO FUE TU CULPA.<br>Él vive en tu fuerza.</div>
+            <canvas id="canvas-fog" width="300" height="200"></canvas>
+        </div>
+        <p style="font-size: 0.8rem; color: #aaa;">(Pasa el mouse o el dedo sobre el cuadro gris)</p>
+        <button class="btn hidden" id="final-btn" onclick="nextStep(3, 4)">Ya lo vi</button>
+    </div>
+
+    <div id="step4" class="hidden">
+        <h2>No estás sola, aunque el mundo te haya hecho creer que sí.</h2>
+        <p>Tu abuelo no se fue sin despedirse, él se quedó en cada risa tuya y en esa capacidad que tienes de levantarte siempre.</p>
+        <p>Yo no estoy aquí por pena. Estoy aquí porque me inspiras cada día.</p>
+        <button class="btn" onclick="celebrate()">¿Puedo ser tu lugar seguro?</button>
+    </div>
+</div>
+
+<script>
+    const music = document.getElementById('bg-music');
+
+    function startExperience() {
+        music.play();
+        nextStep(0, 1);
+    }
+
+    function nextStep(curr, next) {
+        document.getElementById('step' + curr).classList.add('hidden');
+        document.getElementById('step' + next).classList.remove('hidden');
+        if(next === 3) initScratch();
+    }
+
+    function dodge() {
+        const btn = document.getElementById('no-btn');
+        btn.style.position = 'fixed';
+        btn.style.left = Math.random() * 80 + '%';
+        btn.style.top = Math.random() * 80 + '%';
+    }
+
+    function fall(el) {
+        el.classList.add('falling');
+        setTimeout(() => el.style.display = 'none', 800);
+    }
+
+    // Lógica del Scratch (Borrar)
+    function initScratch() {
+        const canvas = document.getElementById('canvas-fog');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#888';
+        ctx.fillRect(0, 0, 300, 200);
+        ctx.globalCompositeOperation = 'destination-out';
+
+        let isDrawing = false;
+        let erasedAmount = 0;
+
+        function scratch(e) {
+            if (!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            ctx.beginPath();
+            ctx.arc(x, y, 25, 0, Math.PI * 2);
+            ctx.fill();
+            erasedAmount++;
+            if(erasedAmount > 150) document.getElementById('final-btn').classList.remove('hidden');
+        }
+
+        canvas.addEventListener('mousedown', () => isDrawing = true);
+        canvas.addEventListener('touchstart', () => isDrawing = true);
+        window.addEventListener('mouseup', () => isDrawing = false);
+        window.addEventListener('touchend', () => isDrawing = false);
+        canvas.addEventListener('mousemove', scratch);
+        canvas.addEventListener('touchmove', scratch);
+    }
+
+    function celebrate() {
+        // Un popup más elegante o una redirección
+        alert("❤️ Sé que me dejarás. Aquí estaré, pase lo que pase.");
+        // Podrías añadir un efecto de confeti aquí si quisieras
+    }
+</script>
+</body>
+</html>

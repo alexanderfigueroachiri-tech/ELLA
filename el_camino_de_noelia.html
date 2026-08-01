@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Camino de Noelia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;500;700&display=swap');
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(45deg, #ff9a9e, #fad0c4, #a1c4fd);
+            background-size: 400% 400%;
+            animation: aurora 15s ease infinite;
+        }
+
+        @keyframes aurora {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        #firefly-canvas { position: fixed; inset: 0; z-index: -1; }
+
+        .scene {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; text-align: center;
+            opacity: 0; pointer-events: none; transition: 1.5s;
+        }
+        .active { opacity: 1; pointer-events: all; }
+
+        /* INVENTARIO */
+        #inventory {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.3); padding: 15px;
+            border-radius: 20px; backdrop-filter: blur(10px);
+            display: none; font-size: 1.2rem;
+        }
+
+        /* BOTONES VIVOS */
+        .btn {
+            background: white; border: none; padding: 12px 30px;
+            border-radius: 50px; cursor: pointer; margin: 10px;
+            font-family: inherit; transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .disintegrate { animation: dust 0.8s forwards; pointer-events: none; }
+        @keyframes dust {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(2) rotate(10deg); opacity: 0; filter: blur(10px); }
+        }
+
+        .fall { animation: gravity 1s forwards cubic-bezier(0.5, 0, 1, 1); }
+        @keyframes gravity { to { transform: translateY(1000px) rotate(90deg); } }
+
+        /* JUEGO DE PALABRAS */
+        .fragment {
+            position: absolute; cursor: pointer; opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+            font-size: 1.5rem; z-index: 10;
+        }
+
+        .decoy {
+            position: absolute; font-size: 0.8rem; color: rgba(255,255,255,0.6);
+            user-select: none; transition: 0.5s;
+        }
+
+        /* NIEBLA MEJORADA */
+        .fog-box {
+            position: relative; width: 600px; height: 400px;
+            background: white; border-radius: 30px; overflow: hidden;
+            display: none; box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+        }
+        #fog-canvas { position: absolute; inset: 0; z-index: 5; cursor: crosshair; }
+        .final-msg {
+            position: absolute; inset: 0; display: flex; align-items: center;
+            justify-content: center; padding: 40px; font-size: 1.3rem;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="firefly-canvas"></canvas>
+
+<div id="inventory">Luz recolectada: <span id="count">0</span>/3 ✨</div>
+
+<div id="sc1" class="scene active">
+    <h1 style="color: white; font-size: 3rem; text-shadow: 0 2px 10px rgba(0,0,0,0.1);">Hola, Noelia</h1>
+    <p style="color: white;">¿Te atreves a buscar un secreto?</p>
+    <div style="position: relative;">
+        <button class="btn" onclick="nextSc(1, 2)">Sí, vamos</button>
+        <button id="scared-btn" class="btn" onmouseover="runAway()">No</button>
+    </div>
+</div>
+
+<div id="sc2" class="scene">
+    <h2>Antes de seguir, deshazte de lo que sobra...</h2>
+    <div>
+        <button class="btn" onclick="this.classList.add('disintegrate')">La culpa</button>
+        <button class="btn" onclick="this.classList.add('fall')">El peso</button>
+        <button class="btn" id="runner" onmouseover="crazyRun()">La duda</button>
+        <button class="btn" style="background: #a1c4fd; color: white;" onclick="nextSc(2, 3, startSearch)">Continuar</button>
+    </div>
+</div>
+
+<div id="sc3" class="scene">
+    <h2 id="search-hint">Busca los 3 fragmentos de luz ocultos entre el ruido...</h2>
+    <div id="search-field" style="width: 100%; height: 80%; position: relative;"></div>
+</div>
+
+<div id="sc4" class="scene">
+    <h2>Has reunido la luz necesaria.</h2>
+    <div class="fog-box" id="final-box">
+        <div class="final-msg">
+            "Noelia, 3 meses es mucho tiempo para extrañar, pero poco para olvidar un amor tan grande. Tu abuelo es la fuerza que corre por tus venas. Quédate con su luz, Alexander está contigo."
+        </div>
+        <canvas id="fog-canvas" width="600" height="400"></canvas>
+    </div>
+    <button id="finish-btn" class="btn" style="display: none; margin-top: 20px;" onclick="nextSc(4, 5)">Ya lo vi</button>
+</div>
+
+<div id="sc5" class="scene">
+    <h1>¿Equipo?</h1>
+    <p>Gracias por llegar hasta aquí.</p>
+    <button class="btn" onclick="location.reload()">Reiniciar</button>
+</div>
+
+<audio id="music" loop><source src="musica.mp3" type="audio/mpeg"></audio>
+
+<script>
+    // --- FONDO DE LUCIÉRNAGAS ---
+    const fCanvas = document.getElementById('firefly-canvas');
+    const fCtx = fCanvas.getContext('2d');
+    let fies = [];
+
+    function initFireflies() {
+        fCanvas.width = window.innerWidth; fCanvas.height = window.innerHeight;
+        for(let i=0; i<40; i++) {
+            fies.push({x: Math.random()*fCanvas.width, y: Math.random()*fCanvas.height, 
+                       s: Math.random()*3+1, v: Math.random()*0.5+0.2});
+        }
+    }
+
+    function drawFies() {
+        fCtx.clearRect(0,0, fCanvas.width, fCanvas.height);
+        fCtx.fillStyle = "rgba(255,255,255,0.6)";
+        fies.forEach(f => {
+            fCtx.beginPath(); fCtx.arc(f.x, f.y, f.s, 0, Math.PI*2); fCtx.fill();
+            f.y -= f.v; if(f.y < 0) f.y = fCanvas.height;
+        });
+        requestAnimationFrame(drawFies);
+    }
+
+    // --- LÓGICA DE BOTONES ---
+    function runAway() {
+        const b = document.getElementById('scared-btn');
+        b.style.position = 'fixed';
+        b.style.left = Math.random()*80+10 + '%'; b.style.top = Math.random()*80+10 + '%';
+    }
+
+    function crazyRun() {
+        const b = document.getElementById('runner');
+        b.style.position = 'fixed';
+        b.style.left = Math.random()*90 + '%'; b.style.top = Math.random()*90 + '%';
+    }
+
+    // --- BÚSQUEDA DE FRAGMENTOS ---
+    let collected = 0;
+    function startSearch() {
+        document.getElementById('inventory').style.display = 'block';
+        const field = document.getElementById('search-field');
+        const decoys = ["ayer", "ruido", "funeral", "tristeza", "soledad", "vacío", "miedo", "distancia"];
+        
+        // Crear 150 distracciones
+        for(let i=0; i<150; i++) {
+            const d = document.createElement('div');
+            d.className = 'decoy';
+            d.innerText = decoys[Math.floor(Math.random()*decoys.length)];
+            d.style.left = Math.random()*95 + '%'; d.style.top = Math.random()*95 + '%';
+            field.appendChild(d);
+        }
+
+        // Crear 3 Fragmentos (Corazones)
+        for(let i=1; i<=3; i++) {
+            const f = document.createElement('div');
+            f.className = 'fragment'; f.innerHTML = '❤️';
+            f.style.left = Math.random()*85 + 5 + '%'; f.style.top = Math.random()*85 + 5 + '%';
+            f.onclick = function() {
+                collected++;
+                document.getElementById('count').innerText = collected;
+                this.style.display = 'none';
+                if(collected === 3) nextSc(3, 4, initFog);
+            };
+            field.appendChild(f);
+        }
+
+        // Proximidad térmica para corazones
+        document.onmousemove = (e) => {
+            const frags = document.querySelectorAll('.fragment');
+            frags.forEach(fr => {
+                const r = fr.getBoundingClientRect();
+                const d = Math.hypot(e.clientX - r.left, e.clientY - r.top);
+                fr.style.opacity = d < 100 ? 1 : 0;
+            });
+            // Las distracciones huyen levemente
+            document.querySelectorAll('.decoy').forEach(dec => {
+                const r = dec.getBoundingClientRect();
+                const d = Math.hypot(e.clientX - r.left, e.clientY - r.top);
+                if(d < 100) dec.style.transform = `scale(0.5) translate(${(e.clientX-r.left)*2}px, ${(e.clientY-r.top)*2}px)`;
+                else dec.style.transform = '';
+            });
+        }
+    }
+
+    // --- NIEBLA FINAL ---
+    function initFog() {
+        document.getElementById('inventory').style.display = 'none';
+        document.getElementById('final-box').style.display = 'block';
+        const c = document.getElementById('fog-canvas');
+        const ctx = c.getContext('2d');
+        ctx.fillStyle = "#8e44ad"; // Violeta Intenso
+        ctx.fillRect(0,0,600,400);
+
+        ctx.globalCompositeOperation = 'destination-out';
+        let draw = false; let p = 0;
+
+        c.onmousedown = () => draw = true;
+        window.onmouseup = () => draw = false;
+        c.onmousemove = (e) => {
+            if(!draw) return;
+            const r = c.getBoundingClientRect();
+            ctx.beginPath(); ctx.arc(e.clientX-r.left, e.clientY-r.top, 10, 0, Math.PI*2); ctx.fill();
+            p++; if(p > 800) document.getElementById('finish-btn').style.display = 'block';
+        }
+    }
+
+    function nextSc(o, n, cb) {
+        if(o === 1) document.getElementById('music').play();
+        document.getElementById('sc'+o).classList.remove('active');
+        setTimeout(() => {
+            document.getElementById('sc'+n).classList.add('active');
+            if(cb) cb();
+        }, 1500);
+    }
+
+    initFireflies(); drawFies();
+</script>
+</body>
+</html>

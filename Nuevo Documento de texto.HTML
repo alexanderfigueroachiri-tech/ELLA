@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Un Lugar Seguro para Noelia</title>
+    <style>
+        /* Usamos una fuente cálida y redondeada */
+        @import url('https://fonts.googleapis.com/css2?family=Comfortaa:wght@300;700&display=swap');
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            /* FONDO CÁLIDO: Degradado de atardecer (rosa a naranja suave) */
+            background: linear-gradient(135deg, #ff9a9e 0%, #fad0c4 50%, #fbc2eb 100%);
+            font-family: 'Comfortaa', cursive;
+            color: #4a4a4a; /* Color de texto gris cálido */
+        }
+
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+
+        .scene {
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            height: 100vh; width: 100%;
+            position: absolute;
+            /* TRANSICIÓN SUAVE: 2 segundos de duración con una curva de aceleración (cubic-bezier) para un efecto de "respiro" */
+            transition: opacity 2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            opacity: 0; /* Empezamos invisibles */
+            pointer-events: none;
+        }
+        /* La escena activa será visible */
+        .scene.active { opacity: 1; pointer-events: all; }
+
+        /* Estilo de Botones Cálido */
+        .btn-warm {
+            background: linear-gradient(to right, #ff6b6b, #ff8e53);
+            border: none; padding: 15px 40px; color: white; border-radius: 50px;
+            cursor: pointer; font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn-warm:hover {
+            transform: translateY(-3px); box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6);
+        }
+
+        /* --- PALABRAS VIVAS (TIPO CARICATURA) --- */
+        .word-cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 12px 25px; border-radius: 30px;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.1);
+            color: #777; transition: transform 0.4s ease-out;
+            user-select: none; display: flex; align-items: center;
+        }
+        /* Añadimos "ojitos" a las palabras negativas para darles personalidad de asustadas */
+        .word-cloud::after {
+            content: '..'; font-weight: bold; margin-left: 8px;
+            transform: rotate(90deg); font-size: 0.9em; color: #aaa;
+        }
+
+        /* La palabra especial es un corazón brillante y vivo */
+        #heart-word {
+            position: absolute; font-size: 2.5rem; color: #ff4757;
+            text-shadow: 0 0 25px rgba(255, 71, 87, 0.7);
+            cursor: pointer; font-weight: bold; transition: all 0.3s ease;
+            /* Animación de latido constante */
+            animation: heartbeat 1.8s infinite;
+            z-index: 10;
+        }
+        @keyframes heartbeat {
+            0% { transform: scale(1); } 15% { transform: scale(1.15); }
+            30% { transform: scale(1); } 45% { transform: scale(1.1); } 60% { transform: scale(1); }
+        }
+
+        /* --- NIEBLA CÁLIDA --- */
+        .fog-container {
+            position: relative; width: 550px; height: 380px;
+            border-radius: 30px; overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15); background: white;
+        }
+        .secret-msg {
+            position: absolute; inset: 0;
+            display: flex; justify-content: center; align-items: center;
+            padding: 40px; font-size: 1.4rem; line-height: 1.6;
+            color: #4a4a4a; text-align: center;
+        }
+        #fog-canvas { cursor: grab; }
+        #fog-canvas:active { cursor: grabbing; }
+    </style>
+</head>
+<body>
+
+<canvas id="bg-canvas"></canvas>
+
+<div id="scene1" class="scene active">
+    <h1 style="font-size: 3.5rem; color: #ff6b6b; margin-bottom: 10px;">Hola, Noelia.</h1>
+    <p style="font-size: 1.3rem; margin-bottom: 50px; color: #666;">He guardado un poco de sol para ti.</p>
+    <button class="btn-warm" onclick="start()">Entrar al jardín</button>
+</div>
+
+<div id="scene2" class="scene">
+    <h2 style="color: #ff6b6b; margin-bottom: 30px;">Hay algo latiendo fuerte por aquí...</h2>
+    <div id="word-garden" style="width: 100%; height: 80%; position: relative;"></div>
+</div>
+
+<div id="scene3" class="scene">
+    <h2 style="color: #ff6b6b; margin-bottom: 30px;">Limpia el polvo, deja que brille.</h2>
+    <div class="fog-container">
+        <div class="secret-msg">
+            <p>"Noelia, su amor no se fue. Se convirtió en la fuerza que te levanta cada mañana. No fue tu culpa, fue la vida. <br><strong>Quédate con su luz.</strong>"</p>
+        </div>
+        <canvas id="fog-canvas" width="550" height="380"></canvas>
+    </div>
+    <button id="btn-done" class="btn-warm" style="margin-top: 40px; opacity: 0; pointer-events: none; transition: opacity 1s;" onclick="goFinal()">Ya lo veo</button>
+</div>
+
+<div id="scene4" class="scene">
+    <h1 style="color: #ff6b6b; font-size: 2.5rem;">No tienes que ser fuerte siempre.</h1>
+    <p style="max-width: 600px; font-size: 1.4rem; line-height: 1.8; color: #555;">
+        Tu vulnerabilidad es tan valiosa como tu fuerza.<br>
+        Estoy aquí para sostenerte cuando necesites soltarlo todo.<br>
+        <b>Te admiro muchísimo.</b>
+    </p>
+    <button class="btn-warm" style="margin-top: 30px;" onclick="location.reload()">Volver a empezar</button>
+</div>
+
+<audio id="music" loop>
+    <source src="musica.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    // --- FONDO DE LUCIÉRNAGAS DORADAS ---
+    const bg = document.getElementById('bg-canvas');
+    const bctx = bg.getContext('2d');
+    let fireflies = [];
+
+    function initBg() {
+        bg.width = window.innerWidth; bg.height = window.innerHeight;
+        for(let i=0; i<45; i++) {
+            fireflies.push({
+                x: Math.random()*bg.width, y: Math.random()*bg.height,
+                r: Math.random()*4 + 2,
+                dx: (Math.random()-0.5)*0.4, dy: (Math.random()-0.5)*0.4,
+                alpha: Math.random(), da: Math.random()*0.015
+            });
+        }
+    }
+    function drawBg() {
+        bctx.clearRect(0,0, bg.width, bg.height);
+        fireflies.forEach(f => {
+            bctx.beginPath();
+            bctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+            bctx.fillStyle = `rgba(255, 223, 137, ${f.alpha})`; // Color dorado cálido
+            bctx.fill();
+            f.x += f.dx; f.y += f.dy; f.alpha += f.da;
+            if(f.alpha > 0.8 || f.alpha < 0.2) f.da *= -1;
+            if(f.x<0) f.x=bg.width; if(f.x>bg.width) f.x=0;
+            if(f.y<0) f.y=bg.height; if(f.y>bg.height) f.y=0;
+        });
+        requestAnimationFrame(drawBg);
+    }
+
+    // --- PALABRAS VIVAS ---
+    const garden = document.getElementById('word-garden');
+    const distractions = ["miedo", "culpa", "ayer", "tristeza", "soledad", "ruido", "duda", "vacío", "dolor", "frío", "sombra", "gris", "lejos", "nunca", "pesado", "angustia", "silencio", "final"];
+    let wordElements = [];
+
+    function spawnWords() {
+        garden.innerHTML = ''; wordElements = [];
+        // Crear más palabras de distracción para que se sienta lleno
+        for(let i=0; i<35; i++) createDistraction(distractions[i % distractions.length]);
+        // Crear el corazón
+        const heart = document.createElement('div');
+        heart.id = 'heart-word'; heart.innerHTML = '❤️ CONFIANZA';
+        heart.style.left = Math.random()*60 + 20 + '%'; heart.style.top = Math.random()*60 + 20 + '%';
+        heart.onclick = () => transition(2, 3, setupFog);
+        garden.appendChild(heart);
+    }
+
+    function createDistraction(text) {
+        const el = document.createElement('div');
+        el.className = 'word-cloud'; el.innerText = text;
+        el.style.left = Math.random()*90 + '%'; el.style.top = Math.random()*80 + 10 + '%';
+        garden.appendChild(el);
+        wordElements.push({el, x: el.offsetLeft, y: el.offsetTop});
+    }
+
+    document.onmousemove = (e) => {
+        // Las nubes huyen del mouse como si estuvieran vivas
+        wordElements.forEach(obj => {
+            const dx = e.clientX - (obj.x + obj.el.offsetWidth/2);
+            const dy = e.clientY - (obj.y + obj.el.offsetHeight/2);
+            const dist = Math.hypot(dx, dy);
+            if(dist < 180) { // Radio de huida
+                const angle = Math.atan2(dy, dx);
+                const force = (180 - dist) * 0.4;
+                obj.el.style.transform = `translate(${-Math.cos(angle)*force}px, ${-Math.sin(angle)*force}px) rotate(${Math.random()*10-5}deg)`;
+            } else {
+                obj.el.style.transform = `translate(0,0)`;
+            }
+        });
+        // El corazón reacciona con intensidad al acercarse
+        const heart = document.getElementById('heart-word');
+        if(heart) {
+            const rect = heart.getBoundingClientRect();
+            const dist = Math.hypot(e.clientX - (rect.left+rect.width/2), e.clientY - (rect.top+rect.height/2));
+            if(dist < 250) {
+                const intensity = 1 - (dist/250);
+                heart.style.transform = `scale(${1 + intensity*0.6})`;
+                heart.style.filter = `brightness(${1 + intensity*0.4}) drop-shadow(0 0 ${20*intensity}px rgba(255,71,87,0.8))`;
+                heart.style.animation = 'none'; // Detener latido regular
+            } else {
+                heart.style.transform = 'scale(1)'; heart.style.filter = 'brightness(1)';
+                heart.style.animation = 'heartbeat 1.8s infinite';
+            }
+        }
+    }
+
+    // --- NIEBLA DORADA ---
+    function setupFog() {
+        const canvas = document.getElementById('fog-canvas');
+        const ctx = canvas.getContext('2d');
+        // Gradiente de "polvo dorado" en lugar de niebla gris
+        const grad = ctx.createLinearGradient(0,0,550,380);
+        grad.addColorStop(0, '#fddb92'); grad.addColorStop(1, '#d1fdff');
+        ctx.fillStyle = grad; ctx.fillRect(0,0,550,380);
+
+        ctx.globalCompositeOperation = 'destination-out';
+        let drawing = false; let points = 0;
+        function scratch(e) {
+            if(!drawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            ctx.beginPath(); ctx.arc(x, y, 30, 0, Math.PI*2); ctx.fill();
+            points++;
+            if(points > 350) {
+                const btn = document.getElementById('btn-done');
+                btn.style.opacity = '1'; btn.style.pointerEvents = 'all';
+            }
+        }
+        canvas.onmousedown = canvas.ontouchstart = () => drawing = true;
+        window.onmouseup = window.ontouchend = () => drawing = false;
+        canvas.onmousemove = canvas.ontouchmove = scratch;
+    }
+
+    // --- NAVEGACIÓN ---
+    function start() {
+        document.getElementById('music').play();
+        transition(1, 2, spawnWords);
+    }
+    // Función de transición mejorada para ser más suave
+    function transition(outIdx, inIdx, callback) {
+        document.getElementById('scene'+outIdx).classList.remove('active');
+        setTimeout(() => {
+            document.getElementById('scene'+inIdx).classList.add('active');
+            if(callback) callback();
+        }, 2000); // Espera a que termine la transición de opacidad
+    }
+    function goFinal() { transition(3, 4); }
+
+    initBg(); drawBg();
+    window.onresize = () => { initBg(); }; // Reajustar fondo al cambiar tamaño
+</script>
+</body>
+</html>

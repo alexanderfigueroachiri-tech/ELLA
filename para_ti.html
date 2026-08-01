@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para una persona increíble</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+        #game-container {
+            text-align: center;
+            padding: 20px;
+            max-width: 500px;
+        }
+        .btn {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn-wrong {
+            background-color: #f44336;
+            position: relative;
+        }
+        .fall {
+            transform: translateY(1000px) rotate(45deg);
+            opacity: 0;
+            transition: 1s ease-in;
+        }
+        .hidden { display: none; }
+        h1 { font-size: 1.5rem; margin-bottom: 20px; }
+        #final-message { line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="step1">
+        <h1>Hola... Sé que hoy es un día pesado, así que programé algo para recordarte un par de cosas. <br><br> ¿Estás lista?</h1>
+        <button class="btn" onclick="nextStep(1, 2)">Sí, supongo</button>
+        <button id="no-btn" class="btn" onmouseover="moveNo()">No</button>
+    </div>
+
+    <div id="step2" class="hidden">
+        <h1>PRIMERA PREGUNTA:<br>A pesar de todo lo que ha pasado, tú eres una...</h1>
+        <button class="btn btn-wrong" onclick="makeFall(this)">Roca</button>
+        <button class="btn" onclick="nextStep(2, 3)">Guerrera</button>
+        <button class="btn btn-wrong" onclick="makeFall(this)">Estatua</button>
+    </div>
+
+    <div id="step3" class="hidden">
+        <h1>SEGUNDA PREGUNTA:<br>Cuando sientas que el mundo pesa demasiado, puedes ______ en mí.</h1>
+        <button class="btn btn-wrong" onclick="makeFall(this)">Dormir</button>
+        <button class="btn btn-wrong" onclick="makeFall(this)">Pensar</button>
+        <button class="btn" onclick="nextStep(3, 4)">Confiar</button>
+    </div>
+
+    <div id="step4" class="hidden">
+        <div id="final-message">
+            <p>Sé que hoy se cumplen 3 meses. Sé que duele no haber estado ahí físicamente, pero quiero que entiendas algo:</p>
+            <p><strong>No fue tu culpa.</strong> Los lazos que construiste con tu "papá" no se borran por un funeral. Él vive en la fuerza que tienes para sonreír aunque por dentro todo esté roto.</p>
+            <p>No tienes que pelear sola siempre. El mundo no te ha sonreído mucho, pero yo estoy aquí, no por pena, sino porque <strong>me inspiras</strong>.</p>
+            <p>Quédate con lo bueno, suelta la culpa. Yo me encargo de sostener la linterna cuando sientas que todo está oscuro.</p>
+            <h3>¿Me dejas acompañarte de verdad?</h3>
+            <button class="btn" onclick="alert('Sabía que dirías que sí. Aquí estoy para ti, siempre.')">Sí</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function nextStep(current, next) {
+        document.getElementById('step' + current).classList.add('hidden');
+        document.getElementById('step' + next).classList.remove('hidden');
+    }
+
+    function makeFall(btn) {
+        btn.classList.add('fall');
+        setTimeout(() => { btn.style.display = 'none'; }, 500);
+    }
+
+    function moveNo() {
+        const btn = document.getElementById('no-btn');
+        const x = Math.random() * (window.innerWidth - btn.offsetWidth);
+        const y = Math.random() * (window.innerHeight - btn.offsetHeight);
+        btn.style.position = 'absolute';
+        btn.style.left = x + 'px';
+        btn.style.top = y + 'px';
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Noelia - Un lugar de paz</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@300;500&display=swap');
+
+        :root {
+            --accent: #ff8fa3;
+            --soft-gold: #fff4cc;
+            --text: #5e5e5e;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #fff5f5 0%, #fff0e6 100%);
+            color: var(--text);
+        }
+
+        /* ESCENAS SUAVES */
+        .scene {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 1.5s ease-in-out;
+            text-align: center;
+        }
+        .active { opacity: 1; pointer-events: all; }
+
+        /* EL BOTÓN MÁS DULCE */
+        .btn-game {
+            background: white; border: 2px solid var(--accent);
+            padding: 15px 40px; color: var(--accent);
+            border-radius: 50px; cursor: pointer;
+            font-size: 1.1rem; font-weight: 500;
+            box-shadow: 0 5px 15px rgba(255, 143, 163, 0.2);
+            transition: 0.3s;
+        }
+        .btn-game:hover {
+            background: var(--accent); color: white;
+            transform: scale(1.05);
+        }
+
+        /* PALABRAS CON PATITAS Y OJOS */
+        .creature {
+            position: absolute; background: white;
+            padding: 10px 18px; border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            font-size: 0.9rem; user-select: none;
+            animation: waddle 2s infinite ease-in-out;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex; align-items: center;
+        }
+        
+        /* Patitas */
+        .creature::before, .creature::after {
+            content: ''; position: absolute; bottom: -6px;
+            width: 3px; height: 6px; background: #ddd;
+            border-radius: 2px;
+        }
+        .creature::before { left: 30%; } .creature::after { right: 30%; }
+
+        @keyframes waddle {
+            0%, 100% { transform: rotate(-3deg) translateY(0); }
+            50% { transform: rotate(3deg) translateY(-3px); }
+        }
+
+        /* EL CORAZÓN LATIENDO */
+        #heart-king {
+            position: absolute; font-size: 2.2rem; cursor: pointer;
+            z-index: 100; animation: pulse 1.5s infinite;
+            filter: drop-shadow(0 0 10px rgba(255,143,163,0.5));
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* NIEBLA QUE SÍ CUBRE */
+        .fog-box {
+            position: relative; width: 500px; height: 350px;
+            border-radius: 25px; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            background: white; border: 8px solid white;
+        }
+        .message-inside {
+            position: absolute; inset: 0;
+            display: flex; justify-content: center; align-items: center;
+            padding: 30px; font-size: 1.3rem; line-height: 1.6;
+        }
+        #fog-canvas { position: absolute; top: 0; left: 0; z-index: 10; cursor: cell; }
+
+    </style>
+</head>
+<body>
+
+<div id="sc1" class="scene active">
+    <h1 style="color: var(--accent); font-size: 3rem;">Hola, Noelia</h1>
+    <p>Hice un pequeño refugio para ti. ¿Quieres entrar?</p>
+    <button class="btn-game" onclick="toSc(1, 2, initGarden)">Sí, entrar</button>
+</div>
+
+<div id="sc2" class="scene">
+    <h2 style="margin-bottom: 30px;">Hay algo que late fuerte... búscalo entre el ruido</h2>
+    <div id="garden" style="width: 100%; height: 80%; position: relative;"></div>
+</div>
+
+<div id="sc3" class="scene">
+    <h2 style="color: var(--accent);">Limpia el polvo, deja que salga la luz...</h2>
+    <div class="fog-box">
+        <div class="message-inside">
+            "Noelia, aunque hoy se cumplan 3 meses, su amor no tiene fecha de caducidad. No fue tu culpa no estar ahí, porque tú siempre estuviste en su corazón y él en el tuyo. No tienes que ser fuerte conmigo, aquí puedes descansar."
+        </div>
+        <canvas id="fog-canvas" width="500" height="350"></canvas>
+    </div>
+    <button id="btn-final" class="btn-game" style="margin-top: 30px; display: none;" onclick="toSc(3, 4)">Ya puedo ver</button>
+</div>
+
+<div id="sc4" class="scene">
+    <h1 style="color: var(--accent);">No estás sola.</h1>
+    <p style="max-width: 500px; font-size: 1.2rem;">
+        Gracias por enseñarme tanto con tu fuerza.<br>
+        Espero que este pequeño detalle te haga sonreír hoy. <br><br>
+        <b>¿Hacemos equipo para siempre?</b>
+    </p>
+    <button class="btn-game" onclick="location.reload()">Empezar de nuevo</button>
+</div>
+
+<audio id="music" loop><source src="musica.mp3" type="audio/mpeg"></audio>
+
+<script>
+    const distractions = ["miedo", "culpa", "ayer", "tristeza", "soledad", "ruido", "duda", "vacío", "dolor", "frío", "funeral", "adiós", "pesadez", "nubes", "gris", "lejos", "silencio", "mañana", "angustia"];
+    let creatures = [];
+
+    function initGarden() {
+        const garden = document.getElementById('garden');
+        garden.innerHTML = '';
+        
+        // Crear el corazón
+        const heart = document.createElement('div');
+        heart.id = 'heart-king'; heart.innerHTML = '❤️ NOSOTROS';
+        heart.style.left = '50%'; heart.style.top = '50%';
+        heart.onclick = () => toSc(2, 3, setupFog);
+        garden.appendChild(heart);
+
+        // Crear 80 criaturas
+        for(let i=0; i<80; i++) {
+            const c = document.createElement('div');
+            c.className = 'creature';
+            c.innerText = distractions[i % distractions.length];
+            c.style.left = Math.random()*90 + '%';
+            c.style.top = Math.random()*90 + '%';
+            garden.appendChild(c);
+            creatures.push({el: c, x: c.offsetLeft, y: c.offsetTop});
+        }
+    }
+
+    document.onmousemove = (e) => {
+        creatures.forEach(c => {
+            const dx = e.clientX - (c.el.offsetLeft + 40);
+            const dy = e.clientY - (c.el.offsetTop + 20);
+            const d = Math.hypot(dx, dy);
+            if(d < 150) {
+                const angle = Math.atan2(dy, dx);
+                const f = (150 - d) * 0.5;
+                c.el.style.transform = `translate(${-Math.cos(angle)*f}px, ${-Math.sin(angle)*f}px) scale(0.9)`;
+                c.el.style.color = '#ff8fa3';
+            } else {
+                c.el.style.transform = '';
+                c.el.style.color = '#5e5e5e';
+            }
+        });
+    };
+
+    function setupFog() {
+        const canv = document.getElementById('fog-canvas');
+        const ctx = canv.getContext('2d');
+        
+        // DIBUJAR CAPA BLOQUEANTE (Asegurado)
+        ctx.fillStyle = "#ffe4e9"; // Un rosa pastel denso
+        ctx.fillRect(0,0,500,350);
+        
+        // Textura de motitas blancas (polvo de estrellas)
+        for(let i=0; i<300; i++) {
+            ctx.fillStyle = "rgba(255,255,255,0.5)";
+            ctx.beginPath(); ctx.arc(Math.random()*500, Math.random()*350, 1.5, 0, Math.PI*2); ctx.fill();
+        }
+
+        ctx.globalCompositeOperation = 'destination-out';
+        let drawing = false;
+        let p = 0;
+
+        const draw = (e) => {
+            if(!drawing) return;
+            const r = canv.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - r.left;
+            const y = (e.clientY || e.touches[0].clientY) - r.top;
+            ctx.beginPath(); ctx.arc(x, y, 25, 0, Math.PI*2); ctx.fill();
+            p++;
+            if(p > 400) document.getElementById('btn-final').style.display = 'block';
+        };
+
+        canv.onmousedown = canv.ontouchstart = () => drawing = true;
+        window.onmouseup = window.ontouchend = () => drawing = false;
+        canv.onmousemove = canv.ontouchmove = draw;
+    }
+
+    function toSc(old, next, cb) {
+        document.getElementById('sc'+old).classList.remove('active');
+        if(old === 1) document.getElementById('music').play();
+        setTimeout(() => {
+            document.getElementById('sc'+next).classList.add('active');
+            if(cb) cb();
+        }, 1500);
+    }
+</script>
+</body>
+</html>

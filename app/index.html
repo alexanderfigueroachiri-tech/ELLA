@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#1a1214" />
+  <meta name="description" content="Un caminito hecho para Noelia" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="assets/nosotros.jpg" />
+  <title>Para Noelia</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="toast" class="toast" role="status"></div>
+
+  <!-- SPLASH -->
+  <section id="splash" class="screen active" aria-label="Inicio">
+    <div class="panel">
+      <p class="eyebrow">1 de agosto · Día de la Novia</p>
+      <h1 class="brand">Noelia</h1>
+      <p class="sub">
+        Amorcito… hice esto para ti. No es una caja. Es un caminito.
+        Ábrelo con calma — y sí, hay un jueguito tipo los que te gustan.
+      </p>
+      <div class="actions">
+        <button id="enter-btn" class="btn" type="button">Empezar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section id="map-screen" class="screen" aria-label="Mapa">
+    <div class="topbar">
+      <button id="map-back" class="icon-btn" type="button" aria-label="Volver">←</button>
+      <div class="hud-title">El camino de Noelia</div>
+      <button id="reset-progress" class="icon-btn" type="button" title="Reiniciar" aria-label="Reiniciar">↺</button>
+    </div>
+    <p class="eyebrow">Para mi tequeña</p>
+    <h1 class="brand">Tu mapa</h1>
+    <p class="sub">Cuatro paradas. Cada una desbloquea un pedacito de nosotros.</p>
+
+    <div class="map-path">
+      <button class="level-card" data-level="1" type="button">
+        <div class="level-num">1</div>
+        <div>
+          <h3>Permiso</h3>
+          <p>Solo una pregunta… y un “no” muy cobarde.</p>
+        </div>
+        <div class="level-status">Abrir</div>
+      </button>
+      <div class="connector"></div>
+
+      <button class="level-card" data-level="2" type="button">
+        <div class="level-num">2</div>
+        <div>
+          <h3>Atasco de cariño</h3>
+          <p>Colores enredados, flechas con actitud… y tú sacándolos del lío.</p>
+        </div>
+        <div class="level-status">🔒</div>
+      </button>
+      <div class="connector"></div>
+
+      <button class="level-card" data-level="3" type="button">
+        <div class="level-num">3</div>
+        <div>
+          <h3>Casa / oso mañoso</h3>
+          <p>El rinconcito soft. Sin prisa.</p>
+        </div>
+        <div class="level-status">🔒</div>
+      </button>
+      <div class="connector"></div>
+
+      <button class="level-card" data-level="4" type="button">
+        <div class="level-num">4</div>
+        <div>
+          <h3>La carta</h3>
+          <p>Audio de Ale, fotos, y espacio para un video.</p>
+        </div>
+        <div class="level-status">🔒</div>
+      </button>
+    </div>
+
+    <p class="map-note">Hecho a mano por tu tequeño · aunque estemos lejos</p>
+  </section>
+
+  <!-- LEVEL 1 -->
+  <section id="intro-screen" class="screen" aria-label="Nivel 1">
+    <div class="topbar">
+      <button id="intro-back" class="icon-btn" type="button" aria-label="Volver">←</button>
+      <div class="hud-title">Nivel 1 · Permiso</div>
+      <span style="width:42px"></span>
+    </div>
+    <div class="center-scene">
+      <p class="eyebrow">Hola, amorcito</p>
+      <h2 class="brand">¿Me dejas alegrarte el día… aunque sea desde lejos?</h2>
+      <p class="sub">Si dices que no, ese botón va a ponerse nervioso.</p>
+      <div class="choice-row">
+        <button id="yes-btn" class="btn" type="button">Sí, Ale</button>
+        <button id="no-btn" class="btn" type="button">No</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEVEL 2: BUS JAM -->
+  <section id="jam-screen" class="screen jam-screen" aria-label="Nivel 2">
+    <div class="topbar">
+      <button id="jam-back" class="icon-btn" type="button" aria-label="Volver">←</button>
+      <div class="hud-title" id="jam-title">Atasco de cariño</div>
+      <button id="jam-mute" class="icon-btn" type="button" aria-label="Sonido">🔊</button>
+    </div>
+    <p class="hint" id="jam-hint">Toca un bus. Si choca, vuelve. Si sale al andén, sube su color de la fila. Los largos llevan más gente.</p>
+    <div class="jam-wrap">
+      <div class="queue-board">
+        <div class="queue-head">
+          <div class="queue-label">Fila de lo nuestro</div>
+          <div class="queue-count" id="queue-count">0 en fila</div>
+        </div>
+        <div class="queue-viewport">
+          <div class="queue-track" id="queue-track"></div>
+        </div>
+      </div>
+      <div class="bays" id="bays"></div>
+      <div class="lot" id="lot" aria-label="Estacionamiento"></div>
+      <div id="softlock" class="softlock">Uy… andenes trabados. Prueba el soplo de Ale o reinicia.</div>
+      <div class="game-tools">
+        <button id="jam-blow" class="btn" type="button">Soplo de Ale (1)</button>
+        <button id="jam-reset" class="btn ghost" type="button">Reiniciar</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- LEVEL 3 -->
+  <section id="cozy-screen" class="screen" aria-label="Nivel 3">
+    <div class="topbar">
+      <button id="cozy-back" class="icon-btn" type="button" aria-label="Volver">←</button>
+      <div class="hud-title">Nivel 3 · Casa</div>
+      <span style="width:42px"></span>
+    </div>
+    <div class="center-scene">
+      <p class="eyebrow">Cuando no hay prisa</p>
+      <h2 class="brand">El sofá, la tele… y el oso mañoso</h2>
+      <p class="sub">
+        Me gusta abrazarte. Me gusta olerte.
+        Y me gusta que exista ese osito cuidando el cuarto cuando yo no puedo.
+      </p>
+      <div class="photo-frame">
+        <img src="assets/sala.jpg" alt="Nuestra sala" />
+      </div>
+      <button id="cozy-next" class="btn" type="button">Seguir</button>
+    </div>
+  </section>
+
+  <!-- LEVEL 4 -->
+  <section id="finale-screen" class="screen" aria-label="Nivel 4">
+    <div class="topbar">
+      <button id="finale-back" class="icon-btn" type="button" aria-label="Volver">←</button>
+      <div class="hud-title">Nivel 4 · La carta</div>
+      <span style="width:42px"></span>
+    </div>
+
+    <p class="eyebrow">De Ale para Noelia</p>
+    <h1 class="brand" style="font-size:2rem;">No se me olvidó</h1>
+
+    <div class="letter">
+      <h2>Tequeña,</h2>
+      <p>
+        Hoy es tu día y aunque la distancia nos tenga en mapas distintos,
+        yo seguía pensando en ti: en los tequeños, en la carne, en los conciertos,
+        en Ed Sheeran de fondo, en Paco Yonque, en tu carita, en abrazarte.
+      </p>
+      <p>
+        No pude darte algo que se envuelve con moño.
+        Entonces hice esto — un juego, un mapa, unas fotos, mi voz —
+        para que se note que me esforcé, y que me importas.
+      </p>
+      <p>
+        Gracias por ser mi amor. Gracias por dejarme ser tu tequeño.
+        Cuando volvamos a estar cerca, te debo el abrazo completo.
+      </p>
+      <p><strong>— Ale</strong></p>
+
+      <div class="finale-gallery">
+        <img src="assets/nosotros.jpg" alt="Nosotros" />
+        <img src="assets/cita-mesa.jpg" alt="Nuestra cita" />
+        <img src="assets/oso-manoso.jpg" alt="Oso mañoso" />
+        <img src="assets/cuaderno.jpg" alt="Tu letra" />
+      </div>
+
+      <div class="audio-box">
+        <strong>Audio de tu tequeño</strong>
+        <p style="margin:6px 0 0; font-size:0.92rem; color:#5a3a44;">
+          (borrador — si te gusta el proyecto, Ale graba la versión definitiva)
+        </p>
+        <audio controls preload="metadata" src="assets/audio.mp4"></audio>
+      </div>
+
+      <div class="video-box">
+        <strong>Video</strong>
+        <div class="video-placeholder" id="video-slot">
+          Espacio guardado para un video de Ale.<br />
+          Pronto llega. Mientras tanto, ya tienes el resto del camino.
+        </div>
+        <!-- Cuando exista: <video controls playsinline src="assets/video.mp4"></video> -->
+      </div>
+    </div>
+
+    <p class="map-note" style="text-align:center;">
+      Tip iPhone: Safari → Compartir → “Añadir a pantalla de inicio” para que se sienta como app.
+    </p>
+  </section>
+
+  <!-- MEMORY MODAL -->
+  <div id="memory" class="memory" aria-live="polite">
+    <div class="memory-card">
+      <img src="" alt="" />
+      <div class="body">
+        <h3></h3>
+        <p></p>
+        <button class="btn" type="button">Seguir el camino</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sfx.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>

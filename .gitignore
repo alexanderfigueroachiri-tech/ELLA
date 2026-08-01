@@ -1,0 +1,16 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+
+# Huge raw media (the curated copies live in app/assets)
+fotos-no tengo muchas/
+mas fotos y un video/
+
+# Local helpers / caches
+__pycache__/
+*.pyc
+.DS_Store
+*.log

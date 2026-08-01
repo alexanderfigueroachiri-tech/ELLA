@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Noelia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500;700&display=swap');
+
+        :root {
+            --accent: #ff758c;
+            --bg-warm: #fff1eb;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Quicksand', sans-serif;
+            background: #fff1eb;
+        }
+
+        /* FONDO DE PARTÍCULAS */
+        #particle-canvas { position: fixed; inset: 0; z-index: -1; }
+
+        .scene {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 1s ease-in-out, transform 1s ease;
+            transform: scale(0.95);
+        }
+        .active { opacity: 1; pointer-events: all; transform: scale(1); }
+
+        /* BOTONES INTERACTIVOS */
+        .btn {
+            background: white; border: 2px solid var(--accent);
+            padding: 12px 30px; color: var(--accent);
+            border-radius: 50px; cursor: pointer;
+            font-size: 1.1rem; margin: 10px;
+            transition: background 0.3s, color 0.3s, transform 0.2s;
+            position: relative;
+        }
+        .btn:hover { background: var(--accent); color: white; }
+
+        /* ANIMACIÓN DE CAÍDA */
+        .falling { 
+            animation: fallDown 1s forwards cubic-bezier(0.55, 0.055, 0.675, 0.19);
+            pointer-events: none;
+        }
+        @keyframes fallDown {
+            to { transform: translateY(1000px) rotate(45deg); opacity: 0; }
+        }
+
+        /* PALABRAS VIVAS */
+        .word-creature {
+            position: absolute; padding: 8px 15px;
+            background: rgba(255,255,255,0.8); border-radius: 15px;
+            font-size: 0.9rem; color: #888; cursor: default;
+            user-select: none; transition: transform 0.3s ease-out;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .word-creature::before { content: '👀'; font-size: 0.6rem; margin-right: 5px; opacity: 0.5; }
+
+        #target-word {
+            font-weight: 700; z-index: 10;
+        }
+
+        /* NIEBLA REFORZADA */
+        .fog-container {
+            position: relative; width: 550px; height: 350px;
+            border-radius: 20px; overflow: hidden;
+            border: 5px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .secret-content {
+            position: absolute; inset: 0; display: flex;
+            justify-content: center; align-items: center;
+            padding: 30px; text-align: center; font-size: 1.3rem;
+            background: white;
+        }
+        #fog-canvas { position: absolute; top: 0; left: 0; z-index: 5; cursor: crosshair; }
+
+    </style>
+</head>
+<body>
+
+<canvas id="particle-canvas"></canvas>
+
+<div id="scene1" class="scene active">
+    <h1 style="color: var(--accent); font-size: 3rem;">Hola, Noelia</h1>
+    <p>¿Me permites un momento de tu tiempo?</p>
+    <div>
+        <button class="btn" onclick="nextSc(1, 2)">Sí, claro</button>
+        <button id="no-btn" class="btn" onmouseover="dodgeNo()">No</button>
+    </div>
+</div>
+
+<div id="scene2" class="scene">
+    <h2>A veces el mundo pesa, pero...</h2>
+    <p>¿Qué prefieres hacer hoy conmigo?</p>
+    <div id="options-container">
+        <button class="btn" onclick="handleFall(this)">Huir</button>
+        <button class="btn" onclick="nextSc(2, 3, initGarden)">Confiar</button>
+        <button class="btn" onclick="handleFall(this)">Fingir</button>
+    </div>
+</div>
+
+<div id="scene3" class="scene">
+    <h2 style="position: absolute; top: 5%;">Búscame... estoy escondido en algún lugar</h2>
+    <div id="garden-field" style="width: 100%; height: 100%; position: relative;"></div>
+</div>
+
+<div id="scene4" class="scene">
+    <h2 style="color: var(--accent);">Limpia el dolor, Noelia. Despacio...</h2>
+    <div class="fog-container">
+        <div class="secret-content">
+            "Noelia, 3 meses no borran una vida de amor. Tu abuelo sabe que estuviste ahí siempre, en espíritu. No te culpes por lo que no pudiste controlar. Su luz ahora vive en ti."
+        </div>
+        <canvas id="fog-canvas" width="550" height="350"></canvas>
+    </div>
+    <button id="btn-final" class="btn" style="margin-top: 20px; display: none;" onclick="nextSc(4, 5)">Ya lo quité todo</button>
+</div>
+
+<div id="scene5" class="scene">
+    <h1 style="color: var(--accent);">No estás sola.</h1>
+    <p style="max-width: 500px;">
+        Te admiro por cómo te levantas siempre.<br>
+        Estoy aquí para ser tu equipo.<br><br>
+        <b>¿Te quedarías conmigo?</b>
+    </p>
+    <button class="btn" onclick="location.reload()">Empezar de nuevo</button>
+</div>
+
+<audio id="music" loop><source src="musica.mp3" type="audio/mpeg"></audio>
+
+<script>
+    // --- MOTOR DE PARTÍCULAS ---
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    function initParticles() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particles = [];
+        for(let i=0; i<60; i++) {
+            particles.push({
+                x: Math.random()*canvas.width, y: Math.random()*canvas.height,
+                r: Math.random()*5+2, dx: (Math.random()-0.5)*0.5, dy: (Math.random()-0.5)*0.5,
+                alpha: Math.random()*0.5 + 0.2
+            });
+        }
+    }
+
+    function drawParticles() {
+        ctx.clearRect(0,0, canvas.width, canvas.height);
+        particles.forEach(p => {
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(255, 117, 140, ${p.alpha})`;
+            ctx.fill();
+            p.x += p.dx; p.y += p.dy;
+            if(p.x<0 || p.x>canvas.width) p.dx*=-1;
+            if(p.y<0 || p.y>canvas.height) p.dy*=-1;
+        });
+        requestAnimationFrame(drawParticles);
+    }
+
+    // --- LÓGICA DE ESCENA 1 & 2 ---
+    function dodgeNo() {
+        const btn = document.getElementById('no-btn');
+        btn.style.position = 'fixed';
+        btn.style.left = Math.random()*80 + 10 + '%';
+        btn.style.top = Math.random()*80 + 10 + '%';
+    }
+
+    function handleFall(btn) {
+        btn.classList.add('falling');
+    }
+
+    // --- JARDÍN DE PALABRAS ---
+    const distractors = ["miedo", "culpa", "ayer", "ruido", "funeral", "tristeza", "soledad", "duda", "vacío", "adiós", "angustia", "final", "lejos", "gris", "frío", "silencio", "mañana", "nubes", "peso"];
+    let creatureList = [];
+
+    function initGarden() {
+        const garden = document.getElementById('garden-field');
+        garden.innerHTML = ''; creatureList = [];
+        
+        // Crear 100 palabras
+        for(let i=0; i<100; i++) {
+            const isTarget = (i === 50);
+            const div = document.createElement('div');
+            div.className = 'word-creature';
+            if(isTarget) {
+                div.id = 'target-word';
+                div.innerText = 'CONFIANZA';
+                div.onclick = () => nextSc(3, 4, setupFog);
+            } else {
+                div.innerText = distractors[Math.floor(Math.random()*distractors.length)];
+            }
+            div.style.left = Math.random()*90 + '%';
+            div.style.top = Math.random()*90 + '%';
+            garden.appendChild(div);
+            creatureList.push({el: div, isTarget: isTarget, x: div.offsetLeft, y: div.offsetTop});
+        }
+    }
+
+    document.onmousemove = (e) => {
+        creatureList.forEach(c => {
+            const dx = e.clientX - (c.el.offsetLeft + 40);
+            const dy = e.clientY - (c.el.offsetTop + 20);
+            const dist = Math.hypot(dx, dy);
+
+            if(!c.isTarget && dist < 120) {
+                const angle = Math.atan2(dy, dx);
+                c.el.style.transform = `translate(${-Math.cos(angle)*60}px, ${-Math.sin(angle)*60}px) scale(0.8)`;
+                c.el.style.opacity = '0.4';
+            } else if(c.isTarget && dist < 200) {
+                const heat = 1 - (dist/200);
+                c.el.style.color = '#ff758c';
+                c.el.style.transform = `scale(${1 + heat*0.8})`;
+                c.el.style.boxShadow = `0 0 ${20*heat}px #ff758c`;
+            } else {
+                c.el.style.transform = 'translate(0,0) scale(1)';
+                c.el.style.opacity = '1';
+                if(c.isTarget) c.el.style.color = '#888';
+            }
+        });
+    };
+
+    // --- NIEBLA REFORZADA ---
+    function setupFog() {
+        const canv = document.getElementById('fog-canvas');
+        const ctxF = canv.getContext('2d');
+        ctxF.fillStyle = "#f8d7da"; 
+        ctxF.fillRect(0,0,550,350);
+        
+        // Capa de "polvo" adicional para que sea difícil
+        for(let i=0; i<500; i++) {
+            ctxF.fillStyle = `rgba(255,255,255,${Math.random()*0.2})`;
+            ctxF.beginPath(); ctxF.arc(Math.random()*550, Math.random()*350, 2, 0, Math.PI*2); ctxF.fill();
+        }
+
+        ctxF.globalCompositeOperation = 'destination-out';
+        let drawing = false;
+        let p = 0;
+
+        const scratch = (e) => {
+            if(!drawing) return;
+            const r = canv.getBoundingClientRect();
+            const x = (e.clientX || (e.touches ? e.touches[0].clientX : 0)) - r.left;
+            const y = (e.clientY || (e.touches ? e.touches[0].clientY : 0)) - r.top;
+            ctxF.beginPath(); ctxF.arc(x, y, 15, 0, Math.PI*2); // Pincel pequeño = más trabajo
+            ctxF.fill();
+            p++;
+            if(p > 600) document.getElementById('btn-final').style.display = 'block';
+        };
+
+        canv.onmousedown = canv.ontouchstart = () => drawing = true;
+        window.onmouseup = window.ontouchend = () => drawing = false;
+        canv.onmousemove = canv.ontouchmove = scratch;
+    }
+
+    function nextSc(old, nxt, cb) {
+        if(old === 1) document.getElementById('music').play();
+        document.getElementById('scene'+old).classList.remove('active');
+        setTimeout(() => {
+            document.getElementById('scene'+nxt).classList.add('active');
+            if(cb) cb();
+        }, 1000);
+    }
+
+    initParticles(); drawParticles();
+</script>
+</body>
+</html>

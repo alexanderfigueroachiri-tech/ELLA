@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Noelia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cold: #00d4ff;
+            --warm: #ff4d4d;
+            --bg: #050505;
+        }
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            overflow: hidden;
+            background: var(--bg);
+            font-family: 'Quicksand', sans-serif;
+            color: white;
+        }
+
+        /* Fondo de Partículas */
+        #canvas-bg {
+            position: fixed; top: 0; left: 0; z-index: -1;
+        }
+
+        .scene {
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            height: 100vh; width: 100%;
+            position: absolute; transition: opacity 1.5s ease, transform 1.5s ease;
+            text-align: center;
+        }
+
+        .hidden { opacity: 0; pointer-events: none; transform: scale(0.9); }
+
+        /* Estilo de Botones */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 15px 40px;
+            color: white;
+            border-radius: 30px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+            font-size: 1.1rem;
+            margin-top: 20px;
+        }
+
+        .glass-btn:hover { background: rgba(255, 255, 255, 0.2); transform: translateY(-3px); }
+
+        /* Palabras Flotantes */
+        .floating-word {
+            position: absolute;
+            cursor: pointer;
+            user-select: none;
+            font-weight: bold;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+        /* La palabra especial que mencionaste */
+        #special-word {
+            font-size: 1.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .shivering { animation: shiver 0.1s infinite; }
+
+        @keyframes shiver {
+            0% { transform: translate(1px, 1px); }
+            50% { transform: translate(-1px, -1px); }
+            100% { transform: translate(1px, -1px); }
+        }
+
+        /* Niebla */
+        #scratch-container {
+            position: relative; width: 400px; height: 300px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8);
+        }
+
+        #canvas-fog { cursor: url('https://cdn-icons-png.flaticon.com/32/1656/1656850.png'), auto; }
+
+        .secret-msg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #111; display: flex; justify-content: center;
+            align-items: center; padding: 20px; box-sizing: border-box;
+            border-radius: 10px; font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas-bg"></canvas>
+
+<div id="scene-start" class="scene">
+    <h1 style="letter-spacing: 5px;">HOLA, NOELIA</h1>
+    <p style="opacity: 0.7;">He construido un pequeño lugar para ti.</p>
+    <button class="glass-btn" onclick="start()">Entrar al refugio</button>
+</div>
+
+<div id="scene-game" class="scene hidden">
+    <h2>Hay algo que se quedó congelado... búscalo.</h2>
+    <div id="word-container" style="width: 100%; height: 70%; position: relative;">
+        <div class="floating-word" style="top: 20%; left: 10%;">miedo</div>
+        <div class="floating-word" style="top: 50%; left: 80%;">ruido</div>
+        <div class="floating-word" style="top: 70%; left: 30%;">soledad</div>
+        <div class="floating-word" style="top: 15%; left: 60%;">ayer</div>
+        <div id="special-word" class="floating-word shivering" onclick="foundIt()">CONFIANZA</div>
+    </div>
+</div>
+
+<div id="scene-fog" class="scene hidden">
+    <h2>Limpia el cristal, quita la culpa...</h2>
+    <div id="scratch-container">
+        <div class="secret-msg">
+            <p>Noelia, lo que sientes no es tu culpa.<br>Él sabe que lo amas, y eso es lo único que importa ahora.</p>
+        </div>
+        <canvas id="canvas-fog" width="400" height="300"></canvas>
+    </div>
+    <button id="btn-next-fog" class="glass-btn hidden" onclick="goFinal()">Ya está limpio</button>
+</div>
+
+<div id="scene-final" class="scene hidden">
+    <h1>No estás sola.</h1>
+    <p style="max-width: 600px; line-height: 1.8;">
+        Sé que siempre te haces la fuerte, pero conmigo puedes descansar.<br>
+        Estoy aquí porque me inspiras, no por otra cosa.<br>
+        <b>¿Hacemos equipo?</b>
+    </p>
+    <button class="glass-btn" onclick="alert('Te quiero, Noelia. Siempre.')">Sí, Alexander.</button>
+</div>
+
+<audio id="audio" loop>
+    <source src="musica.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+    // --- LÓGICA DE PARTÍCULAS ---
+    const canvasBg = document.getElementById('canvas-bg');
+    const ctxBg = canvasBg.getContext('2d');
+    let particles = [];
+
+    function initParticles() {
+        canvasBg.width = window.innerWidth;
+        canvasBg.height = window.innerHeight;
+        for(let i=0; i<80; i++) {
+            particles.push({
+                x: Math.random() * canvasBg.width,
+                y: Math.random() * canvasBg.height,
+                size: Math.random() * 2,
+                speed: Math.random() * 0.5 + 0.1
+            });
+        }
+    }
+
+    function animateParticles() {
+        ctxBg.clearRect(0,0, canvasBg.width, canvasBg.height);
+        ctxBg.fillStyle = 'rgba(255,255,255,0.5)';
+        particles.forEach(p => {
+            ctxBg.beginPath();
+            ctxBg.arc(p.x, p.y, p.size, 0, Math.PI*2);
+            ctxBg.fill();
+            p.y -= p.speed;
+            if(p.y < 0) p.y = canvasBg.height;
+        });
+        requestAnimationFrame(animateParticles);
+    }
+
+    // --- LÓGICA DE PROXIMIDAD (CALOR) ---
+    const special = document.getElementById('special-word');
+    document.addEventListener('mousemove', (e) => {
+        const rect = special.getBoundingClientRect();
+        const centerX = rect.left + rect.width/2;
+        const centerY = rect.top + rect.height/2;
+        const dist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+
+        // Efecto térmico
+        if(dist < 200) {
+            const ratio = 1 - (dist / 200);
+            special.style.color = `rgb(${100 + 155*ratio}, ${212 - 150*ratio}, ${255 - 200*ratio})`;
+            special.style.textShadow = `0 0 ${20 * ratio}px white`;
+            special.classList.remove('shivering');
+            special.style.transform = `scale(${1 + 0.5*ratio})`;
+        } else {
+            special.style.color = 'var(--cold)';
+            special.classList.add('shivering');
+            special.style.transform = `scale(1)`;
+        }
+    });
+
+    // --- NAVEGACIÓN ---
+    function start() {
+        document.getElementById('audio').play();
+        transition('scene-start', 'scene-game');
+    }
+
+    function foundIt() {
+        transition('scene-game', 'scene-fog');
+        initScratch();
+    }
+
+    function transition(outId, inId) {
+        document.getElementById(outId).classList.add('hidden');
+        setTimeout(() => {
+            document.getElementById(inId).classList.remove('hidden');
+        }, 1000);
+    }
+
+    // --- SCRATCH MEJORADO ---
+    function initScratch() {
+        const canvas = document.getElementById('canvas-fog');
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#222';
+        ctx.fillRect(0,0,400,300);
+        // Añadir "textura" a la niebla
+        for(let i=0; i<500; i++) {
+            ctx.fillStyle = `rgba(255,255,255,${Math.random()*0.1})`;
+            ctx.beginPath();
+            ctx.arc(Math.random()*400, Math.random()*300, 2, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        ctx.globalCompositeOperation = 'destination-out';
+        let isDrawing = false;
+        let points = 0;
+
+        function draw(e) {
+            if(!isDrawing) return;
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+            ctx.beginPath();
+            ctx.arc(x, y, 15, 0, Math.PI*2); // Pincel más pequeño = más esfuerzo
+            ctx.fill();
+            points++;
+            if(points > 300) document.getElementById('btn-next-fog').classList.remove('hidden');
+        }
+
+        canvas.onmousedown = () => isDrawing = true;
+        canvas.onmouseup = () => isDrawing = false;
+        canvas.onmousemove = draw;
+        canvas.ontouchmove = draw;
+        canvas.ontouchstart = () => isDrawing = true;
+    }
+
+    function goFinal() { transition('scene-fog', 'scene-final'); }
+
+    initParticles();
+    animateParticles();
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Viaje de Noelia</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&family=Quicksand:wght@500&display=swap');
+
+        :root {
+            --bg-main: #ffebee;
+            --accent: #ff4081;
+            --path: #ffc107;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; font-family: 'Quicksand', sans-serif;
+            background: var(--bg-main);
+        }
+
+        /* --- OVERWORLD (MAPA) --- */
+        #map-container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100vh; background: radial-gradient(circle, #fff9c4 0%, #ffecb3 100%);
+        }
+
+        .level-dot {
+            width: 60px; height: 60px; background: white; border: 4px solid var(--path);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-family: 'Fredoka One', cursive; font-size: 1.5rem; color: var(--path);
+            cursor: pointer; position: relative; z-index: 2; transition: 0.3s;
+        }
+        .level-dot.locked { filter: grayscale(1); opacity: 0.5; cursor: not-allowed; }
+        .level-dot:not(.locked):hover { transform: scale(1.2); box-shadow: 0 0 20px var(--path); }
+
+        .path-line {
+            width: 8px; height: 100px; background: var(--path); margin: -5px 0;
+        }
+
+        /* --- BOTÓN CON PIERNAS --- */
+        #runaway-btn {
+            position: relative; padding: 15px 30px; background: #ff5252; color: white;
+            border: none; border-radius: 15px; font-weight: bold; cursor: pointer;
+        }
+
+        .leg {
+            position: absolute; bottom: -10px; width: 4px; height: 12px;
+            background: #333; display: none;
+        }
+        .leg-l { left: 30%; } .leg-r { right: 30%; }
+
+        .running .leg { display: block; animation: walk 0.2s infinite alternate; }
+
+        @keyframes walk {
+            from { transform: rotate(-20deg); } to { transform: rotate(20deg); }
+        }
+
+        /* --- MUNDO 2: FRASES --- */
+        .phrase-slot {
+            font-size: 2rem; color: #888; border-bottom: 2px dashed #888;
+            margin: 0 10px; display: inline-block; min-width: 100px; text-align: center;
+        }
+        .correct-word {
+            position: absolute; background: white; padding: 10px; border-radius: 10px;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* --- GENERALES --- */
+        .scene { position: fixed; inset: 0; display: none; flex-direction: column; align-items: center; justify-content: center; background: white; z-index: 10; }
+        .scene.active { display: flex; }
+    </style>
+</head>
+<body>
+
+<div id="map-container">
+    <h1 style="color: #ff8f00; font-family: 'Fredoka One'; margin-bottom: 50px;">EL CAMINO DE LUZ</h1>
+    
+    <div id="dot-3" class="level-dot locked" onclick="enterWorld(3)">3</div>
+    <div class="path-line"></div>
+    <div id="dot-2" class="level-dot locked" onclick="enterWorld(2)">2</div>
+    <div class="path-line"></div>
+    <div id="dot-1" class="level-dot" onclick="enterWorld(1)">1</div>
+</div>
+
+<div id="world-1" class="scene">
+    <h2>¿Me das permiso de intentar alegrarte el día?</h2>
+    <div style="height: 300px; width: 100%; position: relative;" id="run-area">
+        <button id="runaway-btn" onmouseover="makeRun()">
+            No
+            <div class="leg leg-l"></div>
+            <div class="leg leg-r"></div>
+        </button>
+        <button onclick="winWorld(1)" style="padding: 15px 30px; background: #4caf50; color: white; border: none; border-radius: 15px; margin-top: 50px; cursor: pointer;">
+            Sí, claro
+        </button>
+    </div>
+</div>
+
+<div id="world-2" class="scene" style="background: #e3f2fd;">
+    <h2>Completa la frase... búscalas entre el ruido</h2>
+    <div id="phrase-display" style="font-size: 1.8rem; margin-bottom: 100px;">
+        Su amor siempre será tu <span id="slot-1" class="phrase-slot">_____</span>
+    </div>
+    <div id="word-cloud" style="width: 100%; height: 50%; position: relative;"></div>
+</div>
+
+<script>
+    let currentWorld = 0;
+
+    function enterWorld(n) {
+        if(n > currentWorld + 1) return;
+        document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+        document.getElementById('world-' + n).classList.add('active');
+        if(n === 2) initWordGame();
+    }
+
+    function winWorld(n) {
+        currentWorld = n;
+        document.getElementById('dot-' + (n+1)).classList.remove('locked');
+        document.getElementById('world-' + n).classList.remove('active');
+    }
+
+    // LÓGICA MUNDO 1: EL CORREDOR
+    function makeRun() {
+        const btn = document.getElementById('runaway-btn');
+        btn.classList.add('running');
+        btn.style.position = 'absolute';
+        btn.style.left = Math.random() * 80 + '%';
+        btn.style.top = Math.random() * 80 + '%';
+        
+        setTimeout(() => btn.classList.remove('running'), 500);
+    }
+
+    // LÓGICA MUNDO 2: FRASES
+    function initWordGame() {
+        const cloud = document.getElementById('word-cloud');
+        const distractors = ["miedo", "ruido", "ayer", "duda", "tristeza", "soledad"];
+        const correct = "FUERZA";
+        
+        cloud.innerHTML = '';
+        
+        // Crear la correcta camuflada
+        const target = document.createElement('div');
+        target.className = 'correct-word';
+        target.innerText = correct;
+        target.style.left = '80%'; target.style.top = '10%';
+        target.onmouseover = function() {
+            const slot = document.getElementById('slot-1');
+            const rect = slot.getBoundingClientRect();
+            this.style.left = rect.left + 'px';
+            this.style.top = rect.top + 'px';
+            setTimeout(() => {
+                slot.innerText = correct;
+                slot.style.border = 'none';
+                slot.style.color = '#ff4081';
+                this.style.display = 'none';
+                setTimeout(() => winWorld(2), 2000);
+            }, 600);
+        };
+        cloud.appendChild(target);
+
+        // Esparcir distractores
+        distractors.forEach(w => {
+            const d = document.createElement('div');
+            d.className = 'correct-word';
+            d.style.color = '#ccc';
+            d.innerText = w;
+            d.style.left = Math.random() * 90 + '%';
+            d.style.top = Math.random() * 90 + '%';
+            cloud.appendChild(d);
+        });
+    }
+</script>
+
+</body>
+</html>
