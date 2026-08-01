@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="assets/nosotros.jpg" />
   <title>Para Noelia</title>
-  <link rel="stylesheet" href="styles.css?v=9" />
+  <link rel="stylesheet" href="styles.css?v=10" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 </head>
@@ -145,7 +145,7 @@
         <div class="level-num">3</div>
         <div>
           <h3>Casa</h3>
-          <p>El sofá, la tele… y alguien más cuidando el cuarto.</p>
+          <p>El sofá, la tele… y tú pegadita.</p>
         </div>
         <div class="level-status">🔒</div>
       </button>
@@ -233,15 +233,30 @@
       <div class="sub cozy-copy" id="cozy-text">
         <p>Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida.</p>
         <p class="cozy-bridge">
-          Hablando de cosas que me gustan… hay alguien que no me gustaba mucho antes,
-          pero después me cayó un poco mejor. Sí, hablo de…
+          Así me imagino las noches en casa: sofá, tele, palomitas… y tú pegadita a mí por siempre.
         </p>
       </div>
       <button type="button" class="cozy-comic photo-thumb" id="cozy-comic" data-photo="assets/historia/sofa.png?v=7" data-caption="Así en casa, con palomitas">
         <img id="cozy-photo" src="assets/historia/sofa.png?v=7" alt="Nosotros en el sofá con palomitas" />
       </button>
-      <p class="hint" id="cozy-hint">Pista: alguien peludito cuida el rinconcito cuando yo no puedo.</p>
-      <button id="cozy-next" class="btn" type="button">¿Quién es?</button>
+
+      <div class="cozy-actions" id="cozy-actions">
+        <button id="cozy-next" class="btn" type="button">Seguir el camino</button>
+        <button id="cozy-spinoff-btn" class="btn ghost" type="button">Un personaje no tan personaje</button>
+      </div>
+
+      <div id="cozy-spinoff" class="cozy-spinoff" hidden>
+        <p class="eyebrow">Spin-off · cameo</p>
+        <h3>El oso mañoso</h3>
+        <p class="cozy-spinoff-copy">
+          Extra opcional: al principio no me caía… y mira. Ahora sí.
+          Él cuida el cuarto cuando yo no puedo.
+        </p>
+        <button type="button" class="cozy-comic is-photo photo-thumb" data-photo="assets/oso-manoso.jpg" data-caption="El oso mañoso">
+          <img src="assets/oso-manoso.jpg" alt="El oso mañoso" />
+        </button>
+        <button id="cozy-spinoff-close" class="btn ghost" type="button">Cerrar spin-off</button>
+      </div>
     </div>
   </section>
 
@@ -305,35 +320,39 @@
           </div>
         </article>
 
-        <p class="story-letter story-letter-soft comic-aside">Y también somos esto…</p>
-
         <article class="comic-beat">
-          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/carne.png?v=7" data-caption="Cuando llega la carne">
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/carne.png?v=7" data-caption="Cuando llega la comida">
             <img src="assets/historia/carne.png?v=7" alt="Nosotros frente a la carne gritona" />
           </button>
           <div class="comic-copy">
-            <h3>Cuando llega la carne</h3>
+            <h3>Cuando llega la comida</h3>
             <p>Esa mirada. Ese hambre. Y a veces hasta la comida se queja… pero igual la disfrutamos.</p>
+            <p class="thought-intro">Mientras tanto, en nuestras cabezas (versión comedia):</p>
           </div>
-        </article>
 
-        <article class="comic-beat">
-          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/chicha.png?v=7" data-caption="Chicha vs gaseosa">
-            <img src="assets/historia/chicha.png?v=7" alt="Chicha y gaseosa discutiendo" />
-          </button>
-          <div class="comic-copy">
-            <h3>Chicha vs gaseosa</h3>
-            <p>El debate eterno. Yo ya sé de qué lado estás… o casi.</p>
+          <div class="thought-row">
+            <button type="button" class="thought-chip" data-thought="ale" aria-expanded="false">
+              💭 Mi cabeza
+            </button>
+            <button type="button" class="thought-chip" data-thought="noe" aria-expanded="false">
+              💭 La tuya
+            </button>
           </div>
-        </article>
 
-        <article class="comic-beat">
-          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/cine.png?v=7" data-caption="Cine en 3D">
-            <img src="assets/historia/cine.png?v=7" alt="Nosotros en el cine con gafas 3D" />
-          </button>
-          <div class="comic-copy">
-            <h3>Cine en 3D</h3>
-            <p>Ojos abiertos, manos a la bebida, y esa carita de “¿viste eso?”. Eso también es nosotros.</p>
+          <div class="thought-cloud" id="thought-ale" hidden>
+            <p class="thought-label">Lo que pasa por mi cabeza mientras almorzamos…</p>
+            <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/chicha.png?v=7" data-caption="Mi cabeza: chicha vs gaseosa">
+              <img src="assets/historia/chicha.png?v=7" alt="Debate mental: chicha contra gaseosa" />
+            </button>
+            <p class="thought-note">Sí: el debate milenario vs burbujas. Prioridades de Ale.</p>
+          </div>
+
+          <div class="thought-cloud" id="thought-noe" hidden>
+            <p class="thought-label">Lo que (según yo) pasa por la tuya…</p>
+            <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/cine.png?v=7" data-caption="Tu cabeza: modo cine 3D">
+              <img src="assets/historia/cine.png?v=7" alt="Pensamiento en modo cine 3D" />
+            </button>
+            <p class="thought-note">Ojos abiertos, drama en 3D, manos a la bebida. Una burla cariñosa, amor.</p>
           </div>
         </article>
 

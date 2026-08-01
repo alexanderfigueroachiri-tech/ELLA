@@ -790,41 +790,10 @@
     }
   });
 
-  /* ---------- Level 3: casa → revelación del oso ---------- */
-  let cozyRevealed = false;
-
+  /* ---------- Level 3: casa (+ spin-off del oso) ---------- */
   function resetCozyScene() {
-    cozyRevealed = false;
-    const title = document.getElementById('cozy-title');
-    const text = document.getElementById('cozy-text');
-    const photo = document.getElementById('cozy-photo');
-    const hint = document.getElementById('cozy-hint');
-    const btn = document.getElementById('cozy-next');
-    const eyebrow = document.getElementById('cozy-eyebrow');
-    if (eyebrow) eyebrow.textContent = 'Cuando no hay prisa';
-    if (title) title.textContent = 'El sofá y la tele';
-    if (text) {
-      text.innerHTML = `
-        <p>Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida.</p>
-        <p class="cozy-bridge">
-          Así me imagino las noches en casa: sofá, tele, palomitas… y tú pegadita.
-          Hablando de cosas que me gustan… hay alguien que no me gustaba mucho antes,
-          pero después me cayó un poco mejor. Sí, hablo de…
-        </p>
-      `;
-    }
-    if (photo) {
-      photo.src = 'assets/historia/sofa.png?v=7';
-      photo.alt = 'Nosotros en el sofá con palomitas';
-    }
-    const comic = document.getElementById('cozy-comic');
-    if (comic) {
-      comic.dataset.photo = 'assets/historia/sofa.png?v=7';
-      comic.dataset.caption = 'Así en casa, con palomitas';
-      comic.classList.remove('is-photo');
-    }
-    if (hint) hint.hidden = false;
-    if (btn) btn.textContent = '¿Quién es?';
+    const spin = document.getElementById('cozy-spinoff');
+    if (spin) spin.hidden = true;
   }
 
   function startCozy() {
@@ -832,51 +801,54 @@
     showScreen('cozy');
   }
 
-  document.getElementById('cozy-next').addEventListener('click', () => {
-    if (!cozyRevealed) {
-      cozyRevealed = true;
-      const title = document.getElementById('cozy-title');
-      const text = document.getElementById('cozy-text');
-      const photo = document.getElementById('cozy-photo');
-      const hint = document.getElementById('cozy-hint');
-      const btn = document.getElementById('cozy-next');
-      const eyebrow = document.getElementById('cozy-eyebrow');
-      if (eyebrow) eyebrow.textContent = 'Te presento a…';
-      if (title) title.textContent = 'El oso mañoso';
-      if (text) {
-        text.innerHTML = `
-          <p>…este personaje: el oso mañoso.</p>
-          <p class="cozy-bridge">Él cuida el cuarto cuando yo no puedo. Al principio no me caía… y mira. Ahora sí.</p>
-        `;
-      }
-      if (photo) {
-        photo.src = 'assets/oso-manoso.jpg';
-        photo.alt = 'El oso mañoso';
-      }
-      const comic = document.getElementById('cozy-comic');
-      if (comic) {
-        comic.dataset.photo = 'assets/oso-manoso.jpg';
-        comic.dataset.caption = 'El oso mañoso';
-        comic.classList.add('is-photo');
-      }
-      if (hint) hint.hidden = true;
-      if (btn) btn.textContent = 'Seguir';
-      sfx.unlock();
-      return;
-    }
+  document.getElementById('cozy-next')?.addEventListener('click', () => {
+    sfx.unlock();
     completeLevel(3, {
-      photo: 'assets/oso-manoso.jpg',
-      title: 'El oso mañoso',
-      text: 'Él se queda cuidando el cuarto. Yo, aunque esté lejos, sigo queriendo abrazarte, besarte y sentirte como siempre.',
+      photo: 'assets/historia/sofa.png?v=7',
+      title: 'El sofá y la tele',
+      text: 'Sofá, tele, palomitas… y tú pegadita a mí por siempre. Así me gusta imaginarnos.',
     });
+  });
+
+  document.getElementById('cozy-spinoff-btn')?.addEventListener('click', () => {
+    const spin = document.getElementById('cozy-spinoff');
+    if (!spin) return;
+    spin.hidden = false;
+    sfx.unlock();
+    spin.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+
+  document.getElementById('cozy-spinoff-close')?.addEventListener('click', () => {
+    const spin = document.getElementById('cozy-spinoff');
+    if (spin) spin.hidden = true;
   });
 
   document.getElementById('cozy-back').addEventListener('click', () => showScreen('map'));
 
   /* ---------- Level 4: caricaturas ---------- */
   function startCartoon() {
+    // Cierra nubes de pensamiento al reentrar
+    document.querySelectorAll('.thought-cloud').forEach((el) => { el.hidden = true; });
+    document.querySelectorAll('.thought-chip').forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
     showScreen('cartoon');
   }
+
+  document.querySelectorAll('.thought-chip').forEach((chip) => {
+    chip.addEventListener('click', () => {
+      const key = chip.dataset.thought;
+      const panel = document.getElementById(`thought-${key}`);
+      if (!panel) return;
+      const opening = panel.hidden;
+      document.querySelectorAll('.thought-cloud').forEach((el) => { el.hidden = true; });
+      document.querySelectorAll('.thought-chip').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+      if (opening) {
+        panel.hidden = false;
+        chip.setAttribute('aria-expanded', 'true');
+        sfx.tap();
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  });
 
   document.getElementById('cartoon-back').addEventListener('click', () => showScreen('map'));
 
