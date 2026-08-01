@@ -349,32 +349,80 @@
     }
   }
 
-  function processBays() {
-    let changed = true;
-    while (changed) {
-      changed = false;
-      for (let i = 0; i < jam.bays.length; i++) {
-        const bay = jam.bays[i];
-        while (
-          bay.boarded < bay.cap &&
-          jam.queue.length &&
-          jam.queue[0] === bay.color
-        ) {
-          jam.queue.shift();
-          bay.boarded += 1;
-          sfx.board();
-          changed = true;
-        }
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  function findBoardableBayIndex() {
+    if (!jam.queue.length) return -1;
+    const need = jam.queue[0];
+    return jam.bays.findIndex((b) => b.color === need && b.boarded < b.cap);
+  }
+
+  async function animatePassengerToBay(color, bayIndex) {
+    const queueEl = document.querySelector('#queue-track .passenger.next');
+    const bayEl = document.querySelectorAll('#bays .bay')[bayIndex];
+    if (!queueEl || !bayEl) {
+      sfx.board();
+      return;
+    }
+
+    const from = queueEl.getBoundingClientRect();
+    const to = bayEl.getBoundingClientRect();
+    const flyer = document.createElement('div');
+    flyer.className = 'board-flyer';
+    flyer.style.setProperty('--pcolor', COLORS[color]);
+    flyer.style.left = `${from.left + from.width / 2 - 22}px`;
+    flyer.style.top = `${from.top + from.height / 2 - 22}px`;
+    flyer.innerHTML = `
+      <div class="person">
+        <span class="head"></span>
+        <span class="body"></span>
+      </div>
+    `;
+    document.body.appendChild(flyer);
+    bayEl.classList.add('boarding');
+    queueEl.style.opacity = '0.25';
+
+    await sleep(20);
+    flyer.style.left = `${to.left + to.width / 2 - 22}px`;
+    flyer.style.top = `${to.top + to.height / 2 - 22}px`;
+    flyer.style.transform = 'scale(0.45)';
+    flyer.style.opacity = '0.15';
+    sfx.board();
+    await sleep(430);
+    flyer.remove();
+    bayEl.classList.remove('boarding');
+  }
+
+  async function animateBayDepart(bayIndex) {
+    const bayEl = document.querySelectorAll('#bays .bay')[bayIndex];
+    if (bayEl) {
+      bayEl.classList.add('departing');
+      sfx.depart();
+      await sleep(420);
+    } else {
+      sfx.depart();
+    }
+  }
+
+  /** Aborda de a uno con animación visible (ya no es instantáneo). */
+  async function processBaysAnimated() {
+    while (true) {
+      const idx = findBoardableBayIndex();
+      if (idx < 0) break;
+
+      const color = jam.queue[0];
+      await animatePassengerToBay(color, idx);
+      jam.queue.shift();
+      jam.bays[idx].boarded += 1;
+      renderJam();
+
+      if (jam.bays[idx] && jam.bays[idx].boarded >= jam.bays[idx].cap) {
+        await animateBayDepart(idx);
+        jam.bays.splice(idx, 1);
+        renderJam();
       }
-      const before = jam.bays.length;
-      jam.bays = jam.bays.filter((b) => {
-        if (b.boarded >= b.cap) {
-          sfx.depart();
-          return false;
-        }
-        return true;
-      });
-      if (jam.bays.length !== before) changed = true;
     }
   }
 
@@ -602,7 +650,8 @@
       cap: v.len,
       boarded: 0,
     });
-    processBays();
+    renderJam();
+    await processBaysAnimated();
     jam.busy = false;
     renderJam();
   }
@@ -611,13 +660,13 @@
     if (state.currentLevel) startJam(state.currentLevel);
   });
 
-  document.getElementById('jam-blow')?.addEventListener('click', () => {
+  document.getElementById('jam-blow')?.addEventListener('click', async () => {
     if (jam.blows <= 0 || jam.busy) return;
     if (!jam.bays.length) {
       toast('No hay buses en las plazas');
       return;
     }
-    // Quita el que NO puede subir ahora (si todos pueden, el más vacío)
+    jam.busy = true;
     const need = jam.queue[0];
     let idx = jam.bays.findIndex((b) => b.color !== need);
     if (idx < 0) idx = 0;
@@ -625,7 +674,9 @@
     jam.blows -= 1;
     sfx.whoosh();
     toast('Soplo de Ale 💨');
-    processBays();
+    renderJam();
+    await processBaysAnimated();
+    jam.busy = false;
     renderJam();
   });
 
@@ -688,16 +739,16 @@
 
   document.getElementById('map-back').addEventListener('click', () => showScreen('splash'));
 
-  // TODO(QUITAR ANTES DEL REGALO): Trampo — desbloquea todos los niveles en pruebas.
-  // Recuérdale a Ale: borrar #trampo-btn + este handler antes de mandárselo al amor de su vida.
-  document.getElementById('trampo-btn')?.addEventListener('click', () => {
+  // TODO(QUITAR ANTES DEL REGALO): Trampa — desbloquea todos los niveles en pruebas.
+  // Recuérdale a Ale: borrar #trampa-btn + este handler antes de mandárselo al amor de su vida.
+  document.getElementById('trampa-btn')?.addEventListener('click', () => {
     state.unlocked = 4;
     [1, 2, 3, 4].forEach((n) => {
       state.done[n] = state.done[n] || false;
     });
     saveProgress();
     renderMap();
-    toast('Trampo ON · todos los niveles abiertos');
+    toast('Trampa ON · todos los niveles abiertos');
   });
 
   document.querySelectorAll('.level-card').forEach((card) => {

@@ -214,7 +214,7 @@ button {
   font-size: 0.9rem;
 }
 
-.trampo-btn {
+.trampa-btn {
   position: fixed;
   right: 12px;
   bottom: calc(12px + var(--safe-bottom));
@@ -231,7 +231,69 @@ button {
   opacity: 0.55;
 }
 
-.trampo-btn:active { opacity: 1; }
+.trampa-btn:active { opacity: 1; }
+
+.board-flyer {
+  position: fixed;
+  z-index: 80;
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  background: rgba(20, 12, 14, 0.92);
+  border: 2px solid var(--pcolor, var(--rose));
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  transition:
+    left 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    top 0.42s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.42s ease,
+    opacity 0.42s ease;
+}
+
+.board-flyer .person {
+  width: 22px;
+  height: 28px;
+  position: relative;
+}
+
+.board-flyer .person .head {
+  position: absolute;
+  left: 5px;
+  top: 1px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffe0d4;
+}
+
+.board-flyer .person .body {
+  position: absolute;
+  left: 3px;
+  top: 13px;
+  width: 16px;
+  height: 12px;
+  border-radius: 7px 7px 5px 5px;
+  background: var(--pcolor, var(--rose));
+}
+
+.bay.boarding {
+  transform: scale(1.04);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.bay.departing {
+  animation: bay-depart 0.45s ease forwards;
+}
+
+@keyframes bay-depart {
+  to {
+    transform: translateY(-18px) scale(0.85);
+    opacity: 0;
+  }
+}
 
 /* Game chrome */
 .topbar {
@@ -442,6 +504,7 @@ button {
   position: relative;
   overflow: hidden;
   padding: 4px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .bay-empty { opacity: 0.7; }
