@@ -207,19 +207,25 @@
    * front (r,c) = trompa del bus (hacia donde apunta la flecha).
    * El cuerpo crece en dirección contraria. len = asientos (1–4).
    */
-  // 5x5 fácil: casi todos tienen salida libre.
+  /**
+   * Capacidad por color (= len de cada bus) DEBE igualar personas en fila.
+   * rose3 gold2 sky2 mint3 lilac4 coral4 brown2 → 20 asientos / 20 en fila.
+   */
   const JAM_LEVELS = {
     2: {
       title: 'Atasco de cariño',
-      hint: 'Modo fácil: los 4 primeros de la fila pueden subir. Empieza por los bordes.',
+      hint: 'Modo fácil: los 4 primeros de la fila pueden subir. Empieza por los bordes. Cada color tiene exactamente sus asientos.',
       cols: 5,
       rows: 5,
       bayLimit: 4,
       blows: 5,
+      // Misma cantidad que la suma de len por color (ver vehicles abajo).
       queue: [
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'sky', 'lilac', 'brown', 'mint', 'coral',
+        'rose', 'gold', 'sky', 'mint',
+        'lilac', 'coral', 'brown', 'rose',
+        'lilac', 'coral', 'mint', 'sky',
+        'lilac', 'coral', 'brown', 'rose',
+        'lilac', 'coral', 'mint', 'gold',
       ],
       vehicles: [
         { id: 'b0', r: 4, c: 1, dir: 'down', len: 2, color: 'rose' },
@@ -244,6 +250,26 @@
       },
     },
   };
+
+  /** Personas en fila === asientos totales por color. */
+  function queueMatchesSeats(vehicles, queue) {
+    const seats = {};
+    const people = {};
+    vehicles.forEach((v) => {
+      seats[v.color] = (seats[v.color] || 0) + v.len;
+    });
+    queue.forEach((c) => {
+      people[c] = (people[c] || 0) + 1;
+    });
+    const colors = new Set([...Object.keys(seats), ...Object.keys(people)]);
+    for (const c of colors) {
+      if ((seats[c] || 0) !== (people[c] || 0)) {
+        console.error('Descuadre fila/buses', c, 'asientos', seats[c] || 0, 'fila', people[c] || 0);
+        return false;
+      }
+    }
+    return true;
+  }
 
   function cellsOf(v) {
     const [dr, dc] = DELTA[v.dir];
@@ -288,6 +314,11 @@
     jam.rows = def.rows;
     if (!validateVehicles(def.vehicles, def.cols, def.rows)) {
       console.error('Nivel inválido', levelId);
+      toast('Nivel con error de diseño');
+      return;
+    }
+    if (!queueMatchesSeats(def.vehicles, def.queue)) {
+      console.error('Fila no cuadra con asientos', levelId);
       toast('Nivel con error de diseño');
       return;
     }
@@ -396,22 +427,6 @@
     return null;
   }
 
-  /** Vacía todo lo que pueda subir de los 4 primeros (sin quedarse solo con el #1). */
-  function boardAllPossibleSync() {
-    let boarded = 0;
-    while (true) {
-      const pair = findBoardablePair();
-      if (!pair) break;
-      jam.queue.splice(pair.queueIndex, 1);
-      jam.bays[pair.bayIndex].boarded += 1;
-      boarded += 1;
-      if (jam.bays[pair.bayIndex].boarded >= jam.bays[pair.bayIndex].cap) {
-        jam.bays.splice(pair.bayIndex, 1);
-      }
-    }
-    return boarded;
-  }
-
   async function animatePassengerToBay(color, bayIndex, queueIndex = 0) {
     const riders = document.querySelectorAll('#queue-track .passenger:not(.more)');
     const queueEl = riders[queueIndex] || riders[0];
@@ -441,10 +456,10 @@
     await sleep(20);
     flyer.style.left = `${to.left + to.width / 2 - 22}px`;
     flyer.style.top = `${to.top + to.height / 2 - 22}px`;
-    flyer.style.transform = 'scale(0.45)';
-    flyer.style.opacity = '0.15';
+    flyer.style.transform = 'scale(0.42) rotate(-8deg)';
+    flyer.style.opacity = '0.12';
     sfx.board();
-    await sleep(430);
+    await sleep(520);
     flyer.remove();
     bayEl.classList.remove('boarding');
   }
@@ -460,24 +475,18 @@
     }
   }
 
-  /** Aborda: cualquiera de los 4 primeros que coincida con una plaza. */
+  /** Aborda con animación: cualquiera de los 4 primeros que coincida con una plaza. */
   async function processBaysAnimated() {
-    // Primero resuelve en bloque (evita softlock falso si hay varios que sí pueden).
-    const quick = boardAllPossibleSync();
-    if (quick > 0) {
-      sfx.board();
-      renderJam();
-      // animación corta de “salida” si alguna plaza se liberó por capacidad
-      await sleep(220);
-    }
-    // Segunda pasada por si quedó algo tras re-render (defensivo)
-    while (findBoardablePair()) {
+    while (true) {
       const pair = findBoardablePair();
+      if (!pair) break;
+
       const color = jam.queue[pair.queueIndex];
       await animatePassengerToBay(color, pair.bayIndex, pair.queueIndex);
       jam.queue.splice(pair.queueIndex, 1);
       jam.bays[pair.bayIndex].boarded += 1;
       renderJam();
+
       if (jam.bays[pair.bayIndex] && jam.bays[pair.bayIndex].boarded >= jam.bays[pair.bayIndex].cap) {
         await animateBayDepart(pair.bayIndex);
         jam.bays.splice(pair.bayIndex, 1);
@@ -629,7 +638,13 @@
     }
     if (!locked) jam.softWarned = false;
 
-    if (!jam.queue.length && !jam.won) {
+    // Victoria solo si vaciaste fila, lot y plazas (todo el color cuadró).
+    if (
+      !jam.won &&
+      !jam.queue.length &&
+      !jam.vehicles.length &&
+      !jam.bays.length
+    ) {
       jam.won = true;
       sfx.win();
       if (typeof tequySay === 'function') tequySay('jamWin', 'happy');
@@ -723,6 +738,14 @@
     const active = new Set(jam.queue.slice(0, QUEUE_WINDOW));
     let idx = jam.bays.findIndex((b) => !active.has(b.color));
     if (idx < 0) idx = 0;
+    const blown = jam.bays[idx];
+    // El soplo se lleva el bus y a quien faltaba subir (mantiene el equilibrio color↔asientos).
+    const leftover = Math.max(0, blown.cap - blown.boarded);
+    for (let n = 0; n < leftover; n++) {
+      const qi = jam.queue.indexOf(blown.color);
+      if (qi >= 0) jam.queue.splice(qi, 1);
+    }
+    await animateBayDepart(idx);
     jam.bays.splice(idx, 1);
     jam.blows -= 1;
     sfx.whoosh();
@@ -764,14 +787,21 @@
       text.innerHTML = `
         <p>Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida.</p>
         <p class="cozy-bridge">
+          Así me imagino las noches en casa: sofá, tele, palomitas… y tú pegadita.
           Hablando de cosas que me gustan… hay alguien que no me gustaba mucho antes,
           pero después me cayó un poco mejor. Sí, hablo de…
         </p>
       `;
     }
     if (photo) {
-      photo.src = 'assets/sala.jpg';
-      photo.alt = 'Nuestra sala';
+      photo.src = 'assets/historia/sofa.png?v=7';
+      photo.alt = 'Nosotros en el sofá con palomitas';
+    }
+    const comic = document.getElementById('cozy-comic');
+    if (comic) {
+      comic.dataset.photo = 'assets/historia/sofa.png?v=7';
+      comic.dataset.caption = 'Así en casa, con palomitas';
+      comic.classList.remove('is-photo');
     }
     if (hint) hint.hidden = false;
     if (btn) btn.textContent = '¿Quién es?';
@@ -802,6 +832,12 @@
       if (photo) {
         photo.src = 'assets/oso-manoso.jpg';
         photo.alt = 'El oso mañoso';
+      }
+      const comic = document.getElementById('cozy-comic');
+      if (comic) {
+        comic.dataset.photo = 'assets/oso-manoso.jpg';
+        comic.dataset.caption = 'El oso mañoso';
+        comic.classList.add('is-photo');
       }
       if (hint) hint.hidden = true;
       if (btn) btn.textContent = 'Seguir';
@@ -837,6 +873,18 @@
   let closingTimer = null;
   let closingPlayed = false;
 
+  const postcreditsEl = document.getElementById('postcredits');
+
+  function showPostcredits() {
+    tequyRoot?.classList.add('is-hidden');
+    tequyHideBubble();
+    if (postcreditsEl) {
+      postcreditsEl.hidden = false;
+      return;
+    }
+    showScreen('splash');
+  }
+
   function playClosing() {
     if (!closingEl || closingEl.classList.contains('is-on')) return;
     closingPlayed = true;
@@ -854,10 +902,16 @@
       setTimeout(() => {
         closingEl.hidden = true;
         closingEl.classList.remove('is-on', 'is-out');
-        showScreen('splash');
+        showPostcredits();
       }, 1000);
     }, 6200);
   }
+
+  document.getElementById('postcredits-done')?.addEventListener('click', () => {
+    if (postcreditsEl) postcreditsEl.hidden = true;
+    showScreen('splash');
+    toast('Gracias por ver Noelia Pictures ✦');
+  });
 
   function startFinale() {
     showScreen('finale');
@@ -983,18 +1037,6 @@
 
   document.getElementById('map-back').addEventListener('click', () => showScreen('splash'));
 
-  // TODO(QUITAR ANTES DEL REGALO): Trampa — desbloquea todos los niveles en pruebas.
-  // Recuérdale a Ale: borrar #trampa-btn + este handler antes de mandárselo al amor de su vida.
-  document.getElementById('trampa-btn')?.addEventListener('click', () => {
-    state.unlocked = 5;
-    [1, 2, 3, 4, 5].forEach((n) => {
-      state.done[n] = state.done[n] || false;
-    });
-    saveProgress();
-    renderMap();
-    toast('Trampa ON · todos los niveles abiertos');
-  });
-
   document.querySelectorAll('.level-card').forEach((card) => {
     card.addEventListener('click', () => {
       const n = Number(card.dataset.level);
@@ -1085,12 +1127,12 @@
   const tequyBubble = document.getElementById('tequy-bubble');
   const tequyText = document.getElementById('tequy-text');
   const TEQUY_POSES = {
-    idle: 'assets/tequy/idle.png?v=5',
-    talk: 'assets/tequy/talk.png?v=5',
-    jump: 'assets/tequy/happy.png?v=5',
-    happy: 'assets/tequy/happy.png?v=5',
-    kick: 'assets/tequy/idle.png?v=5', // kick.png estaba roto (solo pies)
-    side: 'assets/tequy/side.png?v=5',
+    idle: 'assets/tequy/idle.png?v=7',
+    talk: 'assets/tequy/talk.png?v=7',
+    jump: 'assets/tequy/happy.png?v=7',
+    happy: 'assets/tequy/happy.png?v=7',
+    kick: 'assets/tequy/idle.png?v=7', // kick.png estaba roto (solo pies)
+    side: 'assets/tequy/side.png?v=7',
   };
 
   const TEQUY_LINES = {
@@ -1137,6 +1179,7 @@
     if (!tequyRoot) return;
     const hide = name === 'splash' || name === 'finale';
     tequyRoot.classList.toggle('is-hidden', hide);
+    tequyRoot.classList.toggle('is-compact', name === 'jam');
     tequyHideBubble();
     if (!hide) setTequyPose(name === 'jam' ? 'talk' : 'idle');
   }

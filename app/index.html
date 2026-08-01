@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="assets/nosotros.jpg" />
   <title>Para Noelia</title>
-  <link rel="stylesheet" href="styles.css?v=5" />
+  <link rel="stylesheet" href="styles.css?v=9" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 </head>
@@ -69,6 +69,14 @@
           <p>
             Se incluye un “ayudín” (en adelante, Tequeño) para casos de atasco.
             El proveedor confía en que la usuaria igual la hace.
+            Aviso laboral: por temas de presupuesto, a Tequeño y al dueño del proyecto
+            se les recortó el salario. Igual siguen trabajando por amor… y por tequeños.
+          </p>
+
+          <h3>3.1 Inclusión forzada (cláusula cultural)</h3>
+          <p>
+            En quechua, <em>munay</em> es querer / amar. Aquí también aplica.
+            Si en algún rincón quedó escrito “Tequy”, digamos que es dialecto de producción.
           </p>
 
           <h3>4. Limitación de responsabilidad</h3>
@@ -154,15 +162,13 @@
         <div class="level-num">5</div>
         <div>
           <h3>La carta</h3>
-          <p>Audio de Ale, fotos, y espacio para un video.</p>
+          <p>Audio de Ale, fotos y una carta.</p>
         </div>
         <div class="level-status">🔒</div>
       </button>
     </div>
 
     <p class="map-note">Hecho a mano por Ale · aunque estemos lejos</p>
-    <!-- TODO(QUITAR): botón Trampa — solo pruebas. Borrar antes de mandárselo al amor de su vida. -->
-    <button id="trampa-btn" class="trampa-btn" type="button" title="DEV: quitar antes del regalo">Trampa ✦</button>
   </section>
 
   <!-- LEVEL 1 -->
@@ -228,9 +234,9 @@
           pero después me cayó un poco mejor. Sí, hablo de…
         </p>
       </div>
-      <div class="photo-frame" id="cozy-frame">
-        <img id="cozy-photo" src="assets/sala.jpg" alt="Nuestra sala" />
-      </div>
+      <button type="button" class="cozy-comic photo-thumb" id="cozy-comic" data-photo="assets/historia/sofa.png?v=7" data-caption="Así en casa, con palomitas">
+        <img id="cozy-photo" src="assets/historia/sofa.png?v=7" alt="Nosotros en el sofá con palomitas" />
+      </button>
       <p class="hint" id="cozy-hint">Pista: alguien peludito cuida el rinconcito cuando yo no puedo.</p>
       <button id="cozy-next" class="btn" type="button">¿Quién es?</button>
     </div>
@@ -251,14 +257,14 @@
         Amor, sé que no puedo arreglarte la vida, por eso intento dar lo mejor de mí con lo que tengo…
       </p>
 
-      <button type="button" class="comic-full photo-thumb" data-photo="assets/historia/strip4.png?v=4" data-caption="La historieta completa">
-        <img src="assets/historia/strip4.png?v=4" alt="Historieta completa de nosotros" />
+      <button type="button" class="comic-full photo-thumb" data-photo="assets/historia/strip4.png?v=6" data-caption="La historieta completa">
+        <img src="assets/historia/strip4.png?v=6" alt="Historieta completa de nosotros" />
       </button>
 
       <div class="comic-strip" aria-label="Historieta">
         <article class="comic-beat">
-          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/triste.png?v=4" data-caption="Cuando estás triste">
-            <img src="assets/historia/triste.png?v=4" alt="Cuando estás triste" />
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/triste.png?v=6" data-caption="Cuando estás triste">
+            <img src="assets/historia/triste.png?v=6" alt="Cuando estás triste" />
           </button>
           <div class="comic-copy">
             <h3>Cuando estás triste</h3>
@@ -267,8 +273,8 @@
         </article>
 
         <article class="comic-beat">
-          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/hambre.png?v=4" data-caption="Cuando tienes hambre">
-            <img src="assets/historia/hambre.png?v=4" alt="Cuando tienes hambre" />
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/hambre.png?v=6" data-caption="Cuando tienes hambre">
+            <img src="assets/historia/hambre.png?v=6" alt="Cuando tienes hambre" />
           </button>
           <div class="comic-copy">
             <h3>Cuando tienes hambre</h3>
@@ -277,8 +283,8 @@
         </article>
 
         <article class="comic-beat">
-          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/molesta.png?v=4" data-caption="Cuando estás molesta">
-            <img src="assets/historia/molesta.png?v=4" alt="Cuando estás molesta" />
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/molesta.png?v=6" data-caption="Cuando estás molesta">
+            <img src="assets/historia/molesta.png?v=6" alt="Cuando estás molesta" />
           </button>
           <div class="comic-copy">
             <h3>Cuando estás molesta</h3>
@@ -287,8 +293,8 @@
         </article>
 
         <article class="comic-beat">
-          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/agobiada.png?v=4" data-caption="Cuando estás agobiada">
-            <img src="assets/historia/agobiada.png?v=4" alt="Cuando estás agobiada" />
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/agobiada.png?v=6" data-caption="Cuando estás agobiada">
+            <img src="assets/historia/agobiada.png?v=6" alt="Cuando estás agobiada" />
           </button>
           <div class="comic-copy">
             <h3>Cuando estás agobiada</h3>
@@ -296,9 +302,41 @@
           </div>
         </article>
 
+        <p class="story-letter story-letter-soft comic-aside">Y también somos esto…</p>
+
         <article class="comic-beat">
-          <button type="button" class="comic-panel comic-wide photo-thumb" data-photo="assets/historia/abrazo-tequeno.png?v=4" data-caption="Un abrazo Tequeño">
-            <img src="assets/historia/abrazo-tequeno.png?v=4" alt="Un abrazo Tequeño" />
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/carne.png?v=7" data-caption="Cuando llega la carne">
+            <img src="assets/historia/carne.png?v=7" alt="Nosotros frente a la carne gritona" />
+          </button>
+          <div class="comic-copy">
+            <h3>Cuando llega la carne</h3>
+            <p>Esa mirada. Ese hambre. Y a veces hasta la comida se queja… pero igual la disfrutamos.</p>
+          </div>
+        </article>
+
+        <article class="comic-beat">
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/chicha.png?v=7" data-caption="Chicha vs gaseosa">
+            <img src="assets/historia/chicha.png?v=7" alt="Chicha y gaseosa discutiendo" />
+          </button>
+          <div class="comic-copy">
+            <h3>Chicha vs gaseosa</h3>
+            <p>El debate eterno. Yo ya sé de qué lado estás… o casi.</p>
+          </div>
+        </article>
+
+        <article class="comic-beat">
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/cine.png?v=7" data-caption="Cine en 3D">
+            <img src="assets/historia/cine.png?v=7" alt="Nosotros en el cine con gafas 3D" />
+          </button>
+          <div class="comic-copy">
+            <h3>Cine en 3D</h3>
+            <p>Ojos abiertos, manos a la bebida, y esa carita de “¿viste eso?”. Eso también es nosotros.</p>
+          </div>
+        </article>
+
+        <article class="comic-beat">
+          <button type="button" class="comic-panel comic-wide photo-thumb" data-photo="assets/historia/abrazo-tequeno.png?v=6" data-caption="Un abrazo Tequeño">
+            <img src="assets/historia/abrazo-tequeno.png?v=6" alt="Un abrazo Tequeño" />
           </button>
           <div class="comic-copy">
             <h3>Porque me importas demasiado</h3>
@@ -359,18 +397,19 @@
       <div class="audio-box">
         <strong>Audio de Ale</strong>
         <p style="margin:6px 0 0; font-size:0.92rem; color:#5a3a44;">
-          (borrador — si te gusta el proyecto, Ale graba la versión definitiva)
+          Dale play cuando quieras escucharme. Si suena raro… ese también puede ser tema de conversación.
         </p>
         <audio controls preload="metadata" src="assets/audio.mp4"></audio>
       </div>
 
       <div class="video-box">
-        <strong>Video</strong>
+        <strong>Video de Ale</strong>
         <div class="video-placeholder" id="video-slot">
-          Espacio guardado para un video de Ale.<br />
-          Pronto llega. Mientras tanto, ya tienes el resto del camino.
+          Se nos acabó el presupuesto para el video.<br />
+          No hubo de otra: le recortamos el salario a Tequeño
+          y al dueño del proyecto.<br />
+          <span style="opacity:0.85">Por ahora, no hay video. Solo cariño (y esta excusa).</span>
         </div>
-        <!-- Cuando exista: <video controls playsinline src="assets/video.mp4"></video> -->
       </div>
     </div>
 
@@ -387,10 +426,30 @@
     <div class="closing-bg"></div>
     <div class="closing-veil"></div>
     <div class="closing-lines" id="closing-lines">
-      <p>De mi para ti.</p>
+      <p>De mí para ti.</p>
       <p>Espero te haya gustado.</p>
-      <p>Con mucho Amor…</p>
-      <p class="closing-sign">Yo, El amor de tu vida</p>
+      <p>Con mucho amor…</p>
+      <p class="closing-sign">Yo, el amor de tu vida</p>
+    </div>
+  </div>
+
+  <!-- POSTCRÉDITOS -->
+  <div id="postcredits" class="postcredits" hidden aria-live="polite">
+    <div class="postcredits-card">
+      <p class="eyebrow">Postcréditos · Noelia Pictures</p>
+      <h2>Equipo (con salario recortado)</h2>
+      <ul class="credits-list">
+        <li><span>Dirección / código / café</span><strong>Ale</strong></li>
+        <li><span>Protagonista absoluta</span><strong>Noelia</strong></li>
+        <li><span>Asistente emocional</span><strong>Tequeño</strong></li>
+        <li><span>Cameo peludo</span><strong>Oso mañoso</strong></li>
+        <li><span>Inclusión forzada</span><strong>munay (quechua: querer)</strong></li>
+      </ul>
+      <figure class="credits-cameo">
+        <img src="assets/ale-sonrisa.jpg" alt="Ale sonriendo, postcréditos" />
+        <figcaption>El dueño del proyecto, post-recorte. Igual sonríe.</figcaption>
+      </figure>
+      <button type="button" class="btn" id="postcredits-done">Fin (de verdad)</button>
     </div>
   </div>
 
@@ -412,10 +471,12 @@
       <p id="tequy-text"></p>
       <button type="button" class="tequy-dismiss" id="tequy-dismiss">ok Tequeño</button>
     </div>
-    <button type="button" class="tequy-btn" id="tequy-btn" aria-label="Hablar con Tequeño">
-      <img id="tequy-img" src="assets/tequy/idle.png?v=5" alt="Tequeño, el guía animado" />
+    <div class="tequy-fab">
+      <button type="button" class="tequy-btn" id="tequy-btn" aria-label="Hablar con Tequeño">
+        <img id="tequy-img" src="assets/tequy/idle.png?v=7" alt="Tequeño, el guía animado" />
+      </button>
       <span class="tequy-tag">Tequeño</span>
-    </button>
+    </div>
   </div>
 
   <!-- PHOTO LIGHTBOX + comic bit -->
