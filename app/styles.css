@@ -5,13 +5,13 @@
   --bg1: #2a1a1f;
   --ink: #fff6f2;
   --muted: rgba(255, 246, 242, 0.72);
-  --rose: #ff6b8a;
-  --coral: #ff8f6b;
-  --gold: #ffc857;
-  --mint: #6dcdb8;
-  --sky: #6bb7ff;
-  --lilac: #c59bff;
-  --brown: #c48a5a;
+  --rose: #ff2d6f;
+  --coral: #ff6a00;
+  --gold: #ffd400;
+  --mint: #12c96b;
+  --sky: #1e8fff;
+  --lilac: #9b44ff;
+  --brown: #8a4a22;
   --panel: rgba(255, 255, 255, 0.08);
   --stroke: rgba(255, 255, 255, 0.14);
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
@@ -952,12 +952,12 @@ button {
   border-radius: 50%;
   display: grid;
   place-items: center;
-  font-size: 1.25rem;
-  background:
-    radial-gradient(circle at 30% 25%, rgba(255,255,255,0.55), transparent 45%),
-    linear-gradient(160deg, #fff6ef, #f0d2b8);
-  border: 2.5px solid var(--pring, var(--gold));
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.28);
+  font-size: 1.2rem;
+  background: var(--pcolor, var(--rose));
+  border: 3px solid #fff;
+  box-shadow:
+    0 0 0 2px var(--pring, var(--pcolor)),
+    0 6px 14px rgba(0, 0, 0, 0.28);
 }
 
 .passenger.more {
@@ -1095,158 +1095,99 @@ button {
 .lot-exit.left { left: 6px; top: 50%; transform: translateY(-50%); }
 .lot-exit.right { right: 6px; top: 50%; transform: translateY(-50%); }
 
-/* Buses — look tipo mockup: bisel, ventanita con escena */
+/* Buses — color plano y fuerte; el color manda */
 .bus {
-  --busc: #ff6b8a;
+  --busc: #ff2d6f;
   position: absolute;
-  border: 0;
-  border-radius: 16px;
+  border: 2.5px solid rgba(20, 10, 12, 0.55);
+  border-radius: 14px;
   color: #1a1214;
-  background:
-    linear-gradient(160deg, color-mix(in srgb, var(--busc) 88%, #fff) 0%, var(--busc) 48%, color-mix(in srgb, var(--busc) 75%, #3a2018) 100%);
+  background: var(--busc);
   box-shadow:
-    0 12px 22px rgba(0, 0, 0, 0.4),
-    inset 0 -6px 0 rgba(0, 0, 0, 0.18),
-    inset 0 2px 0 rgba(255, 255, 255, 0.45),
-    inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
+    0 8px 16px rgba(0, 0, 0, 0.35),
+    inset 0 -4px 0 rgba(0, 0, 0, 0.16),
+    inset 0 2px 0 rgba(255, 255, 255, 0.28);
   padding: 0;
   z-index: 2;
   will-change: left, top, transform;
   overflow: hidden;
 }
 
-.bus-bevel {
-  position: absolute;
-  inset: 3px;
-  border-radius: 13px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  pointer-events: none;
-}
-
 .bus-shine {
   position: absolute;
-  inset: 4px 8px auto;
-  height: 30%;
-  border-radius: 12px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.5), transparent);
+  inset: 3px 6px auto;
+  height: 22%;
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.32), transparent);
   pointer-events: none;
 }
 
-.bus-windows {
+.bus-glyph {
   position: absolute;
   inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  padding: 22% 12% 28%;
-  pointer-events: none;
-}
-
-.bus-up .bus-windows,
-.bus-down .bus-windows {
-  flex-direction: column;
-  padding: 12% 22% 18%;
-}
-
-.bus-window {
-  flex: 1;
-  align-self: stretch;
-  max-width: 36%;
-  max-height: 48%;
-  border-radius: 6px;
-  background:
-    linear-gradient(160deg, rgba(255,255,255,0.55), rgba(180, 210, 255, 0.35)),
-    rgba(40, 30, 50, 0.35);
-  box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,0.35),
-    0 2px 4px rgba(0,0,0,0.15);
   display: grid;
   place-items: center;
-  overflow: hidden;
-}
-
-.bus-up .bus-window,
-.bus-down .bus-window {
-  max-width: 48%;
-  max-height: 30%;
-  width: 48%;
-}
-
-.bus-scene {
-  font-size: clamp(0.55rem, 2.4vw, 0.9rem);
+  font-size: clamp(0.85rem, 3.4vw, 1.25rem);
   line-height: 1;
+  opacity: 0.92;
+  pointer-events: none;
   filter: drop-shadow(0 1px 0 rgba(255,255,255,0.35));
 }
 
-.bus-len-1 .bus-scene { font-size: clamp(0.7rem, 3vw, 1rem); }
-
-.bus-nose {
-  position: absolute;
-  background: rgba(0, 0, 0, 0.16);
-  pointer-events: none;
-}
-
-.bus-right .bus-nose { right: 0; top: 18%; bottom: 18%; width: 6px; border-radius: 0 10px 10px 0; }
-.bus-left .bus-nose { left: 0; top: 18%; bottom: 18%; width: 6px; border-radius: 10px 0 0 10px; }
-.bus-up .bus-nose { top: 0; left: 18%; right: 18%; height: 6px; border-radius: 10px 10px 0 0; }
-.bus-down .bus-nose { bottom: 0; left: 18%; right: 18%; height: 6px; border-radius: 0 0 10px 10px; }
+.bus-len-1 .bus-glyph { font-size: clamp(0.95rem, 3.8vw, 1.35rem); }
+.bus-len-3 .bus-glyph,
+.bus-len-4 .bus-glyph { font-size: clamp(1rem, 3.6vw, 1.4rem); }
 
 .bus-arrow {
   position: absolute;
-  right: 3px;
-  bottom: 2px;
-  width: 16px;
-  height: 16px;
+  right: 2px;
+  bottom: 1px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 3px;
+  border-radius: 999px;
   display: grid;
   place-items: center;
-  font-size: 0.7rem;
+  font-size: 0.78rem;
   font-weight: 900;
-  color: rgba(26, 18, 20, 0.85);
-  text-shadow: 0 1px 0 rgba(255,255,255,0.35);
+  color: #fff;
+  background: rgba(20, 10, 12, 0.72);
   z-index: 3;
-}
-
-.bus-up .bus-arrow,
-.bus-down .bus-arrow {
-  right: 2px;
-  bottom: 2px;
 }
 
 .bus-cap {
   position: absolute;
   top: 3px;
   left: 3px;
-  min-width: 14px;
-  height: 14px;
+  min-width: 16px;
+  height: 16px;
   padding: 0 4px;
   border-radius: 999px;
-  background: rgba(26, 18, 20, 0.78);
+  background: rgba(20, 10, 12, 0.82);
   color: #fff;
-  font-size: 0.58rem;
+  font-size: 0.62rem;
   font-weight: 800;
   display: grid;
   place-items: center;
   z-index: 3;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.25);
 }
 
 .bus-wheel {
   position: absolute;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #1a1214;
-  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.28);
+  box-shadow: inset 0 0 0 1.5px rgba(255,255,255,0.3);
 }
 
-.bus-right .w1, .bus-left .w1 { bottom: 3px; left: 16%; }
-.bus-right .w2, .bus-left .w2 { bottom: 3px; right: 16%; }
-.bus-up .w1, .bus-down .w1 { left: 3px; top: 16%; }
-.bus-up .w2, .bus-down .w2 { left: 3px; bottom: 16%; }
+.bus-right .w1, .bus-left .w1 { bottom: 3px; left: 14%; }
+.bus-right .w2, .bus-left .w2 { bottom: 3px; right: 14%; }
+.bus-up .w1, .bus-down .w1 { left: 3px; top: 14%; }
+.bus-up .w2, .bus-down .w2 { left: 3px; bottom: 14%; }
 
 .bus.moving { z-index: 6; }
-.bus.bounce-hit { filter: brightness(1.1) saturate(1.1); }
+.bus.bounce-hit { filter: brightness(1.12) saturate(1.15); }
 
 @keyframes pulse-soft {
   0%, 100% { transform: translateY(0); }

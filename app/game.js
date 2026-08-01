@@ -1,12 +1,13 @@
 (() => {
+  // Colores bien separados (rosa / azul / amarillo / verde / violeta / naranja / marrón)
   const COLORS = {
-    rose: '#ff6b8a',
-    sky: '#6bb7ff',
-    gold: '#ffc857',
-    mint: '#6dcdb8',
-    lilac: '#c59bff',
-    coral: '#ff8f6b',
-    brown: '#c48a5a',
+    rose: '#ff2d6f',
+    sky: '#1e8fff',
+    gold: '#ffd400',
+    mint: '#12c96b',
+    lilac: '#9b44ff',
+    coral: '#ff6a00',
+    brown: '#8a4a22',
   };
 
   const PASSENGER_LABELS = {
@@ -330,13 +331,13 @@
     const w = lot.clientWidth;
     const h = lot.clientHeight;
     // Padding interno para que el bus del borde no se recorte con el radio
-    const pad = Math.max(8, Math.round(Math.min(w, h) * 0.035));
-    jam.gap = Math.max(4, Math.min(7, Math.floor(Math.min(w, h) / 70)));
+    const pad = Math.max(6, Math.round(Math.min(w, h) * 0.028));
+    jam.gap = Math.max(3, Math.min(5, Math.floor(Math.min(w, h) / 95)));
     const innerW = Math.max(0, w - pad * 2);
     const innerH = Math.max(0, h - pad * 2);
     const cellW = (innerW - jam.gap * (jam.cols + 1)) / jam.cols;
     const cellH = (innerH - jam.gap * (jam.rows + 1)) / jam.rows;
-    jam.cell = Math.max(28, Math.floor(Math.min(cellW, cellH)));
+    jam.cell = Math.max(34, Math.floor(Math.min(cellW, cellH)));
     jam.stride = jam.cell + jam.gap;
     const gridW = jam.cell * jam.cols + jam.gap * (jam.cols + 1);
     const gridH = jam.cell * jam.rows + jam.gap * (jam.rows + 1);
@@ -576,15 +577,10 @@
       btn.style.height = `${box.height}px`;
       btn.style.setProperty('--busc', COLORS[v.color]);
       btn.title = `${PASSENGER_LABELS[v.color]} · ${v.len} asiento${v.len > 1 ? 's' : ''}`;
-      const panes = Array.from({ length: Math.min(v.len, 4) }, (_, i) => {
-        const icon = i === 0 ? (BUS_SCENE[v.color] || '🚌') : '·';
-        return `<span class="bus-window"><span class="bus-scene">${icon}</span></span>`;
-      }).join('');
+      const icon = BUS_SCENE[v.color] || '🚌';
       btn.innerHTML = `
-        <span class="bus-bevel"></span>
         <span class="bus-shine"></span>
-        <span class="bus-windows">${panes}</span>
-        <span class="bus-nose"></span>
+        <span class="bus-glyph" aria-hidden="true">${icon}</span>
         <span class="bus-arrow">${ARROWS[v.dir]}</span>
         <span class="bus-cap">${v.len}</span>
         <span class="bus-wheel w1"></span>
