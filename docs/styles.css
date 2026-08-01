@@ -876,6 +876,17 @@ button {
   display: none !important;
 }
 
+/* Momento de victoria / beat: Tequeño no se corta debajo del UI */
+.tequy.is-spotlight {
+  z-index: 70;
+}
+
+.tequy.is-spotlight .tequy-bubble {
+  max-width: min(80vw, 280px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(255, 200, 87, 0.45);
+}
+
 .tequy-fab {
   pointer-events: auto;
   display: flex;

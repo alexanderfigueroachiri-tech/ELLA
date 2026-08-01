@@ -674,8 +674,12 @@
     ) {
       jam.won = true;
       sfx.win();
-      if (typeof tequySay === 'function') tequySay('jamWin', 'happy');
-      setTimeout(() => completeLevel(2, jam.level.winMemory), 700);
+      // Tequeño tiene su momento: la memoria espera a que le den “Seguir”.
+      if (typeof tequySay === 'function') {
+        tequySay('jamWin', 'happy', () => completeLevel(2, jam.level.winMemory));
+      } else {
+        completeLevel(2, jam.level.winMemory);
+      }
     }
 
     updateBlowBtn();
@@ -1262,7 +1266,10 @@
     }
   }
 
-  function tequySay(keyOrText, pose = 'talk') {
+  let tequyAfterDismiss = null;
+  const tequyDismissBtn = document.getElementById('tequy-dismiss');
+
+  function tequySay(keyOrText, pose = 'talk', afterDismiss = null) {
     // Nunca tapa portada ni lightbox de fotos
     if (screens.splash.classList.contains('active')) return;
     if (lite && !lite.hidden) return;
@@ -1270,13 +1277,27 @@
     const text = TEQUY_LINES[keyOrText] || keyOrText;
     tequyText.textContent = text;
     tequyBubble.hidden = false;
+    tequyAfterDismiss = typeof afterDismiss === 'function' ? afterDismiss : null;
+    if (tequyDismissBtn) {
+      tequyDismissBtn.textContent = tequyAfterDismiss ? 'Seguir ✦' : 'ok Tequeño';
+    }
+    tequyRoot?.classList.toggle('is-spotlight', !!tequyAfterDismiss);
+    tequyRoot?.classList.remove('is-hidden');
     setTequyPose(pose);
     sfx.tap();
   }
 
-  function tequyHideBubble() {
+  function tequyHideBubble(opts = {}) {
+    const { runDone = true } = opts;
     if (tequyBubble) tequyBubble.hidden = true;
+    if (tequyDismissBtn) tequyDismissBtn.textContent = 'ok Tequeño';
+    tequyRoot?.classList.remove('is-spotlight');
     setTequyPose('idle');
+    const cb = tequyAfterDismiss;
+    tequyAfterDismiss = null;
+    if (runDone && typeof cb === 'function') {
+      setTimeout(cb, 160);
+    }
   }
 
   /** Visibilidad: portada = ella sola. Tequy solo como ayuda bajo demanda. */
@@ -1285,7 +1306,8 @@
     const hide = name === 'splash' || name === 'finale';
     tequyRoot.classList.toggle('is-hidden', hide);
     tequyRoot.classList.toggle('is-compact', name === 'jam');
-    tequyHideBubble();
+    // Al cambiar de pantalla no dispares el “Seguir” pendiente
+    tequyHideBubble({ runDone: false });
     if (!hide) setTequyPose(name === 'jam' ? 'talk' : 'idle');
   }
 
