@@ -10,7 +10,7 @@
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="apple-touch-icon" href="assets/nosotros.jpg" />
   <title>Para Noelia</title>
-  <link rel="stylesheet" href="styles.css?v=10" />
+  <link rel="stylesheet" href="styles.css?v=12" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 </head>
@@ -227,27 +227,30 @@
       <div class="hud-title">Nivel 3 · Casa</div>
       <span style="width:42px"></span>
     </div>
-    <div class="center-scene">
-      <p class="eyebrow" id="cozy-eyebrow">Cuando no hay prisa</p>
-      <h2 class="brand" id="cozy-title">El sofá y la tele</h2>
-      <div class="sub cozy-copy" id="cozy-text">
-        <p>Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida.</p>
-        <p class="cozy-bridge">
-          Así me imagino las noches en casa: sofá, tele, palomitas… y tú pegadita a mí por siempre.
-        </p>
+    <div class="center-scene cozy-scene">
+      <!-- Vista principal -->
+      <div id="cozy-main" class="cozy-view">
+        <p class="eyebrow">Cuando no hay prisa</p>
+        <h2 class="brand">El sofá y la tele</h2>
+        <div class="sub cozy-copy">
+          <p>Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida.</p>
+          <p class="cozy-bridge">
+            Así me imagino las noches en casa: sofá, tele, palomitas… y tú pegadita a mí por siempre.
+          </p>
+        </div>
+        <button type="button" class="cozy-comic photo-thumb" data-photo="assets/historia/sofa.png?v=7" data-caption="Así en casa, con palomitas">
+          <img src="assets/historia/sofa.png?v=7" alt="Nosotros en el sofá con palomitas" />
+        </button>
+        <div class="cozy-actions">
+          <button id="cozy-next" class="btn" type="button">Seguir el camino</button>
+          <button id="cozy-spinoff-btn" class="btn ghost" type="button">Un personaje no tan personaje</button>
+        </div>
       </div>
-      <button type="button" class="cozy-comic photo-thumb" id="cozy-comic" data-photo="assets/historia/sofa.png?v=7" data-caption="Así en casa, con palomitas">
-        <img id="cozy-photo" src="assets/historia/sofa.png?v=7" alt="Nosotros en el sofá con palomitas" />
-      </button>
 
-      <div class="cozy-actions" id="cozy-actions">
-        <button id="cozy-next" class="btn" type="button">Seguir el camino</button>
-        <button id="cozy-spinoff-btn" class="btn ghost" type="button">Un personaje no tan personaje</button>
-      </div>
-
-      <div id="cozy-spinoff" class="cozy-spinoff" hidden>
+      <!-- Spin-off oso (reemplaza la vista, no se esconde abajo) -->
+      <div id="cozy-spinoff" class="cozy-view cozy-spinoff" hidden>
         <p class="eyebrow">Spin-off · cameo</p>
-        <h3>El oso mañoso</h3>
+        <h2 class="brand">El oso mañoso</h2>
         <p class="cozy-spinoff-copy">
           Extra opcional: al principio no me caía… y mira. Ahora sí.
           Él cuida el cuarto cuando yo no puedo.
@@ -255,7 +258,10 @@
         <button type="button" class="cozy-comic is-photo photo-thumb" data-photo="assets/oso-manoso.jpg" data-caption="El oso mañoso">
           <img src="assets/oso-manoso.jpg" alt="El oso mañoso" />
         </button>
-        <button id="cozy-spinoff-close" class="btn ghost" type="button">Cerrar spin-off</button>
+        <div class="cozy-actions">
+          <button id="cozy-spinoff-close" class="btn ghost" type="button">Volver al sofá</button>
+          <button id="cozy-next-from-spin" class="btn" type="button">Seguir el camino</button>
+        </div>
       </div>
     </div>
   </section>
@@ -511,7 +517,7 @@
     </figure>
   </div>
 
-  <script src="sfx.js"></script>
-  <script src="game.js"></script>
+  <script src="sfx.js?v=12"></script>
+  <script src="game.js?v=12"></script>
 </body>
 </html>

@@ -818,63 +818,135 @@
   });
 
   /* ---------- Level 3: casa (+ spin-off del oso) ---------- */
-  function resetCozyScene() {
+  function showCozyMain() {
+    const main = document.getElementById('cozy-main');
     const spin = document.getElementById('cozy-spinoff');
-    if (spin) spin.hidden = true;
+    if (main) {
+      main.hidden = false;
+      main.removeAttribute('hidden');
+    }
+    if (spin) {
+      spin.hidden = true;
+      spin.setAttribute('hidden', '');
+    }
   }
 
-  function startCozy() {
-    resetCozyScene();
-    showScreen('cozy');
+  function showCozySpinoff() {
+    const main = document.getElementById('cozy-main');
+    const spin = document.getElementById('cozy-spinoff');
+    if (main) {
+      main.hidden = true;
+      main.setAttribute('hidden', '');
+    }
+    if (spin) {
+      spin.hidden = false;
+      spin.removeAttribute('hidden');
+      requestAnimationFrame(() => {
+        spin.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+    sfx.unlock();
+    toast('Spin-off: el oso mañoso');
+    if (typeof tequySay === 'function') {
+      tequySay('¡Spin-off! El oso mañoso… al final sí me cayó bien 🐻', 'happy');
+    }
   }
 
-  document.getElementById('cozy-next')?.addEventListener('click', () => {
+  function finishCozyLevel() {
     sfx.unlock();
     completeLevel(3, {
       photo: 'assets/historia/sofa.png?v=7',
       title: 'El sofá y la tele',
       text: 'Sofá, tele, palomitas… y tú pegadita a mí por siempre. Así me gusta imaginarnos.',
     });
-  });
+  }
 
-  document.getElementById('cozy-spinoff-btn')?.addEventListener('click', () => {
-    const spin = document.getElementById('cozy-spinoff');
-    if (!spin) return;
-    spin.hidden = false;
-    sfx.unlock();
-    spin.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
+  function startCozy() {
+    showCozyMain();
+    showScreen('cozy');
+  }
 
+  document.getElementById('cozy-next')?.addEventListener('click', finishCozyLevel);
+  document.getElementById('cozy-next-from-spin')?.addEventListener('click', finishCozyLevel);
+  document.getElementById('cozy-spinoff-btn')?.addEventListener('click', showCozySpinoff);
   document.getElementById('cozy-spinoff-close')?.addEventListener('click', () => {
-    const spin = document.getElementById('cozy-spinoff');
-    if (spin) spin.hidden = true;
+    showCozyMain();
+    toast('De vuelta al sofá');
   });
 
-  document.getElementById('cozy-back').addEventListener('click', () => showScreen('map'));
+  document.getElementById('cozy-back').addEventListener('click', () => {
+    showCozyMain();
+    showScreen('map');
+  });
 
   /* ---------- Level 4: caricaturas ---------- */
+  const THOUGHT_SCENES = {
+    ale: {
+      src: 'assets/historia/chicha.png?v=7',
+      caption: 'Mi cabeza mientras almorzamos: chicha vs gaseosa',
+      panel: 'thought-ale',
+    },
+    noe: {
+      src: 'assets/historia/cine.png?v=7',
+      caption: 'Lo que (según yo) pasa por la tuya: modo cine 3D',
+      panel: 'thought-noe',
+    },
+  };
+
+  function closeThoughtClouds() {
+    document.querySelectorAll('.thought-cloud').forEach((el) => {
+      el.hidden = true;
+      el.setAttribute('hidden', '');
+      el.classList.remove('is-open');
+    });
+    document.querySelectorAll('.thought-chip').forEach((btn) => {
+      btn.setAttribute('aria-expanded', 'false');
+      btn.classList.remove('is-on');
+    });
+  }
+
+  function openThought(key) {
+    const scene = THOUGHT_SCENES[key];
+    if (!scene) return;
+    const panel = document.getElementById(scene.panel);
+    const chip = document.querySelector(`.thought-chip[data-thought="${key}"]`);
+    const already = panel && panel.classList.contains('is-open');
+
+    closeThoughtClouds();
+    if (already) return;
+
+    if (panel) {
+      panel.hidden = false;
+      panel.removeAttribute('hidden');
+      panel.classList.add('is-open');
+    }
+    if (chip) {
+      chip.setAttribute('aria-expanded', 'true');
+      chip.classList.add('is-on');
+    }
+    sfx.tap();
+    // Lightbox: se nota sí o sí que “abrió”
+    if (typeof openPhotoLite === 'function') {
+      openPhotoLite(scene.src, scene.caption);
+    }
+    if (panel) {
+      requestAnimationFrame(() => {
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    }
+  }
+
   function startCartoon() {
-    // Cierra nubes de pensamiento al reentrar
-    document.querySelectorAll('.thought-cloud').forEach((el) => { el.hidden = true; });
-    document.querySelectorAll('.thought-chip').forEach((btn) => btn.setAttribute('aria-expanded', 'false'));
+    closeThoughtClouds();
     showScreen('cartoon');
   }
 
-  document.querySelectorAll('.thought-chip').forEach((chip) => {
-    chip.addEventListener('click', () => {
-      const key = chip.dataset.thought;
-      const panel = document.getElementById(`thought-${key}`);
-      if (!panel) return;
-      const opening = panel.hidden;
-      document.querySelectorAll('.thought-cloud').forEach((el) => { el.hidden = true; });
-      document.querySelectorAll('.thought-chip').forEach((b) => b.setAttribute('aria-expanded', 'false'));
-      if (opening) {
-        panel.hidden = false;
-        chip.setAttribute('aria-expanded', 'true');
-        sfx.tap();
-        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    });
+  // Delegación: no falla aunque el DOM se recargue o haya caché rara
+  document.getElementById('cartoon-screen')?.addEventListener('click', (e) => {
+    const chip = e.target.closest('.thought-chip');
+    if (!chip || !document.getElementById('cartoon-screen').contains(chip)) return;
+    e.preventDefault();
+    openThought(chip.dataset.thought);
   });
 
   document.getElementById('cartoon-back').addEventListener('click', () => showScreen('map'));
