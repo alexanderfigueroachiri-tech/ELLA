@@ -93,6 +93,10 @@
   function showScreen(name) {
     Object.values(screens).forEach((el) => el?.classList.remove('active'));
     screens[name].classList.add('active');
+    // Arco final = carta; cierre/postcréditos también usan sakartvelo
+    if (typeof sfx.setTheme === 'function') {
+      sfx.setTheme(name === 'finale' ? 'finale' : 'path');
+    }
     if (typeof tequyOnScreen === 'function') tequyOnScreen(name);
   }
 
@@ -888,6 +892,7 @@
   function showPostcredits() {
     tequyRoot?.classList.add('is-hidden');
     tequyHideBubble();
+    if (typeof sfx.setTheme === 'function') sfx.setTheme('finale');
     if (postcreditsEl) {
       postcreditsEl.hidden = false;
       return;
@@ -900,6 +905,7 @@
     closingPlayed = true;
     tequyRoot?.classList.add('is-hidden');
     tequyHideBubble();
+    if (typeof sfx.setTheme === 'function') sfx.setTheme('finale');
     closingEl.hidden = false;
     closingEl.classList.remove('is-out');
     // restart CSS animations
@@ -919,6 +925,7 @@
 
   document.getElementById('postcredits-done')?.addEventListener('click', () => {
     if (postcreditsEl) postcreditsEl.hidden = true;
+    if (typeof sfx.setTheme === 'function') sfx.setTheme('path');
     showScreen('splash');
     toast('Gracias por ver Noelia Pictures ✦');
   });

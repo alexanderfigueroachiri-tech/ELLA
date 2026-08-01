@@ -1,13 +1,18 @@
-/** SFX sintéticos + BGM (piano suave). Arranca tras gesto del usuario (iPhone). */
+/** SFX sintéticos + BGM (piano del camino + piano del arco final). */
 window.EllaSFX = (() => {
   let ctx = null;
   let muted = false;
-  let bgm = null;
   let bgmStarted = false;
   let ducked = false;
-  const BGM_SRC = 'assets/bgm.mp3?v=1';
+  let theme = 'path'; // 'path' | 'finale'
+
+  const TRACKS = {
+    path: 'assets/bgm.mp3?v=1',
+    finale: 'assets/bgm-finale.mp3?v=1',
+  };
   const BGM_VOL = 0.22;
   const BGM_DUCK = 0.06;
+  const players = { path: null, finale: null };
 
   function ac() {
     if (!ctx) {
@@ -19,47 +24,78 @@ window.EllaSFX = (() => {
     return ctx;
   }
 
-  function ensureBgm() {
-    if (bgm) return bgm;
-    bgm = new Audio(BGM_SRC);
-    bgm.loop = true;
-    bgm.preload = 'auto';
-    bgm.volume = BGM_VOL;
-    bgm.setAttribute('playsinline', '');
-    return bgm;
+  function ensureTrack(name) {
+    if (players[name]) return players[name];
+    const a = new Audio(TRACKS[name]);
+    a.loop = true;
+    a.preload = 'auto';
+    a.volume = BGM_VOL;
+    a.setAttribute('playsinline', '');
+    players[name] = a;
+    return a;
   }
 
-  function applyBgmVolume() {
-    if (!bgm) return;
-    bgm.volume = ducked ? BGM_DUCK : BGM_VOL;
+  function current() {
+    return players[theme];
+  }
+
+  function applyVolume(a) {
+    if (!a) return;
+    a.volume = ducked ? BGM_DUCK : BGM_VOL;
+  }
+
+  function stopTrack(name) {
+    const a = players[name];
+    if (!a) return;
+    a.pause();
+    try { a.currentTime = 0; } catch (_) {}
+  }
+
+  function playTrack(name) {
+    const a = ensureTrack(name);
+    applyVolume(a);
+    if (muted) return;
+    const play = a.play();
+    if (play && typeof play.catch === 'function') play.catch(() => {});
   }
 
   function startBgm() {
     ac();
-    const a = ensureBgm();
-    if (muted) return;
-    applyBgmVolume();
-    const play = a.play();
-    if (play && typeof play.catch === 'function') {
-      play.catch(() => {});
-    }
+    ensureTrack('path');
+    ensureTrack('finale');
     bgmStarted = true;
+    if (muted) return;
+    playTrack(theme);
+  }
+
+  function setTheme(next) {
+    const want = next === 'finale' ? 'finale' : 'path';
+    if (want === theme && bgmStarted && current() && !current().paused) {
+      applyVolume(current());
+      return;
+    }
+    const prev = theme;
+    theme = want;
+    if (prev !== theme) stopTrack(prev);
+    if (!bgmStarted) return;
+    playTrack(theme);
   }
 
   function pauseBgm() {
-    if (bgm && !bgm.paused) bgm.pause();
+    Object.keys(players).forEach((k) => {
+      const a = players[k];
+      if (a && !a.paused) a.pause();
+    });
   }
 
   function resumeBgm() {
-    if (!bgmStarted || muted || !bgm) return;
-    applyBgmVolume();
-    const play = bgm.play();
-    if (play && typeof play.catch === 'function') play.catch(() => {});
+    if (!bgmStarted || muted) return;
+    playTrack(theme);
   }
 
   function duckBgm(on) {
     ducked = !!on;
-    applyBgmVolume();
+    applyVolume(current());
   }
 
   function tone({ freq = 440, dur = 0.12, type = 'sine', gain = 0.06, slide = 0 }) {
@@ -103,6 +139,7 @@ window.EllaSFX = (() => {
       startBgm();
     },
     startBgm,
+    setTheme,
     pauseBgm,
     resumeBgm,
     duckBgm,
