@@ -1148,7 +1148,7 @@
     jam: 'Ojo: pueden subir los 4 primeros de la fila, no solo el del frente. ¡Tú puedes!',
     jamSoft: 'Uy, plazas llenas y los 4 de adelante no entran. Saca otro color… o Soplo de Ale.',
     jamWin: '¡Siiii! Lo lograste. Te mereces un abrazo… y un tequeño extra.',
-    cozy: 'Modo soft. Hay alguien cuidando el rinconcito… pero aún no te lo presento 👀',
+    cozy: 'Sofá, tele, palomitas… y tú pegadita. Si te pica la curiosidad, hay un spin-off abajo 👀',
     finale: 'Lee con calma. Y si tocas una foto… pasa algo gracioso. Yo aviso.',
     photo: '¡Click! Me encantan esas fotos. Zoom con estilo, ¿viste?',
   };
@@ -1205,8 +1205,9 @@
       return;
     }
     if (screens.cozy.classList.contains('active')) {
-      if (cozyRevealed) {
-        tequySay('¡Ahí está! El personaje misterioso del sofá. Al final sí cayó bien 🐻', 'happy');
+      const spin = document.getElementById('cozy-spinoff');
+      if (spin && !spin.hidden) {
+        tequySay('¡Spin-off desbloqueado! El oso mañoso… al final sí me cayó bien 🐻', 'happy');
       } else {
         tequySay('cozy', 'talk');
       }
