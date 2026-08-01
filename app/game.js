@@ -863,24 +863,8 @@
   }
 
   document.getElementById('finale-back').addEventListener('click', () => showScreen('map'));
+  // Solo al tocar “Cerrar el caminito” (no automático)
   document.getElementById('finale-end')?.addEventListener('click', playClosing);
-
-  // Al llegar al final de la carta (deslizó hasta abajo), bloquea y cierra
-  const finaleEndBtn = document.getElementById('finale-end');
-  if (finaleEndBtn && 'IntersectionObserver' in window) {
-    const endWatch = new IntersectionObserver(
-      (entries) => {
-        if (!screens.finale.classList.contains('active')) return;
-        if (closingPlayed) return;
-        if (entries.some((e) => e.isIntersecting && e.intersectionRatio > 0.55)) {
-          endWatch.disconnect();
-          setTimeout(playClosing, 500);
-        }
-      },
-      { threshold: 0.6 }
-    );
-    endWatch.observe(finaleEndBtn);
-  }
 
   document.getElementById('reset-progress').addEventListener('click', () => {
     if (!confirm('¿Borrar progreso y empezar de cero?')) return;
