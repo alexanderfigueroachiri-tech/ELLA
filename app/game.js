@@ -184,47 +184,35 @@
    * front (r,c) = trompa del bus (hacia donde apunta la flecha).
    * El cuerpo crece en dirección contraria. len = asientos (1–4).
    */
+  // Nivel artesanal FÁCIL: muchos buses ya miran hacia afuera (salida libre).
+  // Verificado con BFS: hay camino a ganar. No es un MIT challenge.
   const JAM_LEVELS = {
     2: {
       title: 'Atasco de cariño',
-      hint: 'Toca un bus. Si choca, vuelve. Si llega a una plaza, sube su color de la fila. Los largos llevan más gente.',
-      cols: 6,
-      rows: 7,
+      hint: 'Empieza por los buses de los bordes (casi siempre salen). Luego desatasca el centro. Mira el color de la fila.',
+      cols: 5,
+      rows: 5,
       bayLimit: 4,
-      blows: 1,
+      blows: 2,
       queue: [
-        'rose', 'rose', 'gold', 'sky', 'mint',
-        'rose', 'gold', 'sky', 'lilac', 'coral',
-        'mint', 'brown', 'sky', 'rose', 'gold',
-        'mint', 'sky', 'rose', 'gold', 'coral',
-        'lilac', 'brown', 'rose', 'sky', 'mint', 'gold',
+        'rose', 'gold', 'sky', 'mint', 'rose', 'gold',
+        'lilac', 'coral', 'coral', 'sky', 'brown', 'mint', 'rose',
       ],
       vehicles: [
-        { id: 'a', r: 0, c: 1, dir: 'right', len: 2, color: 'rose' },
-        { id: 'b', r: 0, c: 3, dir: 'down', len: 1, color: 'gold' },
-        { id: 'c', r: 1, c: 5, dir: 'down', len: 2, color: 'sky' },
-        { id: 'd', r: 1, c: 2, dir: 'left', len: 1, color: 'coral' },
-        { id: 'e', r: 1, c: 3, dir: 'right', len: 1, color: 'lilac' },
-        { id: 'f', r: 2, c: 1, dir: 'right', len: 2, color: 'mint' },
-        { id: 'g', r: 2, c: 3, dir: 'down', len: 1, color: 'brown' },
-        { id: 'h', r: 2, c: 4, dir: 'left', len: 2, color: 'rose' },
-        { id: 'i', r: 3, c: 0, dir: 'up', len: 1, color: 'sky' },
-        { id: 'j', r: 3, c: 2, dir: 'right', len: 2, color: 'gold' },
-        { id: 'k', r: 3, c: 5, dir: 'down', len: 1, color: 'mint' },
-        { id: 'l', r: 4, c: 0, dir: 'up', len: 2, color: 'sky' },
-        { id: 'm', r: 4, c: 2, dir: 'left', len: 1, color: 'coral' },
-        { id: 'n', r: 4, c: 4, dir: 'right', len: 2, color: 'rose' },
-        { id: 'o', r: 5, c: 1, dir: 'right', len: 1, color: 'lilac' },
-        { id: 'p', r: 5, c: 2, dir: 'up', len: 1, color: 'gold' },
-        { id: 'q', r: 5, c: 4, dir: 'down', len: 1, color: 'mint' },
-        { id: 'r', r: 5, c: 5, dir: 'left', len: 1, color: 'brown' },
-        { id: 's', r: 6, c: 1, dir: 'right', len: 2, color: 'sky' },
-        { id: 't', r: 6, c: 4, dir: 'right', len: 2, color: 'rose' },
-        { id: 'u', r: 6, c: 5, dir: 'up', len: 1, color: 'gold' },
-        { id: 'v', r: 3, c: 4, dir: 'up', len: 1, color: 'coral' },
-        { id: 'w', r: 4, c: 5, dir: 'up', len: 1, color: 'lilac' },
-        { id: 'x', r: 1, c: 0, dir: 'down', len: 1, color: 'mint' },
-        { id: 'y', r: 1, c: 4, dir: 'left', len: 1, color: 'gold' },
+        // Bordes con salida libre → dopamina inmediata
+        { id: 'a', r: 0, c: 1, dir: 'up', len: 1, color: 'rose' },
+        { id: 'b', r: 0, c: 3, dir: 'up', len: 1, color: 'gold' },
+        { id: 'c', r: 1, c: 4, dir: 'right', len: 1, color: 'sky' },
+        { id: 'd', r: 3, c: 4, dir: 'right', len: 1, color: 'mint' },
+        { id: 'e', r: 4, c: 2, dir: 'down', len: 1, color: 'rose' },
+        { id: 'f', r: 4, c: 0, dir: 'down', len: 1, color: 'gold' },
+        { id: 'g', r: 2, c: 0, dir: 'left', len: 1, color: 'lilac' },
+        // Centro suave (se abre cuando salen algunos del borde)
+        { id: 'h', r: 1, c: 2, dir: 'right', len: 2, color: 'coral' },
+        { id: 'i', r: 2, c: 2, dir: 'down', len: 1, color: 'sky' },
+        { id: 'j', r: 3, c: 1, dir: 'left', len: 1, color: 'brown' },
+        { id: 'k', r: 2, c: 3, dir: 'up', len: 1, color: 'mint' },
+        { id: 'l', r: 3, c: 3, dir: 'down', len: 1, color: 'rose' },
       ],
       winMemory: {
         photo: 'assets/cita-mesa.jpg',
@@ -243,15 +231,17 @@
     return cells;
   }
 
-  function inBoundsCell(r, c) {
-    return r >= 0 && r < jam.rows && c >= 0 && c < jam.cols;
+  function inBoundsCell(r, c, cols = jam.cols, rows = jam.rows) {
+    return r >= 0 && r < rows && c >= 0 && c < cols;
   }
 
-  function validateVehicles(list) {
+  function validateVehicles(list, cols, rows) {
     const seen = new Set();
     for (const v of list) {
-      for (const cell of cellsOf(v)) {
-        if (!inBoundsCell(cell.r, cell.c)) {
+      const [dr, dc] = DELTA[v.dir];
+      for (let i = 0; i < v.len; i++) {
+        const cell = { r: v.r - dr * i, c: v.c - dc * i };
+        if (!inBoundsCell(cell.r, cell.c, cols, rows)) {
           console.warn('Bus fuera del mapa', v, cell);
           return false;
         }
@@ -269,13 +259,15 @@
   function startJam(levelId) {
     const def = JAM_LEVELS[levelId];
     if (!def) return;
-    if (!validateVehicles(def.vehicles)) {
-      toast('Nivel con error de diseño');
-    }
     state.currentLevel = levelId;
     jam.level = def;
     jam.cols = def.cols;
     jam.rows = def.rows;
+    if (!validateVehicles(def.vehicles, def.cols, def.rows)) {
+      console.error('Nivel inválido', levelId);
+      toast('Nivel con error de diseño');
+      return;
+    }
     jam.bayLimit = def.bayLimit;
     jam.blows = def.blows ?? 1;
     jam.queue = [...def.queue];
