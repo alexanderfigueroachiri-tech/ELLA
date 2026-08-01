@@ -10,16 +10,16 @@
   };
 
   const PASSENGER_LABELS = {
-    rose: 'tequeña',
+    rose: 'cariño',
     sky: 'abrazos',
-    gold: 'tequeños',
+    gold: 'risas',
     mint: 'conciertos',
     lilac: 'Ed Sheeran',
     coral: 'carne asada',
     brown: 'Paco Yonque',
   };
 
-  const STORAGE_KEY = 'ella-camino-v2';
+  const STORAGE_KEY = 'ella-camino-v3';
   const sfx = window.EllaSFX || {
     unlock() {},
     toggle() { return false; },
@@ -138,7 +138,7 @@
     sfx.unlock();
     completeLevel(1, {
       photo: 'assets/nosotros.jpg',
-      title: 'Para ti, tequeña',
+      title: 'Para ti',
       text: 'No se me olvidó tu día, amor de mi vida. Aunque estemos lejos, quise dejarte algo hecho a mano: un caminito solo tuyo.',
     });
   });
@@ -184,47 +184,68 @@
    * front (r,c) = trompa del bus (hacia donde apunta la flecha).
    * El cuerpo crece en dirección contraria. len = asientos (1–4).
    */
-  // Nivel artesanal jugable (BFS-verificado). Incluye buses len 3 y 4.
-  // Varios del borde salen libres → dopamina; el centro pide un poco más de ojo.
+  // 10x10: buses en el borde mirando afuera (todos con salida libre) → jugable.
+  // Incluye largos 3 y 4. Si tocas el color de la fila, casi no te trabas.
   const JAM_LEVELS = {
     2: {
       title: 'Atasco de cariño',
-      hint: 'Hay buses largos (3–4). Empieza por los bordes. Los largos se llevan más gente de la fila.',
-      cols: 6,
-      rows: 6,
+      hint: 'Mapa grande: buses chiquitos y algunos largos (3–4). Mira el color de la fila.',
+      cols: 10,
+      rows: 10,
       bayLimit: 5,
-      blows: 2,
+      blows: 3,
       queue: [
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'brown', 'coral',
-        'mint', 'sky', 'rose', 'gold', 'coral', 'sky', 'mint',
-        'rose', 'brown', 'coral', 'gold', 'sky', 'mint', 'rose',
-        'gold', 'rose', 'sky', 'mint', 'mint',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
+        'rose', 'gold', 'sky', 'lilac', 'coral', 'brown',
+        'rose', 'sky', 'lilac', 'brown', 'rose', 'sky', 'lilac', 'brown',
+        'sky', 'lilac', 'lilac',
       ],
       vehicles: [
-        // Largos en borde (salida libre): 3 y 4
-        { id: 'A', r: 0, c: 0, dir: 'up', len: 3, color: 'rose' },
-        { id: 'B', r: 5, c: 5, dir: 'down', len: 3, color: 'gold' },
-        { id: 'C', r: 5, c: 0, dir: 'left', len: 4, color: 'sky' },
-        { id: 'D', r: 0, c: 5, dir: 'right', len: 3, color: 'mint' },
-        // Bordes cortos
-        { id: 'E', r: 3, c: 0, dir: 'left', len: 1, color: 'brown' },
-        { id: 'F', r: 4, c: 0, dir: 'left', len: 1, color: 'coral' },
-        { id: 'G', r: 0, c: 2, dir: 'up', len: 1, color: 'lilac' },
-        { id: 'H', r: 2, c: 5, dir: 'right', len: 1, color: 'coral' },
-        { id: 'I', r: 1, c: 5, dir: 'right', len: 1, color: 'rose' },
-        // Centro
-        { id: 'J', r: 2, c: 2, dir: 'right', len: 2, color: 'mint' },
-        { id: 'K', r: 3, c: 2, dir: 'down', len: 1, color: 'gold' },
-        { id: 'L', r: 3, c: 3, dir: 'right', len: 1, color: 'sky' },
-        { id: 'M', r: 4, c: 2, dir: 'left', len: 1, color: 'rose' },
-        { id: 'N', r: 2, c: 3, dir: 'up', len: 1, color: 'brown' },
-        { id: 'O', r: 4, c: 3, dir: 'up', len: 1, color: 'coral' },
-        { id: 'P', r: 3, c: 1, dir: 'up', len: 1, color: 'mint' },
+        { id: 'b0', r: 0, c: 0, dir: 'up', len: 1, color: 'rose' },
+        { id: 'b1', r: 0, c: 1, dir: 'up', len: 1, color: 'gold' },
+        { id: 'b2', r: 0, c: 2, dir: 'up', len: 3, color: 'sky' },
+        { id: 'b3', r: 0, c: 3, dir: 'up', len: 1, color: 'mint' },
+        { id: 'b4', r: 0, c: 4, dir: 'up', len: 1, color: 'lilac' },
+        { id: 'b5', r: 0, c: 5, dir: 'up', len: 1, color: 'coral' },
+        { id: 'b6', r: 0, c: 6, dir: 'up', len: 1, color: 'brown' },
+        { id: 'b7', r: 0, c: 7, dir: 'up', len: 3, color: 'rose' },
+        { id: 'b8', r: 0, c: 8, dir: 'up', len: 1, color: 'gold' },
+        { id: 'b9', r: 0, c: 9, dir: 'up', len: 1, color: 'sky' },
+        { id: 'b10', r: 9, c: 0, dir: 'down', len: 1, color: 'mint' },
+        { id: 'b11', r: 9, c: 1, dir: 'down', len: 1, color: 'lilac' },
+        { id: 'b12', r: 9, c: 2, dir: 'down', len: 1, color: 'coral' },
+        { id: 'b13', r: 9, c: 3, dir: 'down', len: 4, color: 'brown' },
+        { id: 'b14', r: 9, c: 4, dir: 'down', len: 1, color: 'rose' },
+        { id: 'b15', r: 9, c: 5, dir: 'down', len: 1, color: 'gold' },
+        { id: 'b16', r: 9, c: 6, dir: 'down', len: 1, color: 'sky' },
+        { id: 'b17', r: 9, c: 7, dir: 'down', len: 1, color: 'mint' },
+        { id: 'b18', r: 9, c: 8, dir: 'down', len: 3, color: 'lilac' },
+        { id: 'b19', r: 9, c: 9, dir: 'down', len: 1, color: 'coral' },
+        { id: 'b20', r: 1, c: 0, dir: 'left', len: 1, color: 'brown' },
+        { id: 'b21', r: 2, c: 0, dir: 'left', len: 1, color: 'rose' },
+        { id: 'b22', r: 3, c: 0, dir: 'left', len: 1, color: 'gold' },
+        { id: 'b23', r: 4, c: 0, dir: 'left', len: 3, color: 'sky' },
+        { id: 'b24', r: 5, c: 0, dir: 'left', len: 1, color: 'mint' },
+        { id: 'b25', r: 6, c: 0, dir: 'left', len: 1, color: 'lilac' },
+        { id: 'b26', r: 7, c: 0, dir: 'left', len: 2, color: 'coral' },
+        { id: 'b27', r: 8, c: 0, dir: 'left', len: 1, color: 'brown' },
+        { id: 'b28', r: 1, c: 9, dir: 'right', len: 1, color: 'rose' },
+        { id: 'b29', r: 2, c: 9, dir: 'right', len: 2, color: 'gold' },
+        { id: 'b30', r: 3, c: 9, dir: 'right', len: 1, color: 'sky' },
+        { id: 'b31', r: 4, c: 9, dir: 'right', len: 1, color: 'mint' },
+        { id: 'b32', r: 5, c: 9, dir: 'right', len: 4, color: 'lilac' },
+        { id: 'b33', r: 6, c: 9, dir: 'right', len: 1, color: 'coral' },
+        { id: 'b34', r: 7, c: 9, dir: 'right', len: 1, color: 'brown' },
+        { id: 'b35', r: 8, c: 9, dir: 'right', len: 1, color: 'rose' },
       ],
       winMemory: {
         photo: 'assets/cita-mesa.jpg',
         title: 'Esa mesa, nosotros',
-        text: 'Carne, risas, corazones en la pared… y tú haciendo carita. Me gusta recordarnos así, tequeña.',
+        text: 'Carne, risas, corazones en la pared… y tú haciendo carita. Me gusta recordarnos así.',
       },
     },
   };
@@ -310,7 +331,7 @@
     jam.gap = Math.max(3, Math.min(5, Math.floor(Math.min(w, h) / 90)));
     const cellW = (w - jam.gap * (jam.cols + 1)) / jam.cols;
     const cellH = (h - jam.gap * (jam.rows + 1)) / jam.rows;
-    jam.cell = Math.max(22, Math.floor(Math.min(cellW, cellH)));
+    jam.cell = Math.max(16, Math.floor(Math.min(cellW, cellH)));
     jam.stride = jam.cell + jam.gap;
     const gridW = jam.cell * jam.cols + jam.gap * (jam.cols + 1);
     const gridH = jam.cell * jam.rows + jam.gap * (jam.rows + 1);
@@ -770,6 +791,68 @@
       else if (n === 3) startCozy();
       else if (n === 4) startFinale();
     });
+  });
+
+  /* ---------- Photo lightbox + comic bits ---------- */
+  const lite = document.getElementById('photo-lite');
+  const liteImg = document.getElementById('photo-lite-img');
+  const liteCap = document.getElementById('photo-lite-cap');
+  const comicStage = document.getElementById('comic-stage');
+  const COMICS = [
+    () => `
+      <span class="comic-bit mouse">🐭</span>
+      <span class="comic-bit cat">🐱</span>
+    `,
+    () => `
+      <span class="comic-bit giant">😋</span>
+      <span class="comic-bit pizza">🍕</span>
+    `,
+    () => `<span class="comic-bit doll">🧸</span>`,
+  ];
+
+  function playComic() {
+    if (!comicStage) return Promise.resolve();
+    comicStage.innerHTML = COMICS[Math.floor(Math.random() * COMICS.length)]();
+    return sleep(1100).then(() => {
+      comicStage.innerHTML = '';
+    });
+  }
+
+  async function openPhotoLite(src, caption) {
+    if (!lite) return;
+    lite.hidden = false;
+    liteImg.src = src;
+    liteImg.alt = caption || '';
+    liteCap.textContent = caption || '';
+    sfx.unlock();
+    await playComic();
+    lite.classList.add('open');
+  }
+
+  function closePhotoLite() {
+    if (!lite) return;
+    lite.classList.remove('open');
+    setTimeout(() => {
+      lite.hidden = true;
+      liteImg.src = '';
+    }, 200);
+  }
+
+  document.getElementById('photo-lite-close')?.addEventListener('click', closePhotoLite);
+  lite?.addEventListener('click', (e) => {
+    if (e.target === lite) closePhotoLite();
+  });
+
+  document.querySelectorAll('.photo-thumb').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      openPhotoLite(btn.dataset.photo, btn.dataset.caption);
+    });
+  });
+
+  // Also allow tapping memory photo
+  memoryEl.querySelector('img')?.addEventListener('click', () => {
+    const src = memoryEl.querySelector('img').src;
+    if (src) openPhotoLite(src, memoryEl.querySelector('h3')?.textContent || '');
   });
 
   loadProgress();

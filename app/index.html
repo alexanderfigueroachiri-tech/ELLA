@@ -37,7 +37,7 @@
       <div class="hud-title">El camino de Noelia</div>
       <button id="reset-progress" class="icon-btn" type="button" title="Reiniciar" aria-label="Reiniciar">↺</button>
     </div>
-    <p class="eyebrow">Para mi tequeña</p>
+    <p class="eyebrow">Para Noelia</p>
     <h1 class="brand">Tu mapa</h1>
     <p class="sub">Cuatro paradas. Cada una desbloquea un pedacito de nosotros.</p>
 
@@ -82,7 +82,7 @@
       </button>
     </div>
 
-    <p class="map-note">Hecho a mano por tu tequeño · aunque estemos lejos</p>
+    <p class="map-note">Hecho a mano por Ale · aunque estemos lejos</p>
     <!-- TODO(QUITAR): botón Trampa — solo pruebas. Borrar antes de mandárselo al amor de su vida. -->
     <button id="trampa-btn" class="trampa-btn" type="button" title="DEV: quitar antes del regalo">Trampa ✦</button>
   </section>
@@ -169,7 +169,7 @@
       <h2>Amor de mi vida,</h2>
       <p>
         Hoy es tu día y aunque la distancia nos tenga en mapas distintos,
-        yo seguía pensando en ti: en los tequeños, en la carne, en los conciertos,
+        yo seguía pensando en ti: en la carne, en los conciertos,
         en Ed Sheeran de fondo, en Paco Yonque, en tu carita, en abrazarte.
       </p>
       <p>
@@ -178,20 +178,29 @@
         para que se note que me importas, aunque estemos lejos.
       </p>
       <p>
-        Gracias por ser el amor de mi vida. Gracias por dejarme ser tu tequeño.
+        Gracias por ser el amor de mi vida.
+        Déjame estar en tu vida por el resto de la mía.
         Cuando volvamos a estar cerca, te debo el abrazo completo.
       </p>
       <p><strong>— Ale</strong></p>
 
       <div class="finale-gallery">
-        <img src="assets/nosotros.jpg" alt="Nosotros" />
-        <img src="assets/cita-mesa.jpg" alt="Nuestra cita" />
-        <img src="assets/oso-manoso.jpg" alt="Oso mañoso" />
-        <img src="assets/cuaderno.jpg" alt="Tu letra" />
+        <button type="button" class="photo-thumb" data-photo="assets/nosotros.jpg" data-caption="Nosotros">
+          <img src="assets/nosotros.jpg" alt="Nosotros" />
+        </button>
+        <button type="button" class="photo-thumb" data-photo="assets/cita-mesa.jpg" data-caption="Nuestra cita">
+          <img src="assets/cita-mesa.jpg" alt="Nuestra cita" />
+        </button>
+        <button type="button" class="photo-thumb" data-photo="assets/oso-manoso.jpg" data-caption="El oso mañoso">
+          <img src="assets/oso-manoso.jpg" alt="Oso mañoso" />
+        </button>
+        <button type="button" class="photo-thumb" data-photo="assets/cuaderno.jpg" data-caption="Tu letra">
+          <img src="assets/cuaderno.jpg" alt="Tu letra" />
+        </button>
       </div>
 
       <div class="audio-box">
-        <strong>Audio de tu tequeño</strong>
+        <strong>Audio de Ale</strong>
         <p style="margin:6px 0 0; font-size:0.92rem; color:#5a3a44;">
           (borrador — si te gusta el proyecto, Ale graba la versión definitiva)
         </p>
@@ -223,6 +232,16 @@
         <button class="btn" type="button">Seguir el camino</button>
       </div>
     </div>
+  </div>
+
+  <!-- PHOTO LIGHTBOX + comic bit -->
+  <div id="photo-lite" class="photo-lite" hidden>
+    <div class="comic-stage" id="comic-stage" aria-hidden="true"></div>
+    <button type="button" class="photo-lite-close" id="photo-lite-close" aria-label="Cerrar">✕</button>
+    <figure class="photo-lite-frame">
+      <img id="photo-lite-img" src="" alt="" />
+      <figcaption id="photo-lite-cap"></figcaption>
+    </figure>
   </div>
 
   <script src="sfx.js"></script>

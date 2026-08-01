@@ -14,3 +14,12 @@ __pycache__/
 *.pyc
 .DS_Store
 *.log
+
+# Offline phone package (local only)
+ella-para-noelia.zip
+
+# Level generator scratch
+app/_gen_level.py
+app/level_out.txt
+docs/_gen_level.py
+docs/level_out.txt
