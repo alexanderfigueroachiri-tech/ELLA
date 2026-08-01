@@ -211,7 +211,7 @@
   const JAM_LEVELS = {
     2: {
       title: 'Atasco de cariño',
-      hint: 'Buses entrelazados: saca los que puedan salir y libera el caminito.',
+      hint: 'Los 4 primeros de la fila pueden subir. Saca buses de esos colores.',
       cols: 6,
       rows: 6,
       bayLimit: 5,
@@ -387,14 +387,24 @@
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  function findBoardableBayIndex() {
-    if (!jam.queue.length) return -1;
-    const need = jam.queue[0];
-    return jam.bays.findIndex((b) => b.color === need && b.boarded < b.cap);
+  /** Los N primeros de la fila pueden subir (no solo el del frente). */
+  const QUEUE_WINDOW = 4;
+
+  /** @returns {{ queueIndex: number, bayIndex: number } | null} */
+  function findBoardablePair() {
+    if (!jam.queue.length || !jam.bays.length) return null;
+    const limit = Math.min(QUEUE_WINDOW, jam.queue.length);
+    for (let qi = 0; qi < limit; qi++) {
+      const color = jam.queue[qi];
+      const bi = jam.bays.findIndex((b) => b.color === color && b.boarded < b.cap);
+      if (bi >= 0) return { queueIndex: qi, bayIndex: bi };
+    }
+    return null;
   }
 
-  async function animatePassengerToBay(color, bayIndex) {
-    const queueEl = document.querySelector('#queue-track .passenger.next');
+  async function animatePassengerToBay(color, bayIndex, queueIndex = 0) {
+    const riders = document.querySelectorAll('#queue-track .passenger:not(.more)');
+    const queueEl = riders[queueIndex] || riders[0];
     const bayEl = document.querySelectorAll('#bays .bay')[bayIndex];
     if (!queueEl || !bayEl) {
       sfx.board();
@@ -440,33 +450,31 @@
     }
   }
 
-  /** Aborda de a uno con animación visible (ya no es instantáneo). */
+  /** Aborda de a uno: cualquiera de los 4 primeros que coincida con una plaza. */
   async function processBaysAnimated() {
     while (true) {
-      const idx = findBoardableBayIndex();
-      if (idx < 0) break;
+      const pair = findBoardablePair();
+      if (!pair) break;
 
-      const color = jam.queue[0];
-      await animatePassengerToBay(color, idx);
-      jam.queue.shift();
-      jam.bays[idx].boarded += 1;
+      const color = jam.queue[pair.queueIndex];
+      await animatePassengerToBay(color, pair.bayIndex, pair.queueIndex);
+      jam.queue.splice(pair.queueIndex, 1);
+      jam.bays[pair.bayIndex].boarded += 1;
       renderJam();
 
-      if (jam.bays[idx] && jam.bays[idx].boarded >= jam.bays[idx].cap) {
-        await animateBayDepart(idx);
-        jam.bays.splice(idx, 1);
+      if (jam.bays[pair.bayIndex] && jam.bays[pair.bayIndex].boarded >= jam.bays[pair.bayIndex].cap) {
+        await animateBayDepart(pair.bayIndex);
+        jam.bays.splice(pair.bayIndex, 1);
         renderJam();
       }
     }
   }
 
   function isSoftlocked() {
-    // Solo pierdes si las 4 plazas están ocupadas Y ninguna puede subir
-    // a la persona del frente. Plazas libres = sigues jugando.
+    // Softlock solo si las plazas están llenas y ninguno de los 4 primeros puede subir.
     if (!jam.queue.length || jam.busy || jam.won) return false;
     if (jam.bays.length < jam.bayLimit) return false;
-    const need = jam.queue[0];
-    return !jam.bays.some((b) => b.color === need && b.boarded < b.cap);
+    return !findBoardablePair();
   }
 
   function drawLotDecor(lot) {
@@ -530,7 +538,7 @@
       visible
         .map(
           (color, i) => `
-        <div class="passenger ${i === 0 ? 'next' : ''}" style="--pcolor:${COLORS[color]}; --pring:${COLORS[color]}">
+        <div class="passenger ${i < QUEUE_WINDOW ? 'ready' : ''} ${i === 0 ? 'next' : ''}" style="--pcolor:${COLORS[color]}; --pring:${COLORS[color]}">
           <div class="picon" aria-hidden="true">${THEME_ICON[color] || '✦'}</div>
           <span class="pname">${PASSENGER_LABELS[color] || color}</span>
         </div>`
@@ -691,8 +699,8 @@
       return;
     }
     jam.busy = true;
-    const need = jam.queue[0];
-    let idx = jam.bays.findIndex((b) => b.color !== need);
+    const active = new Set(jam.queue.slice(0, QUEUE_WINDOW));
+    let idx = jam.bays.findIndex((b) => !active.has(b.color));
     if (idx < 0) idx = 0;
     jam.bays.splice(idx, 1);
     jam.blows -= 1;
@@ -1084,8 +1092,8 @@
     splash: '¡Hola! Soy Tequeño. Toca Empezar y te guío en el caminito 🧀',
     map: 'Elige una parada. Si te trabas, dame un toque y te tiro una pista.',
     intro: 'Ese “No” es un cobarde… ¡persíguelo! O mejor: di que sí.',
-    jam: 'Mira el color de la fila. Los buses largos (3–4) se llevan más gente. ¡Yo confío en ti!',
-    jamSoft: 'Uy, plazas llenas. Saca el color que pide la fila… o usa un Soplo de Ale.',
+    jam: 'Ojo: pueden subir los 4 primeros de la fila, no solo el del frente. ¡Tú puedes!',
+    jamSoft: 'Uy, plazas llenas y los 4 de adelante no entran. Saca otro color… o Soplo de Ale.',
     jamWin: '¡Siiii! Lo lograste. Te mereces un abrazo… y un tequeño extra.',
     cozy: 'Modo soft. Hay alguien cuidando el rinconcito… pero aún no te lo presento 👀',
     finale: 'Lee con calma. Y si tocas una foto… pasa algo gracioso. Yo aviso.',
