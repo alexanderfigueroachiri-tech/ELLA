@@ -207,42 +207,35 @@
    * front (r,c) = trompa del bus (hacia donde apunta la flecha).
    * El cuerpo crece en dirección contraria. len = asientos (1–4).
    */
-  // 6x6 entrelazado (estilo juego original), jugable, sin recorte.
+  // 5x5 fácil: casi todos tienen salida libre.
   const JAM_LEVELS = {
     2: {
       title: 'Atasco de cariño',
-      hint: 'Los 4 primeros de la fila pueden subir. Saca buses de esos colores.',
-      cols: 6,
-      rows: 6,
-      bayLimit: 5,
-      blows: 3,
+      hint: 'Modo fácil: los 4 primeros de la fila pueden subir. Empieza por los bordes.',
+      cols: 5,
+      rows: 5,
+      bayLimit: 4,
+      blows: 5,
       queue: [
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold',
+        'rose', 'sky', 'lilac', 'brown', 'mint', 'coral',
       ],
       vehicles: [
-        { id: 'b0', r: 5, c: 0, dir: 'left', len: 2, color: 'rose' },
-        { id: 'b1', r: 4, c: 4, dir: 'up', len: 2, color: 'gold' },
-        { id: 'b2', r: 4, c: 3, dir: 'down', len: 2, color: 'sky' },
-        { id: 'b3', r: 0, c: 5, dir: 'down', len: 1, color: 'mint' },
-        { id: 'b4', r: 3, c: 5, dir: 'down', len: 1, color: 'lilac' },
-        { id: 'b5', r: 1, c: 2, dir: 'down', len: 2, color: 'coral' },
-        { id: 'b6', r: 2, c: 1, dir: 'right', len: 2, color: 'brown' },
-        { id: 'b7', r: 1, c: 5, dir: 'right', len: 1, color: 'rose' },
-        { id: 'b8', r: 0, c: 3, dir: 'up', len: 3, color: 'gold' },
-        { id: 'b9', r: 2, c: 5, dir: 'right', len: 2, color: 'sky' },
-        { id: 'b10', r: 0, c: 1, dir: 'up', len: 1, color: 'mint' },
-        { id: 'b11', r: 4, c: 2, dir: 'down', len: 3, color: 'lilac' },
-        { id: 'b12', r: 5, c: 2, dir: 'down', len: 1, color: 'coral' },
-        { id: 'b13', r: 5, c: 3, dir: 'down', len: 1, color: 'brown' },
-        { id: 'b14', r: 3, c: 0, dir: 'left', len: 1, color: 'rose' },
-        { id: 'b15', r: 5, c: 5, dir: 'down', len: 1, color: 'gold' },
-        { id: 'b16', r: 4, c: 1, dir: 'left', len: 1, color: 'sky' },
-        { id: 'b17', r: 1, c: 0, dir: 'left', len: 2, color: 'mint' },
-        { id: 'b18', r: 4, c: 0, dir: 'left', len: 1, color: 'lilac' },
+        { id: 'b0', r: 4, c: 1, dir: 'down', len: 2, color: 'rose' },
+        { id: 'b1', r: 3, c: 4, dir: 'right', len: 1, color: 'gold' },
+        { id: 'b2', r: 1, c: 3, dir: 'up', len: 1, color: 'sky' },
+        { id: 'b3', r: 0, c: 2, dir: 'up', len: 1, color: 'mint' },
+        { id: 'b4', r: 4, c: 2, dir: 'down', len: 3, color: 'lilac' },
+        { id: 'b5', r: 4, c: 3, dir: 'down', len: 2, color: 'coral' },
+        { id: 'b6', r: 1, c: 4, dir: 'right', len: 1, color: 'brown' },
+        { id: 'b7', r: 3, c: 0, dir: 'left', len: 1, color: 'rose' },
+        { id: 'b8', r: 4, c: 4, dir: 'down', len: 1, color: 'gold' },
+        { id: 'b9', r: 2, c: 1, dir: 'up', len: 1, color: 'sky' },
+        { id: 'b10', r: 0, c: 4, dir: 'right', len: 2, color: 'mint' },
+        { id: 'b11', r: 4, c: 0, dir: 'down', len: 1, color: 'lilac' },
+        { id: 'b12', r: 0, c: 0, dir: 'up', len: 2, color: 'coral' },
+        { id: 'b13', r: 2, c: 0, dir: 'left', len: 1, color: 'brown' },
       ],
       winMemory: {
         photo: 'assets/cita-mesa.jpg',
@@ -394,12 +387,29 @@
   function findBoardablePair() {
     if (!jam.queue.length || !jam.bays.length) return null;
     const limit = Math.min(QUEUE_WINDOW, jam.queue.length);
+    // Prioriza coincidencias cercanas al frente, pero acepta cualquiera de los 4.
     for (let qi = 0; qi < limit; qi++) {
       const color = jam.queue[qi];
       const bi = jam.bays.findIndex((b) => b.color === color && b.boarded < b.cap);
       if (bi >= 0) return { queueIndex: qi, bayIndex: bi };
     }
     return null;
+  }
+
+  /** Vacía todo lo que pueda subir de los 4 primeros (sin quedarse solo con el #1). */
+  function boardAllPossibleSync() {
+    let boarded = 0;
+    while (true) {
+      const pair = findBoardablePair();
+      if (!pair) break;
+      jam.queue.splice(pair.queueIndex, 1);
+      jam.bays[pair.bayIndex].boarded += 1;
+      boarded += 1;
+      if (jam.bays[pair.bayIndex].boarded >= jam.bays[pair.bayIndex].cap) {
+        jam.bays.splice(pair.bayIndex, 1);
+      }
+    }
+    return boarded;
   }
 
   async function animatePassengerToBay(color, bayIndex, queueIndex = 0) {
@@ -450,18 +460,24 @@
     }
   }
 
-  /** Aborda de a uno: cualquiera de los 4 primeros que coincida con una plaza. */
+  /** Aborda: cualquiera de los 4 primeros que coincida con una plaza. */
   async function processBaysAnimated() {
-    while (true) {
+    // Primero resuelve en bloque (evita softlock falso si hay varios que sí pueden).
+    const quick = boardAllPossibleSync();
+    if (quick > 0) {
+      sfx.board();
+      renderJam();
+      // animación corta de “salida” si alguna plaza se liberó por capacidad
+      await sleep(220);
+    }
+    // Segunda pasada por si quedó algo tras re-render (defensivo)
+    while (findBoardablePair()) {
       const pair = findBoardablePair();
-      if (!pair) break;
-
       const color = jam.queue[pair.queueIndex];
       await animatePassengerToBay(color, pair.bayIndex, pair.queueIndex);
       jam.queue.splice(pair.queueIndex, 1);
       jam.bays[pair.bayIndex].boarded += 1;
       renderJam();
-
       if (jam.bays[pair.bayIndex] && jam.bays[pair.bayIndex].boarded >= jam.bays[pair.bayIndex].cap) {
         await animateBayDepart(pair.bayIndex);
         jam.bays.splice(pair.bayIndex, 1);
@@ -604,7 +620,7 @@
     if (locked && !jam.softWarned) {
       jam.softWarned = true;
       sfx.softlock();
-      if (typeof tequySay === 'function') tequySay('jamSoft', 'kick');
+      if (typeof tequySay === 'function') tequySay('jamSoft', 'talk');
     }
     if (!locked) jam.softWarned = false;
 
@@ -1080,12 +1096,12 @@
   const tequyBubble = document.getElementById('tequy-bubble');
   const tequyText = document.getElementById('tequy-text');
   const TEQUY_POSES = {
-    idle: 'assets/tequy/idle.png',   // wink / manos en la cintura
-    talk: 'assets/tequy/talk.png',   // speaking / gesticulando
-    jump: 'assets/tequy/happy.png',  // ¡Bien! brazos arriba
-    happy: 'assets/tequy/happy.png',
-    kick: 'assets/tequy/kick.png',   // del sheet anterior
-    side: 'assets/tequy/side.png',
+    idle: 'assets/tequy/idle.png?v=5',
+    talk: 'assets/tequy/talk.png?v=5',
+    jump: 'assets/tequy/happy.png?v=5',
+    happy: 'assets/tequy/happy.png?v=5',
+    kick: 'assets/tequy/idle.png?v=5', // kick.png estaba roto (solo pies)
+    side: 'assets/tequy/side.png?v=5',
   };
 
   const TEQUY_LINES = {
