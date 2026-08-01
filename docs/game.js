@@ -965,14 +965,18 @@
 
   /* ---------- Level 5 + cierre ---------- */
   const closingEl = document.getElementById('closing');
+  const closingActions = document.getElementById('closing-actions');
   let closingTimer = null;
+  let closingNudgeTimer = null;
   let closingPlayed = false;
 
   const postcreditsEl = document.getElementById('postcredits');
 
   function showPostcredits() {
+    clearTimeout(closingTimer);
+    clearTimeout(closingNudgeTimer);
     tequyRoot?.classList.add('is-hidden');
-    tequyHideBubble();
+    tequyHideBubble({ runDone: false });
     if (typeof sfx.setTheme === 'function') sfx.setTheme('finale');
     if (postcreditsEl) {
       postcreditsEl.hidden = false;
@@ -981,28 +985,68 @@
     showScreen('splash');
   }
 
+  function leaveClosingToCredits() {
+    if (!closingEl || closingEl.hidden) return;
+    clearTimeout(closingTimer);
+    clearTimeout(closingNudgeTimer);
+    tequyHideBubble({ runDone: false });
+    tequyRoot?.classList.add('is-hidden');
+    closingEl.classList.add('is-out');
+    setTimeout(() => {
+      closingEl.hidden = true;
+      closingEl.classList.remove('is-on', 'is-out');
+      if (closingActions) {
+        closingActions.hidden = true;
+        closingActions.classList.remove('is-in');
+      }
+      showPostcredits();
+    }, 900);
+  }
+
   function playClosing() {
     if (!closingEl || closingEl.classList.contains('is-on')) return;
     closingPlayed = true;
     tequyRoot?.classList.add('is-hidden');
-    tequyHideBubble();
+    tequyHideBubble({ runDone: false });
     if (typeof sfx.setTheme === 'function') sfx.setTheme('finale');
     closingEl.hidden = false;
     closingEl.classList.remove('is-out');
+    if (closingActions) {
+      closingActions.hidden = true;
+      closingActions.classList.remove('is-in');
+    }
     // restart CSS animations
     void closingEl.offsetWidth;
     closingEl.classList.add('is-on');
     sfx.unlock();
+
     clearTimeout(closingTimer);
+    clearTimeout(closingNudgeTimer);
+
+    // A los 5s: opción suave. Ella puede quedarse todo lo que quiera.
     closingTimer = setTimeout(() => {
-      closingEl.classList.add('is-out');
-      setTimeout(() => {
-        closingEl.hidden = true;
-        closingEl.classList.remove('is-on', 'is-out');
-        showPostcredits();
-      }, 1000);
-    }, 6200);
+      if (!closingEl.classList.contains('is-on') || closingEl.hidden) return;
+      if (closingActions) {
+        closingActions.hidden = false;
+        requestAnimationFrame(() => closingActions.classList.add('is-in'));
+      }
+    }, 5000);
+
+    // Si se queda mucho: Tequeño sugiere, sin empujar
+    closingNudgeTimer = setTimeout(() => {
+      if (!closingEl.classList.contains('is-on') || closingEl.hidden) return;
+      if (postcreditsEl && !postcreditsEl.hidden) return;
+      tequyRoot?.classList.remove('is-hidden');
+      if (typeof tequySay === 'function') {
+        tequySay(
+          'Quédate… de verdad. Cuando quieras, abajo está “Ver créditos”. No hay prisa 🧀',
+          'talk'
+        );
+      }
+    }, 28000);
   }
+
+  document.getElementById('closing-to-credits')?.addEventListener('click', leaveClosingToCredits);
 
   document.getElementById('postcredits-done')?.addEventListener('click', () => {
     if (postcreditsEl) postcreditsEl.hidden = true;
