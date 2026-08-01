@@ -206,77 +206,42 @@
    * front (r,c) = trompa del bus (hacia donde apunta la flecha).
    * El cuerpo crece en dirección contraria. len = asientos (1–4).
    */
-  // 9x9 denso: capas desde el borde (estilo mockup), buses 1–3 con “ventanita”.
+  // 6x6 entrelazado (estilo juego original), jugable, sin recorte.
   const JAM_LEVELS = {
     2: {
       title: 'Atasco de cariño',
-      hint: 'Hay un montón de buses. Empieza por los que miran afuera; luego el centro.',
-      cols: 9,
-      rows: 9,
+      hint: 'Buses entrelazados: saca los que puedan salir y libera el caminito.',
+      cols: 6,
+      rows: 6,
       bayLimit: 5,
-      blows: 4,
+      blows: 3,
       queue: [
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
         'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'gold', 'sky', 'mint', 'lilac', 'coral', 'brown',
-        'rose', 'sky', 'lilac', 'brown',
+        'rose', 'gold',
       ],
       vehicles: [
-        { id: 'b0', r: 0, c: 0, dir: 'up', len: 1, color: 'rose' },
-        { id: 'b1', r: 0, c: 1, dir: 'up', len: 2, color: 'gold' },
-        { id: 'b2', r: 0, c: 2, dir: 'up', len: 1, color: 'sky' },
-        { id: 'b3', r: 0, c: 3, dir: 'up', len: 3, color: 'mint' },
-        { id: 'b4', r: 0, c: 4, dir: 'up', len: 1, color: 'lilac' },
-        { id: 'b5', r: 0, c: 5, dir: 'up', len: 2, color: 'coral' },
-        { id: 'b6', r: 0, c: 6, dir: 'up', len: 1, color: 'brown' },
-        { id: 'b7', r: 0, c: 7, dir: 'up', len: 3, color: 'rose' },
-        { id: 'b8', r: 0, c: 8, dir: 'up', len: 1, color: 'gold' },
-        { id: 'b9', r: 8, c: 0, dir: 'down', len: 2, color: 'sky' },
-        { id: 'b10', r: 8, c: 1, dir: 'down', len: 1, color: 'mint' },
-        { id: 'b11', r: 8, c: 2, dir: 'down', len: 3, color: 'lilac' },
-        { id: 'b12', r: 8, c: 3, dir: 'down', len: 1, color: 'coral' },
-        { id: 'b13', r: 8, c: 4, dir: 'down', len: 2, color: 'brown' },
-        { id: 'b14', r: 8, c: 5, dir: 'down', len: 1, color: 'rose' },
-        { id: 'b15', r: 8, c: 6, dir: 'down', len: 3, color: 'gold' },
-        { id: 'b16', r: 8, c: 7, dir: 'down', len: 1, color: 'sky' },
-        { id: 'b17', r: 8, c: 8, dir: 'down', len: 2, color: 'mint' },
-        { id: 'b18', r: 1, c: 0, dir: 'left', len: 1, color: 'sky' },
-        { id: 'b19', r: 1, c: 8, dir: 'right', len: 1, color: 'lilac' },
-        { id: 'b20', r: 2, c: 0, dir: 'left', len: 2, color: 'mint' },
-        { id: 'b21', r: 2, c: 8, dir: 'right', len: 1, color: 'coral' },
-        { id: 'b22', r: 3, c: 0, dir: 'left', len: 1, color: 'lilac' },
-        { id: 'b23', r: 3, c: 8, dir: 'right', len: 3, color: 'brown' },
-        { id: 'b24', r: 4, c: 0, dir: 'left', len: 3, color: 'coral' },
-        { id: 'b25', r: 4, c: 8, dir: 'right', len: 1, color: 'rose' },
-        { id: 'b26', r: 5, c: 0, dir: 'left', len: 1, color: 'brown' },
-        { id: 'b27', r: 5, c: 8, dir: 'right', len: 2, color: 'gold' },
-        { id: 'b28', r: 6, c: 0, dir: 'left', len: 2, color: 'rose' },
-        { id: 'b29', r: 6, c: 8, dir: 'right', len: 1, color: 'sky' },
-        { id: 'b30', r: 1, c: 2, dir: 'up', len: 2, color: 'mint' },
-        { id: 'b31', r: 1, c: 4, dir: 'up', len: 2, color: 'coral' },
-        { id: 'b32', r: 1, c: 6, dir: 'up', len: 2, color: 'rose' },
-        { id: 'b33', r: 2, c: 5, dir: 'up', len: 2, color: 'rose' },
-        { id: 'b34', r: 3, c: 1, dir: 'left', len: 2, color: 'mint' },
-        { id: 'b35', r: 3, c: 3, dir: 'up', len: 2, color: 'brown' },
-        { id: 'b36', r: 3, c: 4, dir: 'up', len: 2, color: 'rose' },
-        { id: 'b37', r: 4, c: 5, dir: 'up', len: 2, color: 'sky' },
-        { id: 'b38', r: 4, c: 6, dir: 'up', len: 2, color: 'mint' },
-        { id: 'b39', r: 4, c: 7, dir: 'up', len: 1, color: 'rose' },
-        { id: 'b40', r: 5, c: 1, dir: 'left', len: 2, color: 'coral' },
-        { id: 'b41', r: 5, c: 3, dir: 'up', len: 2, color: 'gold' },
-        { id: 'b42', r: 5, c: 4, dir: 'up', len: 2, color: 'sky' },
-        { id: 'b43', r: 6, c: 5, dir: 'up', len: 2, color: 'lilac' },
-        { id: 'b44', r: 6, c: 7, dir: 'up', len: 2, color: 'brown' },
-        { id: 'b45', r: 7, c: 1, dir: 'up', len: 1, color: 'rose' },
-        { id: 'b46', r: 7, c: 3, dir: 'up', len: 1, color: 'rose' },
+        { id: 'b0', r: 5, c: 0, dir: 'left', len: 2, color: 'rose' },
+        { id: 'b1', r: 4, c: 4, dir: 'up', len: 2, color: 'gold' },
+        { id: 'b2', r: 4, c: 3, dir: 'down', len: 2, color: 'sky' },
+        { id: 'b3', r: 0, c: 5, dir: 'down', len: 1, color: 'mint' },
+        { id: 'b4', r: 3, c: 5, dir: 'down', len: 1, color: 'lilac' },
+        { id: 'b5', r: 1, c: 2, dir: 'down', len: 2, color: 'coral' },
+        { id: 'b6', r: 2, c: 1, dir: 'right', len: 2, color: 'brown' },
+        { id: 'b7', r: 1, c: 5, dir: 'right', len: 1, color: 'rose' },
+        { id: 'b8', r: 0, c: 3, dir: 'up', len: 3, color: 'gold' },
+        { id: 'b9', r: 2, c: 5, dir: 'right', len: 2, color: 'sky' },
+        { id: 'b10', r: 0, c: 1, dir: 'up', len: 1, color: 'mint' },
+        { id: 'b11', r: 4, c: 2, dir: 'down', len: 3, color: 'lilac' },
+        { id: 'b12', r: 5, c: 2, dir: 'down', len: 1, color: 'coral' },
+        { id: 'b13', r: 5, c: 3, dir: 'down', len: 1, color: 'brown' },
+        { id: 'b14', r: 3, c: 0, dir: 'left', len: 1, color: 'rose' },
+        { id: 'b15', r: 5, c: 5, dir: 'down', len: 1, color: 'gold' },
+        { id: 'b16', r: 4, c: 1, dir: 'left', len: 1, color: 'sky' },
+        { id: 'b17', r: 1, c: 0, dir: 'left', len: 2, color: 'mint' },
+        { id: 'b18', r: 4, c: 0, dir: 'left', len: 1, color: 'lilac' },
       ],
       winMemory: {
         photo: 'assets/cita-mesa.jpg',
@@ -364,15 +329,19 @@
     const lot = document.getElementById('lot');
     const w = lot.clientWidth;
     const h = lot.clientHeight;
-    jam.gap = Math.max(3, Math.min(5, Math.floor(Math.min(w, h) / 90)));
-    const cellW = (w - jam.gap * (jam.cols + 1)) / jam.cols;
-    const cellH = (h - jam.gap * (jam.rows + 1)) / jam.rows;
-    jam.cell = Math.max(16, Math.floor(Math.min(cellW, cellH)));
+    // Padding interno para que el bus del borde no se recorte con el radio
+    const pad = Math.max(8, Math.round(Math.min(w, h) * 0.035));
+    jam.gap = Math.max(4, Math.min(7, Math.floor(Math.min(w, h) / 70)));
+    const innerW = Math.max(0, w - pad * 2);
+    const innerH = Math.max(0, h - pad * 2);
+    const cellW = (innerW - jam.gap * (jam.cols + 1)) / jam.cols;
+    const cellH = (innerH - jam.gap * (jam.rows + 1)) / jam.rows;
+    jam.cell = Math.max(28, Math.floor(Math.min(cellW, cellH)));
     jam.stride = jam.cell + jam.gap;
     const gridW = jam.cell * jam.cols + jam.gap * (jam.cols + 1);
     const gridH = jam.cell * jam.rows + jam.gap * (jam.rows + 1);
-    jam.offsetX = Math.floor((w - gridW) / 2);
-    jam.offsetY = Math.floor((h - gridH) / 2);
+    jam.offsetX = pad + Math.floor((innerW - gridW) / 2);
+    jam.offsetY = pad + Math.floor((innerH - gridH) / 2);
   }
 
   function cellPos(r, c) {
@@ -777,13 +746,39 @@
 
   document.getElementById('cartoon-next').addEventListener('click', () => {
     completeLevel(4, {
-      photo: 'assets/historia/emociones.png',
+      photo: 'assets/caricaturas/abrazo.png',
       title: 'Como te cuido',
       text: 'No puedo arreglarte la vida… pero sí buscar que estés bien, de la manera que sea. Porque me importas demasiado.',
     });
   });
 
-  /* ---------- Level 5 ---------- */
+  /* ---------- Level 5 + cierre ---------- */
+  const closingEl = document.getElementById('closing');
+  let closingTimer = null;
+  let closingPlayed = false;
+
+  function playClosing() {
+    if (!closingEl || closingEl.classList.contains('is-on')) return;
+    closingPlayed = true;
+    tequyRoot?.classList.add('is-hidden');
+    tequyHideBubble();
+    closingEl.hidden = false;
+    closingEl.classList.remove('is-out');
+    // restart CSS animations
+    void closingEl.offsetWidth;
+    closingEl.classList.add('is-on');
+    sfx.unlock();
+    clearTimeout(closingTimer);
+    closingTimer = setTimeout(() => {
+      closingEl.classList.add('is-out');
+      setTimeout(() => {
+        closingEl.hidden = true;
+        closingEl.classList.remove('is-on', 'is-out');
+        showScreen('splash');
+      }, 1000);
+    }, 6200);
+  }
+
   function startFinale() {
     showScreen('finale');
     state.done[5] = true;
@@ -793,6 +788,24 @@
   }
 
   document.getElementById('finale-back').addEventListener('click', () => showScreen('map'));
+  document.getElementById('finale-end')?.addEventListener('click', playClosing);
+
+  // Al llegar al final de la carta (deslizó hasta abajo), bloquea y cierra
+  const finaleEndBtn = document.getElementById('finale-end');
+  if (finaleEndBtn && 'IntersectionObserver' in window) {
+    const endWatch = new IntersectionObserver(
+      (entries) => {
+        if (!screens.finale.classList.contains('active')) return;
+        if (closingPlayed) return;
+        if (entries.some((e) => e.isIntersecting && e.intersectionRatio > 0.55)) {
+          endWatch.disconnect();
+          setTimeout(playClosing, 500);
+        }
+      },
+      { threshold: 0.6 }
+    );
+    endWatch.observe(finaleEndBtn);
+  }
 
   document.getElementById('reset-progress').addEventListener('click', () => {
     if (!confirm('¿Borrar progreso y empezar de cero?')) return;

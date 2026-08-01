@@ -11,6 +11,8 @@
   <link rel="apple-touch-icon" href="assets/nosotros.jpg" />
   <title>Para Noelia</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 </head>
 <body>
   <div id="toast" class="toast" role="status"></div>
@@ -230,7 +232,7 @@
     </div>
   </section>
 
-  <!-- LEVEL 4: historia emocional + abrazo -->
+  <!-- LEVEL 4: historieta vertical -->
   <section id="cartoon-screen" class="screen" aria-label="Nivel 4">
     <div class="topbar">
       <button id="cartoon-back" class="icon-btn" type="button" aria-label="Volver">←</button>
@@ -238,45 +240,63 @@
       <span style="width:42px"></span>
     </div>
     <div class="story-scene">
-      <p class="eyebrow">Cuatro versiones de nosotros</p>
+      <p class="eyebrow">Desliza la historieta</p>
       <h2 class="brand story-title">Siempre busco que estés bien</h2>
       <p class="story-letter">
-        Amor, sé que no puedo arreglarte la vida, por eso intento dar lo mejor de mí con lo que tengo.
-        Intento siempre sacarte una sonrisa, alegrarte el día con alguna tontería.
-        Cuando tienes hambre busco qué alimentarte aunque sea poco.
-        Si estás molesta, probablemente sea porque hice o no hice algo: lo siento.
-        Podría hacer tu trabajo si pudiera y me dejaras.
-        Siempre busco que estés bien, de la manera que sea, porque me importas demasiado.
+        Amor, sé que no puedo arreglarte la vida, por eso intento dar lo mejor de mí con lo que tengo…
       </p>
 
-      <div class="story-grid">
-        <button type="button" class="story-card photo-thumb" data-photo="assets/historia/triste.png" data-caption="Cuando estás triste">
-          <img src="assets/historia/triste.png" alt="Cuando estás triste" />
-          <span>Triste · tonterías hasta que sonrías</span>
-        </button>
-        <button type="button" class="story-card photo-thumb" data-photo="assets/historia/hambre.png" data-caption="Cuando tienes hambre">
-          <img src="assets/historia/hambre.png" alt="Cuando tienes hambre" />
-          <span>Hambre · tequeños al rescate</span>
-        </button>
-        <button type="button" class="story-card photo-thumb" data-photo="assets/historia/molesta.png" data-caption="Cuando estás molesta">
-          <img src="assets/historia/molesta.png" alt="Cuando estás molesta" />
-          <span>Molesta · lo siento de verdad</span>
-        </button>
-        <button type="button" class="story-card photo-thumb" data-photo="assets/historia/agobiada.png" data-caption="Cuando estás agobiada">
-          <img src="assets/historia/agobiada.png" alt="Cuando estás agobiada" />
-          <span>Agobiada · café y espalda cubierta</span>
-        </button>
+      <div class="comic-strip" aria-label="Historieta">
+        <article class="comic-beat side-left">
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/triste.png" data-caption="Cuando estás triste">
+            <img src="assets/historia/triste.png" alt="Cuando estás triste" />
+          </button>
+          <div class="comic-copy">
+            <h3>Cuando estás triste</h3>
+            <p>Intento siempre sacarte una sonrisa, alegrarte el día con alguna tontería.</p>
+          </div>
+        </article>
+
+        <article class="comic-beat side-right">
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/hambre.png" data-caption="Cuando tienes hambre">
+            <img src="assets/historia/hambre.png" alt="Cuando tienes hambre" />
+          </button>
+          <div class="comic-copy">
+            <h3>Cuando tienes hambre</h3>
+            <p>Busco qué alimentarte aunque sea poco. Tequeños al ser posible.</p>
+          </div>
+        </article>
+
+        <article class="comic-beat side-left">
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/molesta.png" data-caption="Cuando estás molesta">
+            <img src="assets/historia/molesta.png" alt="Cuando estás molesta" />
+          </button>
+          <div class="comic-copy">
+            <h3>Cuando estás molesta</h3>
+            <p>Probablemente sea porque hice o no hice algo. Lo siento.</p>
+          </div>
+        </article>
+
+        <article class="comic-beat side-right">
+          <button type="button" class="comic-panel photo-thumb" data-photo="assets/historia/agobiada.png" data-caption="Cuando estás agobiada">
+            <img src="assets/historia/agobiada.png" alt="Cuando estás agobiada" />
+          </button>
+          <div class="comic-copy">
+            <h3>Cuando estás agobiada</h3>
+            <p>Podría hacer tu trabajo si pudiera y me dejaras. Siempre busco que estés bien.</p>
+          </div>
+        </article>
+
+        <article class="comic-beat side-center">
+          <button type="button" class="comic-panel comic-wide photo-thumb" data-photo="assets/caricaturas/abrazo.png" data-caption="Un abrazo Tequy">
+            <img src="assets/caricaturas/abrazo.png" alt="Un abrazo Tequy" />
+          </button>
+          <div class="comic-copy">
+            <h3>Porque me importas demasiado</h3>
+            <p>De la manera que sea… aquí estoy. Un abrazo Tequy, mientras llega el de verdad.</p>
+          </div>
+        </article>
       </div>
-
-      <button type="button" class="photo-thumb cartoon-sheet" data-photo="assets/historia/emociones.png" data-caption="Toda la historieta">
-        <img src="assets/historia/emociones.png" alt="Historieta completa" />
-      </button>
-
-      <p class="eyebrow" style="margin-top:18px;">Y al final…</p>
-      <h3 class="story-hug-title">¡Un abrazo Tequy!</h3>
-      <button type="button" class="photo-thumb cartoon-hero" data-photo="assets/caricaturas/abrazo.png" data-caption="Un abrazo Tequy">
-        <img src="assets/caricaturas/abrazo.png" alt="Caricatura abrazo" />
-      </button>
 
       <button id="cartoon-next" class="btn" type="button">Seguir a la carta</button>
     </div>
@@ -345,10 +365,25 @@
       </div>
     </div>
 
+    <button id="finale-end" class="btn" type="button" style="margin: 18px auto 8px; display:flex; width:min(100%,320px);">
+      Cerrar el caminito
+    </button>
     <p class="map-note" style="text-align:center;">
       Tip iPhone: Safari → Compartir → “Añadir a pantalla de inicio” para que se sienta como app.
     </p>
   </section>
+
+  <!-- CLOSING CINEMATIC -->
+  <div id="closing" class="closing" hidden aria-live="polite">
+    <div class="closing-bg"></div>
+    <div class="closing-veil"></div>
+    <div class="closing-lines" id="closing-lines">
+      <p>De mi para ti.</p>
+      <p>Espero te haya gustado.</p>
+      <p>Con mucho Amor…</p>
+      <p class="closing-sign">Yo, El amor de tu vida</p>
+    </div>
+  </div>
 
   <!-- MEMORY MODAL -->
   <div id="memory" class="memory" aria-live="polite">
