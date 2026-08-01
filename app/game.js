@@ -207,7 +207,8 @@
     gap: 6,
     cols: 5,
     rows: 6,
-    busy: false,
+    animating: new Set(), // buses en movimiento (permite varios a la vez)
+    boardChain: Promise.resolve(),
     won: false,
     blows: 1,
     softWarned: false,
@@ -337,7 +338,8 @@
     jam.queue = [...def.queue];
     jam.bays = [];
     jam.vehicles = def.vehicles.map((v) => ({ ...v }));
-    jam.busy = false;
+    jam.animating = new Set();
+    jam.boardChain = Promise.resolve();
     jam.won = false;
     jam.softWarned = false;
 
@@ -505,9 +507,18 @@
     }
   }
 
+  /** Encola abordaje para no pisar animaciones si salen varios buses seguidos. */
+  function enqueueBoardPass() {
+    jam.boardChain = jam.boardChain
+      .then(() => processBaysAnimated())
+      .then(() => renderJam())
+      .catch(() => {});
+    return jam.boardChain;
+  }
+
   function isSoftlocked() {
     // Softlock solo si las plazas están llenas y ninguno de los 4 primeros puede subir.
-    if (!jam.queue.length || jam.busy || jam.won) return false;
+    if (!jam.queue.length || jam.animating.size || jam.won) return false;
     if (jam.bays.length < jam.bayLimit) return false;
     return !findBoardablePair();
   }
@@ -610,10 +621,16 @@
     }
 
     const lot = document.getElementById('lot');
+    // Conserva buses que aún se están animando (salida simultánea).
+    const movingKeep = [];
+    lot.querySelectorAll('.bus.moving').forEach((el) => movingKeep.push(el));
     lot.innerHTML = '';
     drawLotDecor(lot);
+    movingKeep.forEach((el) => lot.appendChild(el));
 
     jam.vehicles.forEach((v) => {
+      if (jam.animating.has(v.id)) return; // ya está el nodo .moving
+      if (lot.querySelector(`.bus[data-id="${v.id}"]`)) return;
       const box = busBox(v);
       const btn = document.createElement('button');
       btn.className = `bus bus-${v.dir} bus-len-${v.len} bus-theme-${v.color}`;
@@ -675,7 +692,7 @@
   }
 
   async function onBusTap(id) {
-    if (jam.busy || jam.won) return;
+    if (jam.won || jam.animating.has(id)) return;
     const v = jam.vehicles.find((x) => x.id === id);
     if (!v) return;
     const el = document.querySelector(`.bus[data-id="${id}"]`);
@@ -692,7 +709,7 @@
       return;
     }
 
-    jam.busy = true;
+    jam.animating.add(id);
     el.classList.add('moving');
 
     if (!path.canExit) {
@@ -701,26 +718,20 @@
       const hitLeft = start.left + (travel + bump) * dc * jam.stride;
       const hitTop = start.top + (travel + bump) * dr * jam.stride;
       const dur = 120 + travel * 80;
-      await animateTo(el, hitLeft, hitTop, dur);
-      sfx.bump();
-      el.classList.add('bounce-hit');
-      toast(travel === 0 ? '¡Paf! Pegadito' : '¡Paf! Se asustó');
-      await animateTo(el, start.left, start.top, 160 + travel * 35);
-      el.classList.remove('bounce-hit', 'moving');
-      jam.busy = false;
+      try {
+        await animateTo(el, hitLeft, hitTop, dur);
+        sfx.bump();
+        el.classList.add('bounce-hit');
+        toast(travel === 0 ? '¡Paf! Pegadito' : '¡Paf! Se asustó');
+        await animateTo(el, start.left, start.top, 160 + travel * 35);
+      } finally {
+        el.classList.remove('bounce-hit', 'moving');
+        jam.animating.delete(id);
+      }
       return;
     }
 
-    const escape = path.freeSteps + 1.5;
-    sfx.whoosh();
-    await animateTo(
-      el,
-      start.left + escape * dc * jam.stride,
-      start.top + escape * dr * jam.stride,
-      160 + path.freeSteps * 70
-    );
-    el.style.opacity = '0';
-
+    // Reserva plaza y libera celda YA, para poder sacar otro bus en paralelo.
     jam.vehicles = jam.vehicles.filter((x) => x.id !== id);
     jam.bays.push({
       color: v.color,
@@ -729,9 +740,23 @@
       boarded: 0,
     });
     renderJam();
-    await processBaysAnimated();
-    jam.busy = false;
-    renderJam();
+
+    const escape = path.freeSteps + 1.5;
+    sfx.whoosh();
+    try {
+      await animateTo(
+        el,
+        start.left + escape * dc * jam.stride,
+        start.top + escape * dr * jam.stride,
+        160 + path.freeSteps * 70
+      );
+      el.style.opacity = '0';
+      el.remove();
+    } finally {
+      jam.animating.delete(id);
+    }
+
+    await enqueueBoardPass();
   }
 
   document.getElementById('jam-reset').addEventListener('click', () => {
@@ -739,12 +764,12 @@
   });
 
   document.getElementById('jam-blow')?.addEventListener('click', async () => {
-    if (jam.blows <= 0 || jam.busy) return;
+    if (jam.blows <= 0 || jam.animating.size) return;
     if (!jam.bays.length) {
       toast('No hay buses en las plazas');
       return;
     }
-    jam.busy = true;
+    jam.animating.add('__blow__');
     const active = new Set(jam.queue.slice(0, QUEUE_WINDOW));
     let idx = jam.bays.findIndex((b) => !active.has(b.color));
     if (idx < 0) idx = 0;
@@ -755,15 +780,17 @@
       const qi = jam.queue.indexOf(blown.color);
       if (qi >= 0) jam.queue.splice(qi, 1);
     }
-    await animateBayDepart(idx);
-    jam.bays.splice(idx, 1);
-    jam.blows -= 1;
-    sfx.whoosh();
-    toast('Soplo de Ale 💨');
-    renderJam();
-    await processBaysAnimated();
-    jam.busy = false;
-    renderJam();
+    try {
+      await animateBayDepart(idx);
+      jam.bays.splice(idx, 1);
+      jam.blows -= 1;
+      sfx.whoosh();
+      toast('Soplo de Ale 💨');
+      renderJam();
+      await enqueueBoardPass();
+    } finally {
+      jam.animating.delete('__blow__');
+    }
   });
 
   function syncMuteButtons() {
