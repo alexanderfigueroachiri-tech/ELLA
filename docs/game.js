@@ -15,9 +15,9 @@
     sky: 'abrazos',
     gold: 'risas',
     mint: 'conciertos',
-    lilac: 'Ed Sheeran',
+    lilac: 'Noelia',
     coral: 'carne asada',
-    brown: 'Paco Yonque',
+    brown: 'Alexander',
   };
 
   const THEME_ICON = {
@@ -25,9 +25,9 @@
     sky: '🤗',
     gold: '😆',
     mint: '🎤',
-    lilac: '🎸',
+    lilac: '💜',
     coral: '🥩',
-    brown: '🐶',
+    brown: '💙',
   };
 
   const BUS_SCENE = {
@@ -35,9 +35,9 @@
     sky: '🫂',
     gold: '😂',
     mint: '🎶',
-    lilac: '🎸',
+    lilac: '💜',
     coral: '🔥',
-    brown: '🐾',
+    brown: '💙',
   };
 
   const STORAGE_KEY = 'ella-camino-v4';
@@ -555,7 +555,12 @@
         .map(
           (color, i) => `
         <div class="passenger ${i < QUEUE_WINDOW ? 'ready' : ''} ${i === 0 ? 'next' : ''}" style="--pcolor:${COLORS[color]}; --pring:${COLORS[color]}">
-          <div class="picon" aria-hidden="true">${THEME_ICON[color] || '✦'}</div>
+          <div class="person" aria-hidden="true" title="${PASSENGER_LABELS[color]}">
+            <span class="head"></span>
+            <span class="body"></span>
+            <span class="leg l"></span>
+            <span class="leg r"></span>
+          </div>
           <span class="pname">${PASSENGER_LABELS[color] || color}</span>
         </div>`
         )

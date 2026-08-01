@@ -1016,9 +1016,9 @@ button {
 .passenger {
   flex: 0 0 auto;
   min-width: 58px;
-  padding: 4px 4px 6px;
+  padding: 6px 6px 6px;
   border-radius: 16px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.05);
   border: 2px solid transparent;
   text-align: center;
   font-size: 0.58rem;
@@ -1027,20 +1027,52 @@ button {
   position: relative;
 }
 
-.passenger .picon {
-  width: 44px;
-  height: 44px;
-  margin: 0 auto 4px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  font-size: 1.2rem;
-  background: var(--pcolor, var(--rose));
-  border: 3px solid #fff;
-  box-shadow:
-    0 0 0 2px var(--pring, var(--pcolor)),
-    0 6px 14px rgba(0, 0, 0, 0.28);
+.passenger.ready {
+  border-color: color-mix(in srgb, var(--pring, var(--pcolor)) 55%, transparent);
+  background: color-mix(in srgb, var(--pcolor) 16%, transparent);
 }
+
+.passenger .person {
+  width: 28px;
+  height: 36px;
+  margin: 0 auto 4px;
+  position: relative;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+}
+
+.passenger .person .head {
+  position: absolute;
+  left: 7px;
+  top: 1px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffe0d4;
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.passenger .person .body {
+  position: absolute;
+  left: 4px;
+  top: 14px;
+  width: 20px;
+  height: 14px;
+  border-radius: 8px 8px 6px 6px;
+  background: var(--pcolor, var(--rose));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.passenger .person .leg {
+  position: absolute;
+  bottom: 0;
+  width: 4px;
+  height: 7px;
+  border-radius: 2px;
+  background: #2a1a20;
+}
+
+.passenger .person .leg.l { left: 8px; }
+.passenger .person .leg.r { right: 8px; }
 
 .passenger.more {
   min-width: 48px;
@@ -1056,24 +1088,21 @@ button {
   margin-top: 2px;
 }
 
-.passenger.ready .picon {
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.35), 0 6px 14px rgba(0, 0, 0, 0.28);
-}
-
-.passenger.next .picon,
-.passenger.ready.next .picon {
-  box-shadow: 0 0 0 3px rgba(255, 107, 138, 0.35), 0 8px 18px rgba(255, 107, 138, 0.35);
+.passenger.next {
   animation: pulse-soft 1.4s ease-in-out infinite;
+  border-color: var(--pring, var(--pcolor));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--pcolor) 40%, transparent);
 }
 
 .passenger .pname {
   display: block;
-  max-width: 64px;
+  max-width: 72px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   margin: 0 auto;
-  color: rgba(255, 246, 242, 0.88);
+  color: rgba(255, 246, 242, 0.92);
+  font-weight: 700;
 }
 
 .bays {
