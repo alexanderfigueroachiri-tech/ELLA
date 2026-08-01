@@ -722,16 +722,64 @@
     }
   });
 
-  /* ---------- Level 3 ---------- */
+  /* ---------- Level 3: casa → revelación del oso ---------- */
+  let cozyRevealed = false;
+
+  function resetCozyScene() {
+    cozyRevealed = false;
+    const title = document.getElementById('cozy-title');
+    const text = document.getElementById('cozy-text');
+    const photo = document.getElementById('cozy-photo');
+    const hint = document.getElementById('cozy-hint');
+    const btn = document.getElementById('cozy-next');
+    const eyebrow = document.getElementById('cozy-eyebrow');
+    if (eyebrow) eyebrow.textContent = 'Cuando no hay prisa';
+    if (title) title.textContent = 'El sofá y la tele';
+    if (text) {
+      text.textContent =
+        'Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida. Y aunque no me gustaba al principio, me llegó a caer bien este personaje…';
+    }
+    if (photo) {
+      photo.src = 'assets/sala.jpg';
+      photo.alt = 'Nuestra sala';
+    }
+    if (hint) hint.hidden = false;
+    if (btn) btn.textContent = '¿Quién es?';
+  }
+
   function startCozy() {
+    resetCozyScene();
     showScreen('cozy');
   }
 
   document.getElementById('cozy-next').addEventListener('click', () => {
+    if (!cozyRevealed) {
+      cozyRevealed = true;
+      const title = document.getElementById('cozy-title');
+      const text = document.getElementById('cozy-text');
+      const photo = document.getElementById('cozy-photo');
+      const hint = document.getElementById('cozy-hint');
+      const btn = document.getElementById('cozy-next');
+      const eyebrow = document.getElementById('cozy-eyebrow');
+      if (eyebrow) eyebrow.textContent = 'Te presento a…';
+      if (title) title.textContent = 'El oso mañoso';
+      if (text) {
+        text.textContent =
+          'Él cuida el cuarto cuando yo no puedo. Al principio no me caía… y mira. Ahora sí.';
+      }
+      if (photo) {
+        photo.src = 'assets/oso-manoso.jpg';
+        photo.alt = 'El oso mañoso';
+      }
+      if (hint) hint.hidden = true;
+      if (btn) btn.textContent = 'Seguir';
+      sfx.unlock();
+      return;
+    }
     completeLevel(3, {
       photo: 'assets/oso-manoso.jpg',
       title: 'El oso mañoso',
-      text: 'Él se queda cuidando el cuarto. Yo, aunque esté lejos, sigo queriendo abrazarte y olerte como siempre.',
+      text: 'Él se queda cuidando el cuarto. Yo, aunque esté lejos, sigo queriendo abrazarte, besarte y sentirte como siempre.',
     });
   });
 
@@ -1030,13 +1078,13 @@
   };
 
   const TEQUY_LINES = {
-    splash: '¡Hola! Soy Tequy. Toca Empezar y te guío en el caminito 🧀',
+    splash: '¡Hola! Soy Tequeño. Toca Empezar y te guío en el caminito 🧀',
     map: 'Elige una parada. Si te trabas, dame un toque y te tiro una pista.',
     intro: 'Ese “No” es un cobarde… ¡persíguelo! O mejor: di que sí.',
     jam: 'Mira el color de la fila. Los buses largos (3–4) se llevan más gente. ¡Yo confío en ti!',
     jamSoft: 'Uy, plazas llenas. Saca el color que pide la fila… o usa un Soplo de Ale.',
     jamWin: '¡Siiii! Lo lograste. Te mereces un abrazo… y un tequeño extra.',
-    cozy: 'Modo soft activado. El oso mañoso y yo cuidamos el ambiente.',
+    cozy: 'Modo soft. Hay alguien cuidando el rinconcito… pero aún no te lo presento 👀',
     finale: 'Lee con calma. Y si tocas una foto… pasa algo gracioso. Yo aviso.',
     photo: '¡Click! Me encantan esas fotos. Zoom con estilo, ¿viste?',
   };
@@ -1092,7 +1140,11 @@
       return;
     }
     if (screens.cozy.classList.contains('active')) {
-      tequySay('cozy', 'talk');
+      if (cozyRevealed) {
+        tequySay('¡Ahí está! El personaje misterioso del sofá. Al final sí cayó bien 🐻', 'happy');
+      } else {
+        tequySay('cozy', 'talk');
+      }
       return;
     }
     if (screens.intro.classList.contains('active')) {

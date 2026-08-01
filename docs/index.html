@@ -67,7 +67,7 @@
 
           <h3>3. Asistencia técnica</h3>
           <p>
-            Se incluye un “ayudín” (en adelante, Tequy) para casos de atasco.
+            Se incluye un “ayudín” (en adelante, Tequeño) para casos de atasco.
             El proveedor confía en que la usuaria igual la hace.
           </p>
 
@@ -133,8 +133,8 @@
       <button class="level-card" data-level="3" type="button">
         <div class="level-num">3</div>
         <div>
-          <h3>Casa / oso mañoso</h3>
-          <p>El rinconcito soft. Sin prisa.</p>
+          <h3>Casa</h3>
+          <p>El sofá, la tele… y alguien más cuidando el cuarto.</p>
         </div>
         <div class="level-status">🔒</div>
       </button>
@@ -219,16 +219,17 @@
       <span style="width:42px"></span>
     </div>
     <div class="center-scene">
-      <p class="eyebrow">Cuando no hay prisa</p>
-      <h2 class="brand">El sofá, la tele… y el oso mañoso</h2>
-      <p class="sub">
-        Me gusta abrazarte. Me gusta olerte.
-        Y me gusta que exista ese osito cuidando el cuarto cuando yo no puedo.
+      <p class="eyebrow" id="cozy-eyebrow">Cuando no hay prisa</p>
+      <h2 class="brand" id="cozy-title">El sofá y la tele</h2>
+      <p class="sub" id="cozy-text">
+        Me gusta abrazarte, besarte, sentirte, respirarte y me gusta que existas en mi vida.
+        Y aunque no me gustaba al principio, me llegó a caer bien este personaje…
       </p>
-      <div class="photo-frame">
-        <img src="assets/sala.jpg" alt="Nuestra sala" />
+      <div class="photo-frame" id="cozy-frame">
+        <img id="cozy-photo" src="assets/sala.jpg" alt="Nuestra sala" />
       </div>
-      <button id="cozy-next" class="btn" type="button">Seguir</button>
+      <p class="hint" id="cozy-hint">Pista: alguien peludito cuida el rinconcito cuando yo no puedo.</p>
+      <button id="cozy-next" class="btn" type="button">¿Quién es?</button>
     </div>
   </section>
 
@@ -288,12 +289,12 @@
         </article>
 
         <article class="comic-beat side-center">
-          <button type="button" class="comic-panel comic-wide photo-thumb" data-photo="assets/caricaturas/abrazo.png" data-caption="Un abrazo Tequy">
-            <img src="assets/caricaturas/abrazo.png" alt="Un abrazo Tequy" />
+          <button type="button" class="comic-panel comic-wide photo-thumb" data-photo="assets/caricaturas/abrazo.png" data-caption="Un abrazo Tequeño">
+            <img src="assets/caricaturas/abrazo.png" alt="Un abrazo Tequeño" />
           </button>
           <div class="comic-copy">
             <h3>Porque me importas demasiado</h3>
-            <p>De la manera que sea… aquí estoy. Un abrazo Tequy, mientras llega el de verdad.</p>
+            <p>De la manera que sea… aquí estoy. Un abrazo Tequeño, mientras llega el de verdad.</p>
           </div>
         </article>
       </div>
@@ -397,15 +398,15 @@
     </div>
   </div>
 
-  <!-- TEQUY assistant -->
+  <!-- TEQUEÑO assistant -->
   <div id="tequy" class="tequy" aria-live="polite">
     <div class="tequy-bubble" id="tequy-bubble" hidden>
       <p id="tequy-text"></p>
-      <button type="button" class="tequy-dismiss" id="tequy-dismiss">ok Tequy</button>
+      <button type="button" class="tequy-dismiss" id="tequy-dismiss">ok Tequeño</button>
     </div>
-    <button type="button" class="tequy-btn" id="tequy-btn" aria-label="Hablar con Tequy">
-      <img id="tequy-img" src="assets/tequy/idle.png" alt="Tequy, el tequeño guía" />
-      <span class="tequy-tag">Tequy</span>
+    <button type="button" class="tequy-btn" id="tequy-btn" aria-label="Hablar con Tequeño">
+      <img id="tequy-img" src="assets/tequy/idle.png" alt="Tequeño, el guía animado" />
+      <span class="tequy-tag">Tequeño</span>
     </button>
   </div>
 
