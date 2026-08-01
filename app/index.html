@@ -39,7 +39,7 @@
     </div>
     <p class="eyebrow">Para Noelia</p>
     <h1 class="brand">Tu mapa</h1>
-    <p class="sub">Cuatro paradas. Cada una desbloquea un pedacito de nosotros.</p>
+    <p class="sub">Cinco paradas. Cada una desbloquea un pedacito de nosotros.</p>
 
     <div class="map-path">
       <button class="level-card" data-level="1" type="button">
@@ -74,6 +74,16 @@
 
       <button class="level-card" data-level="4" type="button">
         <div class="level-num">4</div>
+        <div>
+          <h3>Un abrazo Tequy</h3>
+          <p>Nosotros en caricatura. Un dibujito solo para ti.</p>
+        </div>
+        <div class="level-status">🔒</div>
+      </button>
+      <div class="connector"></div>
+
+      <button class="level-card" data-level="5" type="button">
+        <div class="level-num">5</div>
         <div>
           <h3>La carta</h3>
           <p>Audio de Ale, fotos, y espacio para un video.</p>
@@ -154,11 +164,32 @@
     </div>
   </section>
 
-  <!-- LEVEL 4 -->
-  <section id="finale-screen" class="screen" aria-label="Nivel 4">
+  <!-- LEVEL 4: caricaturas -->
+  <section id="cartoon-screen" class="screen" aria-label="Nivel 4">
+    <div class="topbar">
+      <button id="cartoon-back" class="icon-btn" type="button" aria-label="Volver">←</button>
+      <div class="hud-title">Nivel 4 · Un abrazo Tequy</div>
+      <span style="width:42px"></span>
+    </div>
+    <div class="center-scene">
+      <p class="eyebrow">Nosotros, en dibujito</p>
+      <h2 class="brand" style="font-size:clamp(1.6rem,6vw,2.2rem);">¡Un abrazo Tequy!</h2>
+      <p class="sub">No hace falta explicación. Solo míranos un ratito así.</p>
+      <button type="button" class="photo-thumb cartoon-hero" data-photo="assets/caricaturas/abrazo.png" data-caption="Un abrazo Tequy">
+        <img src="assets/caricaturas/abrazo.png" alt="Caricatura abrazo" />
+      </button>
+      <button type="button" class="photo-thumb cartoon-sheet" data-photo="assets/caricaturas/poses.png" data-caption="Nuestras caras Tequy">
+        <img src="assets/caricaturas/poses.png" alt="Caricaturas en poses" />
+      </button>
+      <button id="cartoon-next" class="btn" type="button">Seguir a la carta</button>
+    </div>
+  </section>
+
+  <!-- LEVEL 5 -->
+  <section id="finale-screen" class="screen" aria-label="Nivel 5">
     <div class="topbar">
       <button id="finale-back" class="icon-btn" type="button" aria-label="Volver">←</button>
-      <div class="hud-title">Nivel 4 · La carta</div>
+      <div class="hud-title">Nivel 5 · La carta</div>
       <span style="width:42px"></span>
     </div>
 

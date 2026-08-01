@@ -19,7 +19,7 @@
     brown: 'Paco Yonque',
   };
 
-  const STORAGE_KEY = 'ella-camino-v3';
+  const STORAGE_KEY = 'ella-camino-v4';
   const sfx = window.EllaSFX || {
     unlock() {},
     toggle() { return false; },
@@ -62,6 +62,7 @@
     intro: document.getElementById('intro-screen'),
     jam: document.getElementById('jam-screen'),
     cozy: document.getElementById('cozy-screen'),
+    cartoon: document.getElementById('cartoon-screen'),
     finale: document.getElementById('finale-screen'),
   };
 
@@ -69,10 +70,9 @@
   const toastEl = document.getElementById('toast');
 
   function showScreen(name) {
-    Object.values(screens).forEach((el) => el.classList.remove('active'));
+    Object.values(screens).forEach((el) => el?.classList.remove('active'));
     screens[name].classList.add('active');
-    // Tequy comenta el tramo (si ya cargó el helper)
-    if (typeof tequyForScreen === 'function') tequyForScreen(name);
+    if (typeof tequyOnScreen === 'function') tequyOnScreen(name);
   }
 
   function toast(msg) {
@@ -736,11 +736,26 @@
 
   document.getElementById('cozy-back').addEventListener('click', () => showScreen('map'));
 
-  /* ---------- Level 4 ---------- */
+  /* ---------- Level 4: caricaturas ---------- */
+  function startCartoon() {
+    showScreen('cartoon');
+  }
+
+  document.getElementById('cartoon-back').addEventListener('click', () => showScreen('map'));
+
+  document.getElementById('cartoon-next').addEventListener('click', () => {
+    completeLevel(4, {
+      photo: 'assets/caricaturas/abrazo.png',
+      title: 'Un abrazo Tequy',
+      text: 'Aunque sea en dibujito, aquí estoy abrazándote. Gracias por ser mi favorita en cualquier estilo.',
+    });
+  });
+
+  /* ---------- Level 5 ---------- */
   function startFinale() {
     showScreen('finale');
-    state.done[4] = true;
-    state.unlocked = Math.max(state.unlocked, 4);
+    state.done[5] = true;
+    state.unlocked = Math.max(state.unlocked, 5);
     saveProgress();
     renderMap();
   }
@@ -769,8 +784,8 @@
   // TODO(QUITAR ANTES DEL REGALO): Trampa — desbloquea todos los niveles en pruebas.
   // Recuérdale a Ale: borrar #trampa-btn + este handler antes de mandárselo al amor de su vida.
   document.getElementById('trampa-btn')?.addEventListener('click', () => {
-    state.unlocked = 4;
-    [1, 2, 3, 4].forEach((n) => {
+    state.unlocked = 5;
+    [1, 2, 3, 4, 5].forEach((n) => {
       state.done[n] = state.done[n] || false;
     });
     saveProgress();
@@ -788,7 +803,8 @@
       if (n === 1) startIntro();
       else if (n === 2) startJam(2);
       else if (n === 3) startCozy();
-      else if (n === 4) startFinale();
+      else if (n === 4) startCartoon();
+      else if (n === 5) startFinale();
     });
   });
 
@@ -824,7 +840,9 @@
     liteImg.alt = caption || '';
     liteCap.textContent = caption || '';
     sfx.unlock();
-    if (typeof tequySay === 'function') tequySay('photo', 'jump');
+    // Tequy se esconde: la foto es la protagonista
+    tequyRoot?.classList.add('is-hidden');
+    tequyHideBubble();
     await playComic();
     lite.classList.add('open');
   }
@@ -835,6 +853,10 @@
     setTimeout(() => {
       lite.hidden = true;
       liteImg.src = '';
+      // Restaurar Tequy solo si no estamos en portada/carta
+      const onSplash = screens.splash.classList.contains('active');
+      const onFinale = screens.finale.classList.contains('active');
+      tequyRoot?.classList.toggle('is-hidden', onSplash || onFinale);
     }, 200);
   }
 
@@ -892,6 +914,9 @@
   }
 
   function tequySay(keyOrText, pose = 'talk') {
+    // Nunca tapa portada ni lightbox de fotos
+    if (screens.splash.classList.contains('active')) return;
+    if (lite && !lite.hidden) return;
     if (!tequyBubble || !tequyText) return;
     const text = TEQUY_LINES[keyOrText] || keyOrText;
     tequyText.textContent = text;
@@ -905,27 +930,27 @@
     setTequyPose('idle');
   }
 
-  function tequyForScreen(name) {
-    const map = {
-      splash: ['splash', 'idle'],
-      map: ['map', 'idle'],
-      intro: ['intro', 'talk'],
-      jam: ['jam', 'talk'],
-      cozy: ['cozy', 'talk'],
-      finale: ['finale', 'talk'],
-    };
-    const line = map[name];
-    if (line) tequySay(line[0], line[1]);
+  /** Visibilidad: portada = ella sola. Tequy solo como ayuda bajo demanda. */
+  function tequyOnScreen(name) {
+    if (!tequyRoot) return;
+    const hide = name === 'splash' || name === 'finale';
+    tequyRoot.classList.toggle('is-hidden', hide);
+    tequyHideBubble();
+    if (!hide) setTequyPose(name === 'jam' ? 'talk' : 'idle');
   }
 
   document.getElementById('tequy-btn')?.addEventListener('click', () => {
+    if (tequyBubble && !tequyBubble.hidden) {
+      tequyHideBubble();
+      return;
+    }
     if (screens.jam.classList.contains('active')) {
       if (isSoftlocked()) tequySay('jamSoft', 'kick');
       else tequySay('jam', 'talk');
       return;
     }
-    if (screens.finale.classList.contains('active')) {
-      tequySay('finale', 'talk');
+    if (screens.cartoon?.classList.contains('active')) {
+      tequySay('Míralos… ¡somos nosotros pero más Tequy!', 'happy');
       return;
     }
     if (screens.cozy.classList.contains('active')) {
@@ -940,13 +965,12 @@
       tequySay('map', 'idle');
       return;
     }
-    tequySay('splash', 'idle');
   });
 
   document.getElementById('tequy-dismiss')?.addEventListener('click', tequyHideBubble);
 
-  // greet on load
-  setTimeout(() => tequySay('splash', 'idle'), 500);
+  // Portada limpia: sin Tequy al inicio
+  tequyOnScreen('splash');
 
   loadProgress();
   renderMap();
