@@ -313,64 +313,85 @@ button {
 
 .passenger {
   flex: 0 0 auto;
-  min-width: 68px;
-  padding: 6px 8px 8px;
+  min-width: 56px;
+  padding: 5px 6px 6px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.07);
   border: 2px solid transparent;
   text-align: center;
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 600;
-  line-height: 1.2;
+  line-height: 1.15;
   position: relative;
 }
 
 .passenger.more {
-  min-width: 54px;
+  min-width: 48px;
   color: var(--muted);
   display: grid;
   place-items: center;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
 }
 
 .passenger.more span {
   display: block;
-  font-size: 0.62rem;
+  font-size: 0.58rem;
   margin-top: 2px;
 }
 
 .passenger.next {
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 0 18px rgba(255, 107, 138, 0.25);
   animation: pulse-soft 1.4s ease-in-out infinite;
+  background: rgba(255, 107, 138, 0.12);
 }
 
 .passenger .person {
-  width: 26px;
-  height: 26px;
-  margin: 0 auto 4px;
+  width: 22px;
+  height: 30px;
+  margin: 0 auto 2px;
   position: relative;
 }
 
-.passenger .person::before {
-  content: '';
+.passenger .person .head {
   position: absolute;
-  left: 7px;
+  left: 5px;
   top: 1px;
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: #ffe8de;
+  background: #ffe0d4;
+  box-shadow: inset 0 -1px 0 rgba(0,0,0,0.08);
 }
 
-.passenger .person::after {
-  content: '';
+.passenger .person .body {
   position: absolute;
-  left: 4px;
+  left: 3px;
   top: 13px;
-  width: 18px;
-  height: 13px;
-  border-radius: 8px 8px 6px 6px;
+  width: 16px;
+  height: 12px;
+  border-radius: 7px 7px 5px 5px;
   background: var(--pcolor, var(--rose));
+}
+
+.passenger .person .leg {
+  position: absolute;
+  bottom: 0;
+  width: 3px;
+  height: 6px;
+  border-radius: 2px;
+  background: #3a2a30;
+}
+
+.passenger .person .leg.l { left: 6px; }
+.passenger .person .leg.r { right: 6px; }
+
+.passenger .pname {
+  display: block;
+  max-width: 64px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0 auto;
 }
 
 .bays {
@@ -417,11 +438,16 @@ button {
 .lot {
   position: relative;
   flex: 1 1 auto;
-  min-height: 220px;
-  max-height: min(52dvh, 520px);
+  min-height: 240px;
+  max-height: min(56dvh, 560px);
   border-radius: 22px;
   background:
     radial-gradient(circle at 50% 0%, rgba(255, 200, 87, 0.12), transparent 45%),
+    repeating-linear-gradient(
+      0deg,
+      transparent 0 27px,
+      rgba(255,255,255,0.015) 27px 28px
+    ),
     linear-gradient(180deg, #3a3140, #241c28);
   border: 1px solid var(--stroke);
   overflow: hidden;
@@ -477,32 +503,50 @@ button {
   pointer-events: none;
 }
 
-.bus-window {
+.bus-windows {
   position: absolute;
-  background: rgba(255, 255, 255, 0.28);
-  border-radius: 4px;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 18% 14%;
   pointer-events: none;
 }
 
-.bus-right .bus-window,
-.bus-left .bus-window {
-  top: 18%;
-  height: 38%;
-  width: 22%;
+.bus-up .bus-windows,
+.bus-down .bus-windows {
+  flex-direction: column;
+  padding: 14% 18%;
 }
 
-.bus-right .bus-window { right: 10%; }
-.bus-left .bus-window { left: 10%; }
+.bus-window {
+  flex: 1;
+  align-self: stretch;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.15);
+  max-width: 34%;
+  max-height: 42%;
+}
 
 .bus-up .bus-window,
 .bus-down .bus-window {
-  left: 18%;
-  width: 38%;
-  height: 22%;
+  max-width: 42%;
+  max-height: 28%;
+  width: 42%;
 }
 
-.bus-up .bus-window { top: 10%; }
-.bus-down .bus-window { bottom: 10%; }
+.bus-nose {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.14);
+  pointer-events: none;
+}
+
+.bus-right .bus-nose { right: 0; top: 20%; bottom: 20%; width: 5px; border-radius: 0 8px 8px 0; }
+.bus-left .bus-nose { left: 0; top: 20%; bottom: 20%; width: 5px; border-radius: 8px 0 0 8px; }
+.bus-up .bus-nose { top: 0; left: 20%; right: 20%; height: 5px; border-radius: 8px 8px 0 0; }
+.bus-down .bus-nose { bottom: 0; left: 20%; right: 20%; height: 5px; border-radius: 0 0 8px 8px; }
 
 .bus-arrow {
   position: absolute;

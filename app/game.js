@@ -187,30 +187,44 @@
   const JAM_LEVELS = {
     2: {
       title: 'Atasco de cariño',
-      hint: 'Toca un bus. Si choca, vuelve. Si sale al andén, sube su color de la fila. Los largos llevan más gente.',
-      cols: 5,
-      rows: 6,
+      hint: 'Toca un bus. Si choca, vuelve. Si llega a una plaza, sube su color de la fila. Los largos llevan más gente.',
+      cols: 6,
+      rows: 7,
       bayLimit: 4,
       blows: 1,
       queue: [
         'rose', 'rose', 'gold', 'sky', 'mint',
         'rose', 'gold', 'sky', 'lilac', 'coral',
         'mint', 'brown', 'sky', 'rose', 'gold',
+        'mint', 'sky', 'rose', 'gold', 'coral',
+        'lilac', 'brown', 'rose', 'sky', 'mint', 'gold',
       ],
       vehicles: [
         { id: 'a', r: 0, c: 1, dir: 'right', len: 2, color: 'rose' },
         { id: 'b', r: 0, c: 3, dir: 'down', len: 1, color: 'gold' },
-        { id: 'c', r: 1, c: 4, dir: 'down', len: 2, color: 'sky' },
+        { id: 'c', r: 1, c: 5, dir: 'down', len: 2, color: 'sky' },
         { id: 'd', r: 1, c: 2, dir: 'left', len: 1, color: 'coral' },
-        { id: 'e', r: 2, c: 0, dir: 'right', len: 1, color: 'lilac' },
-        { id: 'f', r: 2, c: 3, dir: 'left', len: 2, color: 'mint' },
-        { id: 'g', r: 3, c: 1, dir: 'up', len: 1, color: 'rose' },
-        { id: 'h', r: 3, c: 4, dir: 'left', len: 1, color: 'brown' },
-        { id: 'i', r: 4, c: 0, dir: 'up', len: 1, color: 'sky' },
-        { id: 'j', r: 4, c: 3, dir: 'right', len: 2, color: 'gold' },
-        { id: 'k', r: 5, c: 2, dir: 'right', len: 2, color: 'rose' },
-        { id: 'l', r: 4, c: 4, dir: 'up', len: 2, color: 'mint' },
-        { id: 'm', r: 5, c: 0, dir: 'up', len: 1, color: 'sky' },
+        { id: 'e', r: 1, c: 3, dir: 'right', len: 1, color: 'lilac' },
+        { id: 'f', r: 2, c: 1, dir: 'right', len: 2, color: 'mint' },
+        { id: 'g', r: 2, c: 3, dir: 'down', len: 1, color: 'brown' },
+        { id: 'h', r: 2, c: 4, dir: 'left', len: 2, color: 'rose' },
+        { id: 'i', r: 3, c: 0, dir: 'up', len: 1, color: 'sky' },
+        { id: 'j', r: 3, c: 2, dir: 'right', len: 2, color: 'gold' },
+        { id: 'k', r: 3, c: 5, dir: 'down', len: 1, color: 'mint' },
+        { id: 'l', r: 4, c: 0, dir: 'up', len: 2, color: 'sky' },
+        { id: 'm', r: 4, c: 2, dir: 'left', len: 1, color: 'coral' },
+        { id: 'n', r: 4, c: 4, dir: 'right', len: 2, color: 'rose' },
+        { id: 'o', r: 5, c: 1, dir: 'right', len: 1, color: 'lilac' },
+        { id: 'p', r: 5, c: 2, dir: 'up', len: 1, color: 'gold' },
+        { id: 'q', r: 5, c: 4, dir: 'down', len: 1, color: 'mint' },
+        { id: 'r', r: 5, c: 5, dir: 'left', len: 1, color: 'brown' },
+        { id: 's', r: 6, c: 1, dir: 'right', len: 2, color: 'sky' },
+        { id: 't', r: 6, c: 4, dir: 'right', len: 2, color: 'rose' },
+        { id: 'u', r: 6, c: 5, dir: 'up', len: 1, color: 'gold' },
+        { id: 'v', r: 3, c: 4, dir: 'up', len: 1, color: 'coral' },
+        { id: 'w', r: 4, c: 5, dir: 'up', len: 1, color: 'lilac' },
+        { id: 'x', r: 1, c: 0, dir: 'down', len: 1, color: 'mint' },
+        { id: 'y', r: 1, c: 4, dir: 'left', len: 1, color: 'gold' },
       ],
       winMemory: {
         photo: 'assets/cita-mesa.jpg',
@@ -294,9 +308,10 @@
     const lot = document.getElementById('lot');
     const w = lot.clientWidth;
     const h = lot.clientHeight;
+    jam.gap = Math.max(3, Math.min(5, Math.floor(Math.min(w, h) / 90)));
     const cellW = (w - jam.gap * (jam.cols + 1)) / jam.cols;
     const cellH = (h - jam.gap * (jam.rows + 1)) / jam.rows;
-    jam.cell = Math.max(36, Math.floor(Math.min(cellW, cellH)));
+    jam.cell = Math.max(26, Math.floor(Math.min(cellW, cellH)));
     jam.stride = jam.cell + jam.gap;
     const gridW = jam.cell * jam.cols + jam.gap * (jam.cols + 1);
     const gridH = jam.cell * jam.rows + jam.gap * (jam.rows + 1);
@@ -372,14 +387,12 @@
   }
 
   function isSoftlocked() {
+    // Solo pierdes si las 4 plazas están ocupadas Y ninguna puede subir
+    // a la persona del frente. Plazas libres = sigues jugando.
     if (!jam.queue.length || jam.busy || jam.won) return false;
+    if (jam.bays.length < jam.bayLimit) return false;
     const need = jam.queue[0];
-    const bayCanTake = jam.bays.some(
-      (b) => b.color === need && b.boarded < b.cap
-    );
-    if (bayCanTake) return false;
-    if (jam.bays.length >= jam.bayLimit) return true;
-    return !jam.vehicles.some((v) => probePath(v).canExit);
+    return !jam.bays.some((b) => b.color === need && b.boarded < b.cap);
   }
 
   function drawLotDecor(lot) {
@@ -437,21 +450,26 @@
     if (remaining) remaining.textContent = `${jam.queue.length} en fila`;
 
     const queueTrack = document.getElementById('queue-track');
-    const visible = jam.queue.slice(0, 10);
+    const visible = jam.queue.slice(0, 14);
     const hidden = Math.max(0, jam.queue.length - visible.length);
     queueTrack.innerHTML =
-      (hidden
-        ? `<div class="passenger more">+${hidden}<span>más allá</span></div>`
-        : '') +
       visible
         .map(
           (color, i) => `
         <div class="passenger ${i === 0 ? 'next' : ''}" style="border-color:${i === 0 ? COLORS[color] : 'transparent'}; --pcolor:${COLORS[color]}">
-          <div class="person"></div>
-          ${PASSENGER_LABELS[color] || color}
+          <div class="person" aria-hidden="true">
+            <span class="head"></span>
+            <span class="body"></span>
+            <span class="leg l"></span>
+            <span class="leg r"></span>
+          </div>
+          <span class="pname">${PASSENGER_LABELS[color] || color}</span>
         </div>`
         )
-        .join('');
+        .join('') +
+      (hidden
+        ? `<div class="passenger more">+${hidden}<span>más allá →</span></div>`
+        : '');
 
     const baysEl = document.getElementById('bays');
     baysEl.style.gridTemplateColumns = `repeat(${jam.bayLimit}, 1fr)`;
@@ -470,7 +488,7 @@
           <div class="bay-seats">${'●'.repeat(b.boarded)}${'○'.repeat(b.cap - b.boarded)}</div>
         `;
       } else {
-        bay.innerHTML = '<span class="bay-empty">andén</span>';
+        bay.innerHTML = '<span class="bay-empty">plaza</span>';
       }
       baysEl.appendChild(bay);
     }
@@ -491,9 +509,11 @@
       btn.style.height = `${box.height}px`;
       btn.style.background = `linear-gradient(145deg, ${COLORS[v.color]}, ${COLORS[v.color]}b8)`;
       btn.title = `${PASSENGER_LABELS[v.color]} · ${v.len} asiento${v.len > 1 ? 's' : ''}`;
+      const windows = Array.from({ length: Math.min(v.len, 3) }, () => '<span class="bus-window"></span>').join('');
       btn.innerHTML = `
         <span class="bus-shine"></span>
-        <span class="bus-window"></span>
+        <span class="bus-windows">${windows}</span>
+        <span class="bus-nose"></span>
         <span class="bus-arrow">${ARROWS[v.dir]}</span>
         <span class="bus-cap">${v.len}</span>
         <span class="bus-wheel w1"></span>
@@ -549,7 +569,7 @@
     const start = busBox(v);
 
     if (path.canExit && jam.bays.length >= jam.bayLimit) {
-      toast('Andenes llenos — usa un soplo o reinicia');
+      toast('Plazas llenas — usa un soplo o reinicia');
       sfx.bump();
       return;
     }
@@ -602,7 +622,7 @@
   document.getElementById('jam-blow')?.addEventListener('click', () => {
     if (jam.blows <= 0 || jam.busy) return;
     if (!jam.bays.length) {
-      toast('No hay buses en el andén');
+      toast('No hay buses en las plazas');
       return;
     }
     // Quita el que NO puede subir ahora (si todos pueden, el más vacío)
