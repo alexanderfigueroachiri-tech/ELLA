@@ -250,7 +250,7 @@
       winMemory: {
         photo: 'assets/cita-mesa.jpg',
         title: 'Esa mesa, nosotros',
-        text: 'Carne, risas, corazones en la pared… y tú haciendo carita. Me gusta recordarnos así.',
+        text: 'Pizza, risas, un guapetón caballero, corazones en la pared… y tú, la más hermosa sonriendo. Momentos así le dan sentido a mi vida, contigo ahí. Espero aportarte la misma felicidad o más de la que tú me aportas a mí.',
       },
     },
   };
