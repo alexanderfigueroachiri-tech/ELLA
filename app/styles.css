@@ -214,6 +214,25 @@ button {
   font-size: 0.9rem;
 }
 
+.trampo-btn {
+  position: fixed;
+  right: 12px;
+  bottom: calc(12px + var(--safe-bottom));
+  z-index: 30;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px dashed rgba(255, 200, 87, 0.55);
+  background: rgba(20, 12, 14, 0.75);
+  color: var(--gold);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.55;
+}
+
+.trampo-btn:active { opacity: 1; }
+
 /* Game chrome */
 .topbar {
   display: flex;

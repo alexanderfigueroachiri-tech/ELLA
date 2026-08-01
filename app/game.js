@@ -139,7 +139,7 @@
     completeLevel(1, {
       photo: 'assets/nosotros.jpg',
       title: 'Para ti, tequeña',
-      text: 'No se me olvidó tu día. Aunque estemos lejos, quise dejarte algo hecho a mano: un caminito solo tuyo.',
+      text: 'No se me olvidó tu día, amor de mi vida. Aunque estemos lejos, quise dejarte algo hecho a mano: un caminito solo tuyo.',
     });
   });
 
@@ -687,6 +687,18 @@
   });
 
   document.getElementById('map-back').addEventListener('click', () => showScreen('splash'));
+
+  // TODO(QUITAR ANTES DEL REGALO): Trampo — desbloquea todos los niveles en pruebas.
+  // Recuérdale a Ale: borrar #trampo-btn + este handler antes de mandárselo al amor de su vida.
+  document.getElementById('trampo-btn')?.addEventListener('click', () => {
+    state.unlocked = 4;
+    [1, 2, 3, 4].forEach((n) => {
+      state.done[n] = state.done[n] || false;
+    });
+    saveProgress();
+    renderMap();
+    toast('Trampo ON · todos los niveles abiertos');
+  });
 
   document.querySelectorAll('.level-card').forEach((card) => {
     card.addEventListener('click', () => {
